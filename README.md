@@ -1,0 +1,1 @@
+Repository for the Investment Fund DAO - DApp and smart contracts
