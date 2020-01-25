@@ -26,12 +26,6 @@ interface IInvestmentFundDao {
     function submitDivestErc20Proposal(address tokenAddress, uint256 tokenAmount, uint256 AmifAmount) external;
 
     /**
-    * @notice Submit a proposal to withdraw ACIF tokens (external)
-    * @param amount The amount of ACIF tokens to withdraw
-    */
-    function submitWithdrawAcifProposal(uint256 amount) external;
-
-    /**
     * @notice Vote on a proposal to invest in an ERC20 token (external)
     * @param proposalId The proposal ID
     * @param vote The yes/no vote
@@ -46,13 +40,6 @@ interface IInvestmentFundDao {
     function voteOnDivestErc20Proposal(uint256 proposalId, bool vote) external;
 
     /**
-    * @notice Vote on a proposal to withdraw ACIF tokens (external)
-    * @param proposalId The proposal ID
-    * @param vote The yes/no vote
-    */
-    function voteOnWithdrawAcifProposal(uint256 proposalId, bool vote) external;
-
-    /**
     * @notice Execute a proposal to invest in an ERC20 token (external)
     * @param proposalId The proposal ID
     */
@@ -65,12 +52,6 @@ interface IInvestmentFundDao {
     function executeDivestErc20Proposal(uint256 proposalId) external;
 
     /**
-    * @notice Execute a proposal to withdraw ACIF tokens (external)
-    * @param proposalId The proposal ID
-    */
-    function executeWithdrawAcifProposal(uint256 proposalId) external;
-
-    /**
      * @notice Event emitted when a proposal to invest in an ERC20 token is submitted
      */
     event InvestErc20ProposalSubmitted(Types.Erc20Proposal erc20Proposal);
@@ -79,11 +60,6 @@ interface IInvestmentFundDao {
      * @notice Event emitted when a proposal to divest an ERC20 token is submitted
      */
     event DivestErc20ProposalSubmitted(Types.Erc20Proposal erc20Proposal);
-
-    /**
-     * @notice Event emitted when a proposal to withdraw ACIF tokens is submitted
-     */
-    event WithdrawAcifProposalSubmitted(uint256 amount);
 
     /**
      * @notice Event emitted when a proposal to invest in an ERC20 token is voted on
@@ -96,11 +72,6 @@ interface IInvestmentFundDao {
     event DivestErc20ProposalVotedOn(address voter, uint256 proposalId, bool vote);
 
     /**
-     * @notice Event emitted when a proposal to withdraw ACIF tokens is voted on
-     */
-    event WithdrawAcifProposalVotedOn(address voter, uint256 proposalId, bool vote);
-
-    /**
      * @notice Event emitted when a proposal to invest in an ERC20 token is executed
      */
     event InvestErc20ProposalExecuted(uint256 proposalId);
@@ -109,9 +80,4 @@ interface IInvestmentFundDao {
      * @notice Event emitted when a proposal to divest an ERC20 token is executed
      */
     event DivestErc20ProposalExecuted(uint256 proposalId);
-
-    /**
-     * @notice Event emitted when a proposal to withdraw ACIF tokens is executed
-     */
-    event WithdrawAcifProposalExecuted(uint256 proposalId);
 }
