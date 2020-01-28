@@ -7,9 +7,13 @@
   "main": "truffle-config.js",
   "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
   "devDependencies": {
+    "ganache-cli": "^6.8.2",
     "truffle": "^5.1.10"
   },
   "scripts": {
-    "init": "truffle init"
+    "init": "truffle init",
+    "compile": "./scripts/start-ganache.sh && truffle compile",
+    "test": "./scripts/start-ganache.sh && truffle test",
+    "clean": "rm ganache-log.txt"
   }
 }
