@@ -1,0 +1,15 @@
+{
+  "name": "investment-fund-dao",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "All Contributors (see AUTHORS.md)",
+  "main": "truffle-config.js",
+  "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
+  "devDependencies": {
+    "truffle": "^5.1.10"
+  },
+  "scripts": {
+    "init": "truffle init"
+  }
+}
