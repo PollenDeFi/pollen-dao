@@ -1,4 +1,4 @@
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity >=0.6 <0.7.0;
 
 import "./interfaces/IAudacityDAO.sol";
 
@@ -12,6 +12,8 @@ import "./interfaces/IAudacityDAO.sol";
 * @author scorpion9979
 */
 contract AudacityDAO is IAudacityDAO {
+    enum ProposalStatus {Submitted, Passed, Failed, Executed, Expired}
+
     /**
      * @notice Type for representing a token proposal
      * @member proposalType The type of proposal (e.g., Invest, Divest)
@@ -41,11 +43,13 @@ contract AudacityDAO is IAudacityDAO {
 
     /**
     * @notice The proposals (public)
+    * @dev TODO - make private and add getter instead
     */
     mapping(uint256 => Proposal) public proposals;
 
     /**
     * @notice The count of proposals (public)
+    * @dev TODO - make private and add getter instead
     */
     uint256 public proposalCount;
 
@@ -87,7 +91,6 @@ contract AudacityDAO is IAudacityDAO {
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.status = ProposalStatus.Submitted;
 
-        // TODO: add proposal to array and increase count
         proposals[proposalCount] = proposal;
         proposalCount++;
 

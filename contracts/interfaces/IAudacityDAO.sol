@@ -1,4 +1,4 @@
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity >=0.6 <0.7.0;
 
 /**
 * @title IAudacityDAO Interface
@@ -10,7 +10,6 @@ pragma solidity >=0.4.21 <0.7.0;
 
 enum ProposalType {Invest, Divest}
 enum TokenType {ERC20}
-enum ProposalStatus {Submitted, Passed, Failed, Executed, Expired}
 
 interface IAudacityDAO {
     /**
