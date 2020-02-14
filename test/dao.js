@@ -1,10 +1,10 @@
-const Dao = artifacts.require('InvestmentFundDao');
+const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
 const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 contract('dao', (accounts) => {
     beforeEach(async function () {
-        this.dao = await Dao.new('0x0000000000000000000000000000000000000000');
+        this.dao = await AudacityDAO.new('0x0000000000000000000000000000000000000000');
     });
 
     it('should fail when ETH sent to the DAO', async () => {
