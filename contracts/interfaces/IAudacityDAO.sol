@@ -8,8 +8,8 @@ pragma solidity >=0.6 <0.7.0;
 * @author scorpion9979
 */
 
-enum ProposalType {Invest, Divest}
-enum TokenType {ERC20}
+enum ProposalType {Invest, Divest, Last}
+enum TokenType {ERC20, Last}
 
 interface IAudacityDAO {
     /**

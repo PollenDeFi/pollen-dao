@@ -1,6 +1,6 @@
 const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
-const { expectRevert, expectEvent, BN } = require('@openzeppelin/test-helpers');
+const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 contract('dao', function (accounts) {
     beforeEach(async function () {
@@ -8,9 +8,8 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when ETH sent to the DAO', function () {
-        expectRevert(
-            this.dao.send('1'),
-            'revert'
+        expectRevert.unspecified(
+            this.dao.send('1')
         );
     });
 
@@ -25,6 +24,20 @@ contract('dao', function (accounts) {
         expectRevert(
             this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 0, 0),
             'both token amount and DAO token amount zero'
+        );
+    });
+
+    it('should fail when submitting an invest proposal with an invalid proposal type', function () {
+        expectRevert(
+            this.dao.submit(2, 0, '0x0000000000000000000000000000000000000001', 2, 3),
+            'invalid proposal type'
+        );
+    });
+
+    it('should fail when submitting an invest proposal with an invalid token type', function () {
+        expectRevert(
+            this.dao.submit(0, 1, '0x0000000000000000000000000000000000000001', 2, 3),
+            'invalid token type'
         );
     });
 

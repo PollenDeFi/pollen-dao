@@ -12,7 +12,7 @@ import "./interfaces/IAudacityDAO.sol";
 * @author scorpion9979
 */
 contract AudacityDAO is IAudacityDAO {
-    enum ProposalStatus {Submitted, Passed, Failed, Executed, Expired}
+    enum ProposalStatus {Submitted, Passed, Failed, Executed, Expired, Last}
 
     /**
      * @notice Type for representing a token proposal
@@ -77,10 +77,12 @@ contract AudacityDAO is IAudacityDAO {
         uint256 daoTokenAmount
     ) external override {
         // TODO: implement
-        require(tokenAddress != address(0), "invalid token address");
+        require(proposalType < ProposalType.Last, "AudacityDAO: invalid proposal type");
+        require(tokenType < TokenType.Last, "AudacityDAO: invalid token type");
+        require(tokenAddress != address(0), "AudacityDAO: invalid token address");
         require(
             tokenAmount != 0 || daoTokenAmount != 0,
-            "both token amount and DAO token amount zero"
+            "AudacityDAO: both token amount and DAO token amount zero"
         );
 
         Proposal memory proposal;
