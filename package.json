@@ -16,5 +16,8 @@
     "compile": "./scripts/start-ganache.sh && truffle compile",
     "test": "./scripts/start-ganache.sh && truffle test",
     "clean": "rm ganache-log.txt"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.5.0"
   }
 }
