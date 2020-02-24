@@ -7,6 +7,7 @@
   "main": "truffle-config.js",
   "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
   "devDependencies": {
+    "@openzeppelin/contracts": "^3.0.0-beta.0",
     "@openzeppelin/test-helpers": "^0.5.4",
     "ganache-cli": "^6.8.2",
     "truffle": "^5.1.10"
@@ -15,6 +16,6 @@
     "init": "truffle init",
     "compile": "./scripts/start-ganache.sh && truffle compile",
     "test": "./scripts/start-ganache.sh && truffle test",
-    "clean": "rm ganache-log.txt"
+    "clean": "./scripts/clean.sh"
   }
 }
