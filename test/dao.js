@@ -1,10 +1,12 @@
+const AudacityToken = artifacts.require("AudacityToken");
 const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
 const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 contract('dao', function (accounts) {
     beforeEach(async function () {
-        this.dao = await AudacityDAO.new('0x0000000000000000000000000000000000000000');
+        this.daoToken = await AudacityToken.new();
+        this.dao = await AudacityDAO.new(this.daoToken.address);
     });
 
     it('should fail when ETH sent to the DAO', function () {
@@ -51,7 +53,7 @@ contract('dao', function (accounts) {
         expect(proposal.daoTokenAmount).to.bignumber.be.equal('3');
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal('0');
-        expect(proposal.status).to.be.bignumber.equal('0');
+        expect(proposal.status).to.be.bignumber.equal('1');
         expect(await this.dao.proposalCount()).to.be.bignumber.equal('1');
     });
 

@@ -1,6 +1,7 @@
 pragma solidity >=0.6 <0.7.0;
 
 import "./interfaces/IAudacityDAO.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
 * @title AudacityDAO Contract
@@ -12,7 +13,7 @@ import "./interfaces/IAudacityDAO.sol";
 * @author scorpion9979
 */
 contract AudacityDAO is IAudacityDAO {
-    enum ProposalStatus {Submitted, Passed, Failed, Executed, Expired, Last}
+    enum ProposalStatus {Null, Submitted, Passed, Failed, Executed, Expired, Last}
 
     /**
      * @notice Type for representing a token proposal
@@ -59,6 +60,8 @@ contract AudacityDAO is IAudacityDAO {
      */
     constructor(address daoTokenAddress_) public {
         daoTokenAddress = daoTokenAddress_;
+        // TODO: transfer ownership of the DAO token to the DAO itself
+        //IERC20(daoTokenAddress).transferOwnership(address(this));
     }
 
     /**
@@ -76,7 +79,6 @@ contract AudacityDAO is IAudacityDAO {
         uint256 tokenAmount,
         uint256 daoTokenAmount
     ) external override {
-        // TODO: implement
         require(proposalType < ProposalType.Last, "AudacityDAO: invalid proposal type");
         require(tokenType < TokenType.Last, "AudacityDAO: invalid token type");
         require(tokenAddress != address(0), "AudacityDAO: invalid token address");
@@ -111,8 +113,18 @@ contract AudacityDAO is IAudacityDAO {
     * @param vote The yes/no vote
     */
     function voteOn(uint256 proposalId, bool vote) external override {
-        // TODO: implement
+        // TODO: add tests
+        require(proposalId < proposalCount, "AudacityDAO: invalid proposal id");
+
         Proposal memory proposal = proposals[proposalId];
+        uint256 balance = IERC20(daoTokenAddress).balanceOf(msg.sender);
+        // TODO: very crude implementation for now, change to allow multiple votes / changing votes
+        if (vote) {
+            proposal.yesVotes += balance;
+        } else {
+            proposal.noVotes += balance;
+        }
+
         emit VotedOn(
             proposal.proposalType,
             proposal.tokenType,
