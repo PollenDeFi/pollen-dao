@@ -58,7 +58,8 @@ interface IAudacityDAO {
     event Expired(
         ProposalType proposalType,
         TokenType tokenType,
-        uint256 proposalId
+        uint256 proposalId,
+        uint256 expiryTimestamp
     );
 
     /**

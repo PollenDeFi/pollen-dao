@@ -142,7 +142,8 @@ contract AudacityDAO is IAudacityDAO {
             emit Expired(
                 proposal.proposalType,
                 proposal.tokenType,
-                proposalId
+                proposalId,
+                proposal.votingExpiry
             );
         }
     }
@@ -172,7 +173,8 @@ contract AudacityDAO is IAudacityDAO {
             emit Expired(
                 proposal.proposalType,
                 proposal.tokenType,
-                proposalId
+                proposalId,
+                proposal.executionExpiry
             );
         }
     }
