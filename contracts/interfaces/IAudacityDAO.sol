@@ -36,6 +36,12 @@ interface IAudacityDAO {
     function voteOn(uint256 proposalId, bool vote) external;
 
     /**
+    * @notice Resolve a proposal vote (external)
+    * @param proposalId The proposal ID
+    */
+    function resolveVote(uint256 proposalId) external;
+
+    /**
     * @notice Execute a proposal (external)
     * @param proposalId The proposal ID
     */
@@ -53,16 +59,6 @@ interface IAudacityDAO {
     );
 
     /**
-     * @notice Event emitted when a proposal is expired
-     */
-    event Expired(
-        ProposalType proposalType,
-        TokenType tokenType,
-        uint256 proposalId,
-        uint256 expiryTimestamp
-    );
-
-    /**
      * @notice Event emitted when a proposal is voted on
      */
     event VotedOn(
@@ -74,6 +70,26 @@ interface IAudacityDAO {
     );
 
     /**
+     * @notice Event emitted when a proposal is passed
+     */
+    event Passed(
+        ProposalType proposalType,
+        TokenType tokenType,
+        uint256 proposalId,
+        uint256 votingExpiry
+    );
+
+    /**
+     * @notice Event emitted when a proposal is failed
+     */
+    event Failed(
+        ProposalType proposalType,
+        TokenType tokenType,
+        uint256 proposalId,
+        uint256 votingExpiry
+    );
+
+    /**
      * @notice Event emitted when a proposal is executed
      */
     event Executed(
@@ -81,5 +97,15 @@ interface IAudacityDAO {
         TokenType tokenType,
         address executor,
         uint256 proposalId
+    );
+
+    /**
+     * @notice Event emitted when a proposal is expired
+     */
+    event Expired(
+        ProposalType proposalType,
+        TokenType tokenType,
+        uint256 proposalId,
+        uint256 executionExpiry
     );
 }
