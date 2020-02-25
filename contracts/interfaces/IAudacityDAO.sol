@@ -53,6 +53,16 @@ interface IAudacityDAO {
     );
 
     /**
+     * @notice Event emitted when a proposal is expired
+     */
+    event Expired(
+        ProposalType proposalType,
+        TokenType tokenType,
+        uint256 proposalId,
+        uint256 expiryTimestamp
+    );
+
+    /**
      * @notice Event emitted when a proposal is voted on
      */
     event VotedOn(
