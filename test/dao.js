@@ -47,7 +47,7 @@ contract('dao', function (accounts) {
 
     it('should create a new proposal when submitting a proposal', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
-        const proposal = await this.dao.proposals(0);
+        const proposal = await this.dao.getProposal(0);
         expect(proposal.proposalType).to.be.bignumber.equal('0');
         expect(proposal.tokenType).to.be.bignumber.equal('0');
         expect(proposal.tokenAddress).to.be.equal('0x0000000000000000000000000000000000000001');
@@ -60,7 +60,7 @@ contract('dao', function (accounts) {
         expect(proposal.votingExpiry).to.be.bignumber.equal(now.add(expiryDelay));
         expect(proposal.executionExpiry).to.be.bignumber.equal(now.add(expiryDelay).add(expiryDelay));
         expect(proposal.status).to.be.bignumber.equal('1');
-        expect(await this.dao.proposalCount()).to.be.bignumber.equal('1');
+        expect(await this.dao.getProposalCount()).to.be.bignumber.equal('1');
     });
 
     it('should emit event when submitting a proposal', async function () {
