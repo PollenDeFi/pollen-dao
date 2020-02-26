@@ -140,22 +140,21 @@ contract AudacityDAO is IAudacityDAO {
         // TODO: add tests. including when vote is passed and failed when resolveVote called
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = _proposals[proposalId];
         resolveVote(proposalId);
 
-        require(proposal.status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
+        require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
 
         uint256 balance = IERC20(_daoTokenAddress).balanceOf(msg.sender);
         // TODO: very crude implementation for now, change to prevent multiple votes / allow changing votes
         if (vote) {
-            proposal.yesVotes += balance;
+            _proposals[proposalId].yesVotes += balance;
         } else {
-            proposal.noVotes += balance;
+            _proposals[proposalId].noVotes += balance;
         }
 
         emit VotedOn(
-            proposal.proposalType,
-            proposal.tokenType,
+            _proposals[proposalId].proposalType,
+            _proposals[proposalId].tokenType,
             msg.sender,
             proposalId,
             vote
@@ -170,26 +169,25 @@ contract AudacityDAO is IAudacityDAO {
         // TODO: add tests. incuding not changing status unless a submitted vote past voting expiry
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = _proposals[proposalId];
-        if(proposal.status == ProposalStatus.Submitted && now >= proposal.votingExpiry) {
+        if(_proposals[proposalId].status == ProposalStatus.Submitted && now >= _proposals[proposalId].votingExpiry) {
             // TODO: quorum
-            if(proposal.yesVotes > proposal.noVotes) {
-                proposal.status = ProposalStatus.Passed;
+            if(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes) {
+                _proposals[proposalId].status = ProposalStatus.Passed;
 
                 emit Passed(
-                    proposal.proposalType,
-                    proposal.tokenType,
+                    _proposals[proposalId].proposalType,
+                    _proposals[proposalId].tokenType,
                     proposalId,
-                    proposal.votingExpiry
+                    _proposals[proposalId].votingExpiry
                 );
             } else {
-                proposal.status = ProposalStatus.Failed;
+                _proposals[proposalId].status = ProposalStatus.Failed;
 
                 emit Failed(
-                    proposal.proposalType,
-                    proposal.tokenType,
+                    _proposals[proposalId].proposalType,
+                    _proposals[proposalId].tokenType,
                     proposalId,
-                    proposal.votingExpiry
+                    _proposals[proposalId].votingExpiry
                 );
             }
         }
@@ -203,30 +201,29 @@ contract AudacityDAO is IAudacityDAO {
         // TODO: add tests. inlcuding only execute when past voting expiry and Passed
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = _proposals[proposalId];
         resolveVote(proposalId);
 
-        require(proposal.status == ProposalStatus.Passed, "AudacityDAO: invalid proposal status");
+        require(_proposals[proposalId].status == ProposalStatus.Passed, "AudacityDAO: invalid proposal status");
 
-        if(now < proposal.executionExpiry) {
+        if(now < _proposals[proposalId].executionExpiry) {
             // TODO: enforce only submitter can execute? if so, do here so anyone can expire a proposal
-            proposal.status = ProposalStatus.Executed;
+            _proposals[proposalId].status = ProposalStatus.Executed;
             // TODO: transfer the tokens here according to proposal type (mint if invest. payout if divest)
 
             emit Executed(
-                proposal.proposalType,
-                proposal.tokenType,
+                _proposals[proposalId].proposalType,
+                _proposals[proposalId].tokenType,
                 msg.sender,
                 proposalId
             );
         } else {
-            proposal.status = ProposalStatus.Expired;
+            _proposals[proposalId].status = ProposalStatus.Expired;
 
             emit Expired(
-                proposal.proposalType,
-                proposal.tokenType,
+                _proposals[proposalId].proposalType,
+                _proposals[proposalId].tokenType,
                 proposalId,
-                proposal.executionExpiry
+                _proposals[proposalId].executionExpiry
             );
         }
     }

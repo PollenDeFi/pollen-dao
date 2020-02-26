@@ -3,6 +3,9 @@ const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
 const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-helpers');
 
+// TODO: use {from: accounts[index]} to split function calling among accounts
+// TODO: mint tokens for accounts to add better voting tests
+
 contract('dao', function (accounts) {
     beforeEach(async function () {
         this.daoToken = await AudacityToken.new();
@@ -46,7 +49,7 @@ contract('dao', function (accounts) {
     });
 
     it('should create a new proposal when submitting a proposal', async function () {
-        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        const receipt = await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         const proposal = await this.dao.getProposal(0);
         expect(proposal.proposalType).to.be.bignumber.equal('0');
         expect(proposal.tokenType).to.be.bignumber.equal('0');
@@ -61,10 +64,6 @@ contract('dao', function (accounts) {
         expect(proposal.executionExpiry).to.be.bignumber.equal(now.add(expiryDelay).add(expiryDelay));
         expect(proposal.status).to.be.bignumber.equal('1');
         expect(await this.dao.getProposalCount()).to.be.bignumber.equal('1');
-    });
-
-    it('should emit event when submitting a proposal', async function () {
-        const receipt = await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         expectEvent(
             receipt,
             'Submitted'
@@ -77,6 +76,55 @@ contract('dao', function (accounts) {
         expectRevert(
             this.dao.voteOn(0, false),
             'invalid proposal id'
+        );
+    });
+
+    it('should be able to vote on a proposal', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        const receipt = await this.dao.voteOn(0, false);
+        const tokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(tokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+    });
+
+    it('should be able to resolve voting on a proposal once voting expires', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('1');
+        await this.dao.voteOn(0, false);
+        await time.increaseTo(proposal.votingExpiry);
+        const receipt = await this.dao.resolveVote(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('3');
+        expectEvent(
+            receipt,
+            'Failed'
+        );
+    });
+
+    it('should be able to execute a proposal', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        await this.dao.voteOn(0, true);
+        await time.increaseTo(proposal.votingExpiry);
+        await this.dao.resolveVote(0)
+        const receipt = await this.dao.execute(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('4');
+        expectEvent(
+            receipt,
+            'Executed'
         );
     });
 });
