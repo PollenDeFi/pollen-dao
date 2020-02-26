@@ -137,7 +137,6 @@ contract AudacityDAO is IAudacityDAO {
     * @param vote The yes/no vote
     */
     function voteOn(uint256 proposalId, bool vote) external override {
-        // TODO: add tests. including when vote is passed and failed when resolveVote called
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
         resolveVote(proposalId);
@@ -166,7 +165,6 @@ contract AudacityDAO is IAudacityDAO {
     * @param proposalId The proposal ID
     */
     function resolveVote(uint256 proposalId) public override {
-        // TODO: add tests. incuding not changing status unless a submitted vote past voting expiry
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
         if(_proposals[proposalId].status == ProposalStatus.Submitted && now >= _proposals[proposalId].votingExpiry) {
@@ -198,7 +196,6 @@ contract AudacityDAO is IAudacityDAO {
     * @param proposalId The proposal ID
     */
     function execute(uint256 proposalId) external override {
-        // TODO: add tests. inlcuding only execute when past voting expiry and Passed
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
         resolveVote(proposalId);

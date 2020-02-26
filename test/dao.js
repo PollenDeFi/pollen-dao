@@ -79,7 +79,24 @@ contract('dao', function (accounts) {
         );
     });
 
-    it('should be able to vote on a proposal', async function () {
+    it('should be able to vote on a proposal: yes votes', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        const receipt = await this.dao.voteOn(0, true);
+        const tokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.yesVotes).to.be.bignumber.equal(tokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+    });
+
+    it('should be able to vote on a proposal: no votes', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
         proposal = await this.dao.getProposal(0);
@@ -96,7 +113,23 @@ contract('dao', function (accounts) {
         );
     });
 
-    it('should be able to resolve voting on a proposal once voting expires', async function () {
+    it('should be able to resolve voting on a proposal once voting expires: passed', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('1');
+        await this.dao.voteOn(0, true);
+        await time.increaseTo(proposal.votingExpiry);
+        const receipt = await this.dao.resolveVote(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('2');
+        expectEvent(
+            receipt,
+            'Passed'
+        );
+    });
+
+    it('should be able to resolve voting on a proposal once voting expires: failed', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
         proposal = await this.dao.getProposal(0);
@@ -112,6 +145,34 @@ contract('dao', function (accounts) {
         );
     });
 
+    // TODO: make test green
+    it('should resolve voting when trying to vote after voting expiry period', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('1');
+        await this.dao.voteOn(0, true);
+        await time.increaseTo(proposal.votingExpiry);
+        const receipt = await this.dao.voteOn(0, true);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('2');
+        expectEvent(
+            receipt,
+            'Passed'
+        );
+    });
+
+    it('should not be able to resolve voting before voting period is over', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('1');
+        await this.dao.voteOn(0, true);
+        await this.dao.resolveVote(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('1');
+    });
+
     it('should be able to execute a proposal', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
@@ -125,6 +186,60 @@ contract('dao', function (accounts) {
         expectEvent(
             receipt,
             'Executed'
+        );
+    });
+
+    it('should be able to execute a proposal without explicitly calling to resolve voting', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        await this.dao.voteOn(0, true);
+        await time.increaseTo(proposal.votingExpiry);
+        const receipt = await this.dao.execute(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('4');
+        expectEvent(
+            receipt,
+            'Executed'
+        );
+    });
+
+    it('should cause a proposal to expire when trying to execute beyond execution expiry period', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
+        await this.dao.voteOn(0, true);
+        await time.increaseTo(proposal.executionExpiry);
+        await this.dao.resolveVote(0)
+        const receipt = await this.dao.execute(0);
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.status).to.be.bignumber.equal('5');
+        expectEvent(
+            receipt,
+            'Expired'
+        );
+    });
+
+    it('should fail to execute a failed proposal', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        const proposal = await this.dao.getProposal(0);
+        await this.dao.voteOn(0, false);
+        await time.increaseTo(proposal.votingExpiry);
+        await this.dao.resolveVote(0)
+        expectRevert(
+            this.dao.execute(0),
+            'invalid proposal status'
+        );
+    });
+
+    it('should fail to execute a proposal before voting expires', async function () {
+        await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        const proposal = await this.dao.getProposal(0);
+        await this.dao.voteOn(0, true);
+        await this.dao.resolveVote(0)
+        expectRevert(
+            this.dao.execute(0),
+            'invalid proposal status'
         );
     });
 });
