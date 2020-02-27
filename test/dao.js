@@ -113,6 +113,7 @@ contract('dao', function (accounts) {
         );
     });
 
+    // TODO: make test green
     it('should be able to resolve voting on a proposal once voting expires: passed', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
@@ -173,6 +174,7 @@ contract('dao', function (accounts) {
         expect(proposal.status).to.be.bignumber.equal('1');
     });
 
+    // TODO: make test green
     it('should be able to execute a proposal', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
@@ -189,6 +191,7 @@ contract('dao', function (accounts) {
         );
     });
 
+    // TODO: make test green
     it('should be able to execute a proposal without explicitly calling to resolve voting', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
@@ -204,6 +207,7 @@ contract('dao', function (accounts) {
         );
     });
 
+    // TODO: make test green
     it('should cause a proposal to expire when trying to execute beyond execution expiry period', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         let proposal;
