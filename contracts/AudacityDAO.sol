@@ -1,4 +1,5 @@
 pragma solidity >=0.6 <0.7.0;
+pragma experimental ABIEncoderV2;
 
 import "./interfaces/IAudacityDAO.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -6,25 +7,29 @@ import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
 * @title AudacityDAO Contract
 * @notice The main Audacity DAO contract
+* @dev TODO: Refactor function visibility
 * @author gtlewis
 * @author scorpion9979
 */
 contract AudacityDAO is IAudacityDAO {
+    /**
+    * @notice Type for representing a token proposal status
+    */
     enum ProposalStatus {Null, Submitted, Passed, Failed, Executed, Expired, Last}
 
     /**
-     * @notice Type for representing a token proposal
-     * @member proposalType The type of proposal (e.g., Invest, Divest)
-     * @member tokenType The type of token (e.g., ERC20)
-     * @member tokenAddress The address of the token
-     * @member tokenAmount The amount of the token being proposed to invest/divest
-     * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
-     * @member yesVotes The total of yes votes for the proposal in DAO tokens
-     * @member noVotes The total of no votes for the proposal in DAO tokens
-     * @member votingExpiry The expiry timestamp for proposal voting
-     * @member executionExpiry The expiry timestamp for proposal execution
-     * @member status The status of the proposal
-     */
+    * @notice Type for representing a token proposal
+    * @member proposalType The type of proposal (e.g., Invest, Divest)
+    * @member tokenType The type of token (e.g., ERC20)
+    * @member tokenAddress The address of the token
+    * @member tokenAmount The amount of the token being proposed to invest/divest
+    * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
+    * @member yesVotes The total of yes votes for the proposal in DAO tokens
+    * @member noVotes The total of no votes for the proposal in DAO tokens
+    * @member votingExpiry The expiry timestamp for proposal voting
+    * @member executionExpiry The expiry timestamp for proposal execution
+    * @member status The status of the proposal
+    */
     struct Proposal {
         ProposalType proposalType;
         TokenType tokenType;
@@ -41,28 +46,42 @@ contract AudacityDAO is IAudacityDAO {
     /**
     * @notice The DAO token address (private)
     */
-    address private daoTokenAddress;
+    address private _daoTokenAddress;
 
     /**
-    * @notice The proposals (public)
-    * @dev TODO - make private and add getter instead
+    * @notice The proposals (private)
     */
-    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => Proposal) private _proposals;
 
     /**
-    * @notice The count of proposals (public)
-    * @dev TODO - make private and add getter instead
+    * @notice The count of proposals (private)
     */
-    uint256 public proposalCount;
+    uint256 private _proposalCount;
 
     /**
-     * @notice constructor sets the DAO token address from the given address (public)
-     * @param daoTokenAddress_ The address of the DAO token
-     */
-    constructor(address daoTokenAddress_) public {
-        daoTokenAddress = daoTokenAddress_;
+    * @notice Constructor sets the DAO token address from the given address (public)
+    * @param daoTokenAddress The address of the DAO token
+    */
+    constructor(address daoTokenAddress) public {
+        _daoTokenAddress = daoTokenAddress;
         // TODO: transfer ownership of the DAO token to the DAO itself
         //IERC20(daoTokenAddress).transferOwnership(address(this));
+    }
+
+    /**
+    * @notice Get a proposal at index (public)
+    * @param proposalId The proposal ID
+    */
+    function getProposal(uint256 proposalId) public view returns(Proposal memory) {
+        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
+        return _proposals[proposalId];
+    }
+
+    /**
+    * @notice Get total proposal count (public)
+    */
+    function getProposalCount() public view returns(uint256) {
+        return _proposalCount;
     }
 
     /**
@@ -100,8 +119,8 @@ contract AudacityDAO is IAudacityDAO {
         proposal.executionExpiry = proposal.votingExpiry + 60000;
         proposal.status = ProposalStatus.Submitted;
 
-        proposals[proposalCount] = proposal;
-        proposalCount++;
+        _proposals[_proposalCount] = proposal;
+        _proposalCount++;
 
         emit Submitted(
             proposalType,
@@ -118,25 +137,23 @@ contract AudacityDAO is IAudacityDAO {
     * @param vote The yes/no vote
     */
     function voteOn(uint256 proposalId, bool vote) external override {
-        // TODO: add tests. including when vote is passed and failed when resolveVote called
-        require(proposalId < proposalCount, "AudacityDAO: invalid proposal id");
+        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = proposals[proposalId];
         resolveVote(proposalId);
 
-        require(proposal.status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
+        require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
 
-        uint256 balance = IERC20(daoTokenAddress).balanceOf(msg.sender);
+        uint256 balance = IERC20(_daoTokenAddress).balanceOf(msg.sender);
         // TODO: very crude implementation for now, change to prevent multiple votes / allow changing votes
         if (vote) {
-            proposal.yesVotes += balance;
+            _proposals[proposalId].yesVotes += balance;
         } else {
-            proposal.noVotes += balance;
+            _proposals[proposalId].noVotes += balance;
         }
 
         emit VotedOn(
-            proposal.proposalType,
-            proposal.tokenType,
+            _proposals[proposalId].proposalType,
+            _proposals[proposalId].tokenType,
             msg.sender,
             proposalId,
             vote
@@ -148,29 +165,27 @@ contract AudacityDAO is IAudacityDAO {
     * @param proposalId The proposal ID
     */
     function resolveVote(uint256 proposalId) public override {
-        // TODO: add tests. incuding not changing status unless a submitted vote past voting expiry
-        require(proposalId < proposalCount, "AudacityDAO: invalid proposal id");
+        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = proposals[proposalId];
-        if(proposal.status == ProposalStatus.Submitted && now >= proposal.votingExpiry) {
+        if(_proposals[proposalId].status == ProposalStatus.Submitted && now >= _proposals[proposalId].votingExpiry) {
             // TODO: quorum
-            if(proposal.yesVotes > proposal.noVotes) {
-                proposal.status = ProposalStatus.Passed;
+            if(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes) {
+                _proposals[proposalId].status = ProposalStatus.Passed;
 
                 emit Passed(
-                    proposal.proposalType,
-                    proposal.tokenType,
+                    _proposals[proposalId].proposalType,
+                    _proposals[proposalId].tokenType,
                     proposalId,
-                    proposal.votingExpiry
+                    _proposals[proposalId].votingExpiry
                 );
             } else {
-                proposal.status = ProposalStatus.Failed;
+                _proposals[proposalId].status = ProposalStatus.Failed;
 
                 emit Failed(
-                    proposal.proposalType,
-                    proposal.tokenType,
+                    _proposals[proposalId].proposalType,
+                    _proposals[proposalId].tokenType,
                     proposalId,
-                    proposal.votingExpiry
+                    _proposals[proposalId].votingExpiry
                 );
             }
         }
@@ -181,33 +196,31 @@ contract AudacityDAO is IAudacityDAO {
     * @param proposalId The proposal ID
     */
     function execute(uint256 proposalId) external override {
-        // TODO: add tests. inlcuding only execute when past voting expiry and Passed
-        require(proposalId < proposalCount, "AudacityDAO: invalid proposal id");
+        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
 
-        Proposal memory proposal = proposals[proposalId];
         resolveVote(proposalId);
 
-        require(proposal.status == ProposalStatus.Passed, "AudacityDAO: invalid proposal status");
+        require(_proposals[proposalId].status == ProposalStatus.Passed, "AudacityDAO: invalid proposal status");
 
-        if(now < proposal.executionExpiry) {
+        if(now < _proposals[proposalId].executionExpiry) {
             // TODO: enforce only submitter can execute? if so, do here so anyone can expire a proposal
-            proposal.status = ProposalStatus.Executed;
+            _proposals[proposalId].status = ProposalStatus.Executed;
             // TODO: transfer the tokens here according to proposal type (mint if invest. payout if divest)
 
             emit Executed(
-                proposal.proposalType,
-                proposal.tokenType,
+                _proposals[proposalId].proposalType,
+                _proposals[proposalId].tokenType,
                 msg.sender,
                 proposalId
             );
         } else {
-            proposal.status = ProposalStatus.Expired;
+            _proposals[proposalId].status = ProposalStatus.Expired;
 
             emit Expired(
-                proposal.proposalType,
-                proposal.tokenType,
+                _proposals[proposalId].proposalType,
+                _proposals[proposalId].tokenType,
                 proposalId,
-                proposal.executionExpiry
+                _proposals[proposalId].executionExpiry
             );
         }
     }

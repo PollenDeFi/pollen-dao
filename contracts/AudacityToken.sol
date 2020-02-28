@@ -9,7 +9,7 @@ import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Pausable.sol";
  * @author scorpion9979
  */
 contract AudacityToken is ERC20Detailed, ERC20Pausable {
-    // TODO: remove msg.sender from minter role and add DAO contract address instead
-    constructor() ERC20Detailed('Audacity', 'AUD', 18) public {
-    }
+    // TODO: implement a minting mechanism
+
+    constructor() public ERC20Detailed("Audacity", "AUD", 18) {}
 }
