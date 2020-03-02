@@ -3,11 +3,11 @@ pragma experimental ABIEncoderV2;
 
 import "./interfaces/IAudacityDAO.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
 
 /**
 * @title AudacityDAO Contract
 * @notice The main Audacity DAO contract
-* @dev TODO: Refactor function visibility
 * @author gtlewis
 * @author scorpion9979
 */
@@ -59,13 +59,20 @@ contract AudacityDAO is IAudacityDAO {
     uint256 private _proposalCount;
 
     /**
-    * @notice Constructor sets the DAO token address from the given address (public)
-    * @param daoTokenAddress The address of the DAO token
+    * @notice Get the DAO Token address (external view)
     */
-    constructor(address daoTokenAddress) public {
+    function getDaoTokenAddress() external view returns(address) {
+        return _daoTokenAddress;
+    }
+
+    /**
+    * @notice Sets the DAO Token address and transfers ownership to the DAO (public)
+    * @param daoTokenAddress The DAO Token address
+    */
+    function setDaoTokenAddress(address daoTokenAddress) public {
         _daoTokenAddress = daoTokenAddress;
-        // TODO: transfer ownership of the DAO token to the DAO itself
-        //IERC20(daoTokenAddress).transferOwnership(address(this));
+        // TODO: uncomment and mint from first proposal
+        //Ownable(_daoTokenAddress).transferOwnership(address(this));
     }
 
     /**

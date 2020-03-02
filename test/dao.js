@@ -3,18 +3,31 @@ const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
 const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-helpers');
 
-// TODO: mint tokens for accounts to add better voting tests
-
 contract('dao', function (accounts) {
     beforeEach(async function () {
+        this.dao = await AudacityDAO.new();
         this.daoToken = await DAOToken.new();
-        this.dao = await AudacityDAO.new(this.daoToken.address);
+        await this.dao.setDaoTokenAddress(this.daoToken.address);
+        // TODO: remove and mint from first proposal instead
+        await this.daoToken.mint(100);
     });
 
     it('should fail when ETH sent to the DAO', function () {
         expectRevert.unspecified(
             this.dao.send('1')
         );
+    });
+
+    it('should set the owner of the DAO Token to be the DAO', async function () {
+        const owner = await this.daoToken.owner();
+        // TODO: expect(owner).to.be.equal(this.dao.address);
+    });
+
+    it('should fail if any non-DAO account sets the DAO Token address', function () {
+        // TODO: expectRevert(
+            //this.dao.setDaoTokenAddress(this.daoToken.address),
+            //'TODO'
+        //);
     });
 
 //===== SUBMIT =====
@@ -80,7 +93,10 @@ contract('dao', function (accounts) {
 
     it('should fail when voting on a proposal that has been executed', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
-        // TODO: execute this proposal
+        await this.dao.voteOn(0, true);
+        const proposal= await this.dao.getProposal(0);
+        await time.increaseTo(proposal.votingExpiry);
+        await this.dao.execute(0);
         expectRevert(
             this.dao.voteOn(0, false),
             'invalid proposal status'
@@ -89,6 +105,7 @@ contract('dao', function (accounts) {
 
     it('should fail when voting on a proposal that has expired voting', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        const proposal= await this.dao.getProposal(0);
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
             this.dao.voteOn(0, false),
@@ -99,7 +116,7 @@ contract('dao', function (accounts) {
     it('should fail when voting on a proposal if voter has DAO token balance 0', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
         expectRevert(
-            this.dao.voteOn(0, false),
+            this.dao.voteOn(0, false, {from: accounts[1]}),
             'no voting tokens'
         );
     });
@@ -115,14 +132,15 @@ contract('dao', function (accounts) {
         receipt = await this.dao.voteOn(0, true);
         const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
         proposal = await this.dao.getProposal(0);
-        expect(proposal.yesVotes).to.be.bignumber.equal(tokenBalance);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
             receipt,
             'VotedOn'
         );
         receipt = await this.dao.voteOn(0, true, {from: accounts[1]});
-        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add('1'));
+        proposal = await this.dao.getProposal(0);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
             receipt,
@@ -148,8 +166,9 @@ contract('dao', function (accounts) {
             'VotedOn'
         );
         receipt = await this.dao.voteOn(0, false, {from: accounts[1]});
+        proposal = await this.dao.getProposal(0);
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
-        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add('1'));
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
         expectEvent(
             receipt,
             'VotedOn'
@@ -167,7 +186,10 @@ contract('dao', function (accounts) {
 
     it('should fail when executing a proposal that has already been executed', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
-        // TODO: execute this proposal
+        await this.dao.voteOn(0, true);
+        const proposal= await this.dao.getProposal(0);
+        await time.increaseTo(proposal.votingExpiry);
+        await this.dao.execute(0);
         expectRevert(
             this.dao.execute(0),
             'invalid proposal status'
@@ -184,6 +206,7 @@ contract('dao', function (accounts) {
 
     it('should fail when executing a proposal that has failed voting', async function () {
         await this.dao.submit(0, 0, '0x0000000000000000000000000000000000000001', 2, 3);
+        const proposal= await this.dao.getProposal(0);
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
             this.dao.execute(0),
