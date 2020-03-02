@@ -1,4 +1,4 @@
-const AudacityToken = artifacts.require("AudacityToken");
+const DAOToken = artifacts.require("DAOToken");
 const AudacityDAO = artifacts.require('AudacityDAO');
 const { expect } = require('chai');
 const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-helpers');
@@ -7,7 +7,7 @@ const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-help
 
 contract('dao', function (accounts) {
     beforeEach(async function () {
-        this.daoToken = await AudacityToken.new();
+        this.daoToken = await DAOToken.new();
         this.dao = await AudacityDAO.new(this.daoToken.address);
     });
 
