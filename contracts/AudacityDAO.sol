@@ -25,6 +25,7 @@ contract AudacityDAO is IAudacityDAO {
     * @member tokenAddress The address of the token
     * @member tokenAmount The amount of the token being proposed to invest/divest
     * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
+    * @member submitter The submitter of the proposal
     * @member yesVotes The total of yes votes for the proposal in DAO tokens
     * @member noVotes The total of no votes for the proposal in DAO tokens
     * @member votingExpiry The expiry timestamp for proposal voting
@@ -37,6 +38,7 @@ contract AudacityDAO is IAudacityDAO {
         address tokenAddress;
         uint256 tokenAmount;
         uint256 daoTokenAmount;
+        address submitter;
         uint256 yesVotes;
         uint256 noVotes;
         uint256 votingExpiry;
@@ -118,6 +120,7 @@ contract AudacityDAO is IAudacityDAO {
         proposal.tokenAddress = tokenAddress;
         proposal.tokenAmount = tokenAmount;
         proposal.daoTokenAmount = daoTokenAmount;
+        proposal.submitter = msg.sender;
         // TODO: set proper voting expiry
         proposal.votingExpiry = _proposalCount == 0? now : now + 60000;
         // TODO: set proper execution expiry
@@ -176,7 +179,7 @@ contract AudacityDAO is IAudacityDAO {
         // TODO: require quorum
         require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "AudacityDAO: vote failed");
         require(now < _proposals[proposalId].executionExpiry, "AudacityDAO: execution expired");
-        // TODO: require only submitter can execute?
+        require(_proposals[proposalId].submitter == msg.sender, "AudacityDAO: only submitter can execute");
 
         // TODO: transfer the tokens here according to proposal type (mint if invest. payout if divest)
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {

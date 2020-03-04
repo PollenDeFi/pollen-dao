@@ -75,6 +75,7 @@ contract('dao', function (accounts) {
         expect(proposal.tokenAddress).to.be.equal('0x0000000000000000000000000000000000000001');
         expect(proposal.tokenAmount).to.be.bignumber.equal('2');
         expect(proposal.daoTokenAmount).to.bignumber.be.equal('3');
+        expect(proposal.submitter).to.be.equal(accounts[0]);
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         const now = await time.latest();
@@ -236,6 +237,17 @@ contract('dao', function (accounts) {
         expectRevert(
             this.dao.execute(1),
             'execution expired'
+        );
+    });
+
+    it('should fail when executing a proposal from an account that is not the submitter', async function () {
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.voteOn(1, true);
+        const proposal = await this.dao.getProposal(1);
+        await time.increaseTo(proposal.votingExpiry);
+        expectRevert(
+            this.dao.execute(1, {from: accounts[1]}),
+            'only submitter can execute'
         );
     });
 
