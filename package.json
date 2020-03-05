@@ -9,6 +9,8 @@
   "devDependencies": {
     "@openzeppelin/contracts": "^3.0.0-beta.0",
     "@openzeppelin/test-helpers": "^0.5.4",
+    "@truffle/hdwallet-provider": "^1.0.32",
+    "dotenv": "^8.2.0",
     "ganache-cli": "^6.8.2",
     "truffle": "^5.1.10"
   },
@@ -16,6 +18,8 @@
     "init": "truffle init",
     "compile": "./scripts/start-ganache.sh && truffle compile",
     "test": "./scripts/start-ganache.sh && truffle test",
+    "testnet": "./scripts/start-ganache.sh && truffle migrate --reset --network ropsten",
+    "mainnet": "./scripts/start-ganache.sh && truffle migrate --network mainnet",
     "clean": "./scripts/clean.sh"
   }
 }
