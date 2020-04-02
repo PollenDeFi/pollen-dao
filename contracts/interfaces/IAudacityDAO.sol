@@ -14,16 +14,16 @@ interface IAudacityDAO {
     /**
     * @notice Submit a proposal (external)
     * @param proposalType The type of proposal (e.g., Invest, Divest)
-    * @param tokenType The type of token (e.g., ERC20)
-    * @param tokenAddress The address of the token
-    * @param tokenAmount The amount of the token to invest/divest
+    * @param assetTokenType The type of the asset token (e.g., ERC20)
+    * @param assetTokenAddress The address of the asset token
+    * @param assetTokenAmount The amount of the asset token to invest/divest
     * @param daoTokenAmount The amount of DAO token to be paid/received
     */
     function submit(
         ProposalType proposalType,
-        TokenType tokenType,
-        address tokenAddress,
-        uint256 tokenAmount,
+        TokenType assetTokenType,
+        address assetTokenAddress,
+        uint256 assetTokenAmount,
         uint256 daoTokenAmount
     ) external;
 
@@ -45,9 +45,9 @@ interface IAudacityDAO {
      */
     event Submitted(
         ProposalType proposalType,
-        TokenType tokenType,
-        address tokenAddress,
-        uint256 tokenAmount,
+        TokenType assetTokenType,
+        address assetTokenAddress,
+        uint256 assetTokenAmount,
         uint256 daoTokenAmount
     );
 
@@ -56,7 +56,6 @@ interface IAudacityDAO {
      */
     event VotedOn(
         ProposalType proposalType,
-        TokenType tokenType,
         address voter,
         uint256 proposalId,
         bool vote
@@ -67,7 +66,6 @@ interface IAudacityDAO {
      */
     event Executed(
         ProposalType proposalType,
-        TokenType tokenType,
         address executor,
         uint256 proposalId
     );

@@ -1,5 +1,6 @@
 const AudacityDAO = artifacts.require('AudacityDAO');
 const DAOToken = artifacts.require("DAOToken");
+const AssetToken = artifacts.require("MockERC20");
 const { expect } = require('chai');
 const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-helpers');
 
@@ -12,7 +13,10 @@ contract('dao', function (accounts) {
         this.dao = await AudacityDAO.new();
         const daoTokenAddress = await this.dao.getDaoTokenAddress();
         this.daoToken = await DAOToken.at(daoTokenAddress);
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 1, 100);
+        this.assetToken = await AssetToken.new();
+        this.assetToken.mint(999);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100);
+        await this.assetToken.approve(this.dao.address, 2);
         await this.dao.execute(0);
     });
 
@@ -27,9 +31,11 @@ contract('dao', function (accounts) {
         expect(owner).to.be.equal(this.dao.address);
     });
 
-    it('should have executed proposal 0 and minted and sent 100 DAO tokens', async function () {
+    it('should have executed proposal 0 and received 2 asset tokens and minted and sent 100 DAO tokens', async function () {
         const proposal = await this.dao.getProposal(0);
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
+        const assetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
+        expect(assetTokenBalance).to.be.bignumber.equal('2');
         let daoTokenBalance;
         daoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
         expect(daoTokenBalance).to.be.bignumber.equal('0');
@@ -42,38 +48,38 @@ contract('dao', function (accounts) {
     it('should fail when submitting a proposal with token address 0x0', function () {
         expectRevert(
             this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000000', 0, 0),
-            'invalid token address'
+            'invalid asset token address'
         );
     });
 
     it('should fail when submitting a proposal with both token amount and DAO token amount 0', function () {
         expectRevert(
-            this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 0, 0),
-            'both token amount and DAO token amount zero'
+            this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 0, 0),
+            'both asset token amount and DAO token amount zero'
         );
     });
 
     it('should fail when submitting a proposal with an invalid proposal type', function () {
         expectRevert(
-            this.dao.submit(ProposalType.Last, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3),
+            this.dao.submit(ProposalType.Last, TokenType.ERC20, this.assetToken.address, 2, 3),
             'invalid proposal type'
         );
     });
 
     it('should fail when submitting a proposal with an invalid token type', function () {
         expectRevert(
-            this.dao.submit(ProposalType.Invest, TokenType.Last, '0x0000000000000000000000000000000000000001', 2, 3),
-            'invalid token type'
+            this.dao.submit(ProposalType.Invest, TokenType.Last, this.assetToken.address, 2, 3),
+            'invalid asset token type'
         );
     });
 
     it('should create a new proposal when submitting a proposal', async function () {
-        const receipt = await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        const receipt = await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         const proposal = await this.dao.getProposal(1);
         expect(proposal.proposalType).to.be.bignumber.equal(ProposalType.Invest);
-        expect(proposal.tokenType).to.be.bignumber.equal(TokenType.ERC20);
-        expect(proposal.tokenAddress).to.be.equal('0x0000000000000000000000000000000000000001');
-        expect(proposal.tokenAmount).to.be.bignumber.equal('2');
+        expect(proposal.assetTokenType).to.be.bignumber.equal(TokenType.ERC20);
+        expect(proposal.assetTokenAddress).to.be.equal(this.assetToken.address);
+        expect(proposal.assetTokenAmount).to.be.bignumber.equal('2');
         expect(proposal.daoTokenAmount).to.bignumber.be.equal('3');
         expect(proposal.submitter).to.be.equal(accounts[0]);
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
@@ -107,10 +113,11 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when voting on a proposal that has been executed', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         const proposal= await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
+        await this.assetToken.approve(this.dao.address, 2);
         await this.dao.execute(1);
         expectRevert(
             this.dao.voteOn(1, false),
@@ -119,7 +126,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when voting on a proposal that has expired voting', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         const proposal= await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
@@ -129,7 +136,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when voting on a proposal if voter has DAO token balance 0', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         expectRevert(
             this.dao.voteOn(1, false, {from: accounts[1]}),
             'no voting tokens'
@@ -138,7 +145,7 @@ contract('dao', function (accounts) {
 
     it('should increase yes votes by voter DAO token balance when voting yes', async function () {
         await this.daoToken.transfer(accounts[1], 1);
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         let proposal;
         proposal= await this.dao.getProposal(1);
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
@@ -165,7 +172,7 @@ contract('dao', function (accounts) {
 
     it('should increase no votes by voter DAO token balance when voting no', async function () {
         await this.daoToken.transfer(accounts[1], 1);
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         let proposal;
         proposal= await this.dao.getProposal(1);
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
@@ -200,10 +207,11 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when executing a proposal that has already been executed', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         const proposal= await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
+        await this.assetToken.approve(this.dao.address, 2);
         await this.dao.execute(1);
         expectRevert(
             this.dao.execute(1),
@@ -212,7 +220,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when executing a proposal that has not yet expired voting', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         expectRevert(
             this.dao.execute(1),
             'vote not expired'
@@ -220,7 +228,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when executing a proposal that has failed voting', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         const proposal= await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
@@ -230,7 +238,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when executing a proposal that has expired execution', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionExpiry);
@@ -241,7 +249,7 @@ contract('dao', function (accounts) {
     });
 
     it('should fail when executing a proposal from an account that is not the submitter', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
@@ -251,17 +259,40 @@ contract('dao', function (accounts) {
         );
     });
 
+    it('should fail when executing an invest proposal if the asset token can not be transferred', async function () {
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        await this.dao.voteOn(1, true);
+        const proposal = await this.dao.getProposal(1);
+        await time.increaseTo(proposal.votingExpiry);
+        expectRevert.unspecified(
+            this.dao.execute(1)
+        );
+    });
+
+    it('should fail when executing a divest proposal if the DAO token can not be transferred', async function () {
+        await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        await this.dao.voteOn(1, true);
+        const proposal = await this.dao.getProposal(1);
+        await time.increaseTo(proposal.votingExpiry);
+        expectRevert.unspecified(
+            this.dao.execute(1)
+        );
+    });
+
     it('should transfer tokens when executing an invest proposal', async function () {
+        const initialAssetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
         const initialDaoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         let proposal;
         proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
+        await this.assetToken.approve(this.dao.address, 2);
         const receipt = await this.dao.execute(1);
+        const newAssetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
+        expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
         const newDaoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
         expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
-        // TODO: token transfer check
         proposal = await this.dao.getProposal(1);
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(
@@ -271,13 +302,19 @@ contract('dao', function (accounts) {
     });
 
     it('should transfer tokens when executing a divest proposal', async function () {
-        await this.dao.submit(ProposalType.Divest, TokenType.ERC20, '0x0000000000000000000000000000000000000001', 2, 3);
+        const initialAssetTokenBalance = await this.assetToken.balanceOf(accounts[0]);
+        const initialDaoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
+        await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3);
         await this.dao.voteOn(1, true);
         let proposal;
         proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
+        await this.daoToken.approve(this.dao.address, 3);
         const receipt = await this.dao.execute(1);
-        // TODO: token transfer check
+        const newAssetTokenBalance = await this.assetToken.balanceOf(accounts[0]);
+        expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
+        const newDaoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
+        expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
         proposal = await this.dao.getProposal(1);
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(

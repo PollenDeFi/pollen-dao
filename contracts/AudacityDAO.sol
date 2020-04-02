@@ -21,9 +21,9 @@ contract AudacityDAO is IAudacityDAO {
     /**
     * @notice Type for representing a token proposal
     * @member proposalType The type of proposal (e.g., Invest, Divest)
-    * @member tokenType The type of token (e.g., ERC20)
-    * @member tokenAddress The address of the token
-    * @member tokenAmount The amount of the token being proposed to invest/divest
+    * @member assetTokenType The type of the asset token (e.g., ERC20)
+    * @member assetTokenAddress The address of the asset token
+    * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
     * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
     * @member submitter The submitter of the proposal
     * @member yesVotes The total of yes votes for the proposal in DAO tokens
@@ -34,9 +34,9 @@ contract AudacityDAO is IAudacityDAO {
     */
     struct Proposal {
         ProposalType proposalType;
-        TokenType tokenType;
-        address tokenAddress;
-        uint256 tokenAmount;
+        TokenType assetTokenType;
+        address assetTokenAddress;
+        uint256 assetTokenAmount;
         uint256 daoTokenAmount;
         address submitter;
         uint256 yesVotes;
@@ -94,31 +94,31 @@ contract AudacityDAO is IAudacityDAO {
     /**
     * @notice Submit a proposal (external)
     * @param proposalType The type of proposal (e.g., Invest, Divest)
-    * @param tokenType The type of token (e.g., ERC20)
-    * @param tokenAddress The address of the token
-    * @param tokenAmount The amount of the token to invest/divest
+    * @param assetTokenType The type of the asset token (e.g., ERC20)
+    * @param assetTokenAddress The address of the asset token
+    * @param assetTokenAmount The amount of the asset token to invest/divest
     * @param daoTokenAmount The amount of DAO token to be paid/received
     */
     function submit(
         ProposalType proposalType,
-        TokenType tokenType,
-        address tokenAddress,
-        uint256 tokenAmount,
+        TokenType assetTokenType,
+        address assetTokenAddress,
+        uint256 assetTokenAmount,
         uint256 daoTokenAmount
     ) external override {
         require(proposalType < ProposalType.Last, "AudacityDAO: invalid proposal type");
-        require(tokenType < TokenType.Last, "AudacityDAO: invalid token type");
-        require(tokenAddress != address(0), "AudacityDAO: invalid token address");
+        require(assetTokenType < TokenType.Last, "AudacityDAO: invalid asset token type");
+        require(assetTokenAddress != address(0), "AudacityDAO: invalid asset token address");
         require(
-            tokenAmount != 0 || daoTokenAmount != 0,
-            "AudacityDAO: both token amount and DAO token amount zero"
+            assetTokenAmount != 0 || daoTokenAmount != 0,
+            "AudacityDAO: both asset token amount and DAO token amount zero"
         );
 
         Proposal memory proposal;
         proposal.proposalType = proposalType;
-        proposal.tokenType = tokenType;
-        proposal.tokenAddress = tokenAddress;
-        proposal.tokenAmount = tokenAmount;
+        proposal.assetTokenType = assetTokenType;
+        proposal.assetTokenAddress = assetTokenAddress;
+        proposal.assetTokenAmount = assetTokenAmount;
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.submitter = msg.sender;
         // TODO: set proper voting expiry
@@ -132,9 +132,9 @@ contract AudacityDAO is IAudacityDAO {
 
         emit Submitted(
             proposalType,
-            tokenType,
-            tokenAddress,
-            tokenAmount,
+            assetTokenType,
+            assetTokenAddress,
+            assetTokenAmount,
             daoTokenAmount
         );
     }
@@ -161,7 +161,6 @@ contract AudacityDAO is IAudacityDAO {
 
         emit VotedOn(
             _proposals[proposalId].proposalType,
-            _proposals[proposalId].tokenType,
             msg.sender,
             proposalId,
             vote
@@ -181,18 +180,20 @@ contract AudacityDAO is IAudacityDAO {
         require(now < _proposals[proposalId].executionExpiry, "AudacityDAO: execution expired");
         require(_proposals[proposalId].submitter == msg.sender, "AudacityDAO: only submitter can execute");
 
-        // TODO: transfer the tokens here according to proposal type (mint if invest. payout if divest)
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {
-            // TODO: for now, just mint and transfer the tokens requested for no payment
+            IERC20(_proposals[proposalId].assetTokenAddress).transferFrom(msg.sender, address(this), _proposals[proposalId].assetTokenAmount);
             _daoToken.mint(_proposals[proposalId].daoTokenAmount);
             _daoToken.transfer(msg.sender, _proposals[proposalId].daoTokenAmount);
+        } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
+            _daoToken.transferFrom(msg.sender, address(this), _proposals[proposalId].daoTokenAmount);
+            IERC20(_proposals[proposalId].assetTokenAddress).transfer(msg.sender, _proposals[proposalId].assetTokenAmount);
+            // TODO: implement the payout
         }
 
         _proposals[proposalId].status = ProposalStatus.Executed;
 
         emit Executed(
             _proposals[proposalId].proposalType,
-            _proposals[proposalId].tokenType,
             msg.sender,
             proposalId
         );
