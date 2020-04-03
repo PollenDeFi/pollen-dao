@@ -19,6 +19,7 @@
     "compile": "./scripts/start-ganache.sh && truffle compile",
     "test": "./scripts/start-ganache.sh && truffle test",
     "testnet": "./scripts/start-ganache.sh && truffle migrate --reset --network ropsten",
+    "testnet-console": "./scripts/start-ganache.sh && truffle console --network ropsten",
     "mainnet": "./scripts/start-ganache.sh && truffle migrate --network mainnet",
     "clean": "./scripts/clean.sh"
   }
