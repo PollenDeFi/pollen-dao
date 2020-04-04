@@ -13,7 +13,7 @@ contract('dao', function (accounts) {
         this.dao = await AudacityDAO.new();
         const daoTokenAddress = await this.dao.getDaoTokenAddress();
         this.daoToken = await DAOToken.at(daoTokenAddress);
-        this.assetToken = await AssetToken.new();
+        this.assetToken = await AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999);
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100);
         await this.assetToken.approve(this.dao.address, 2);
