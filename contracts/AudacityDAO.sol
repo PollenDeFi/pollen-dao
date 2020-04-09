@@ -140,9 +140,9 @@ contract AudacityDAO is IAudacityDAO {
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.submitter = msg.sender;
         // TODO: set proper voting expiry
-        proposal.votingExpiry = _proposalCount == 0? now : now + 60000;
+        proposal.votingExpiry = _proposalCount == 0? now : now + 180;
         // TODO: set proper execution expiry
-        proposal.executionExpiry = proposal.votingExpiry + 60000;
+        proposal.executionExpiry = proposal.votingExpiry + 180;
         proposal.status = ProposalStatus.Submitted;
 
         _proposals[_proposalCount] = proposal;
