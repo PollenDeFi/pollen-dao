@@ -8,6 +8,8 @@ const ProposalType = { Invest: '0', Divest: '1', Last: '2' }
 const TokenType = { ERC20: '0', Last: '1' }
 const ProposalStatus = { Null: '0', Submitted: '1', Executed: '2', Last: '3' }
 
+const address0 = '0x0000000000000000000000000000000000000000';
+
 contract('dao', function (accounts) {
     beforeEach(async function () {
         this.dao = await AudacityDAO.new();
@@ -41,13 +43,15 @@ contract('dao', function (accounts) {
         expect(daoTokenBalance).to.be.bignumber.equal('0');
         daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
         expect(daoTokenBalance).to.be.bignumber.equal('100');
+        const assets = await this.dao.getAssets();
+        expect(assets).to.be.eql([this.assetToken.address]);
     });
 
     //===== SUBMIT =====
 
     it('should fail when submitting a proposal with token address 0x0', function () {
         expectRevert(
-            this.dao.submit(ProposalType.Invest, TokenType.ERC20, '0x0000000000000000000000000000000000000000', 0, 0),
+            this.dao.submit(ProposalType.Invest, TokenType.ERC20, address0, 0, 0),
             'invalid asset token address'
         );
     });
@@ -293,6 +297,8 @@ contract('dao', function (accounts) {
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
         const newDaoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
         expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
+        const assets = await this.dao.getAssets();
+        expect(assets).to.be.eql([this.assetToken.address]);
         proposal = await this.dao.getProposal(1);
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(
@@ -315,11 +321,24 @@ contract('dao', function (accounts) {
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
         const newDaoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
         expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
+        const assets = await this.dao.getAssets();
+        expect(assets).to.be.eql([address0]);
         proposal = await this.dao.getProposal(1);
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(
             receipt,
             'Executed'
         );
+    });
+
+    it('should continue to hold a partially divested asset', async function () {
+        await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 1, 2);
+        await this.dao.voteOn(1, true);
+        const proposal = await this.dao.getProposal(1);
+        await time.increaseTo(proposal.votingExpiry);
+        await this.daoToken.approve(this.dao.address, 2);
+        await this.dao.execute(1);
+        const assets = await this.dao.getAssets();
+        expect(assets).to.be.eql([this.assetToken.address]);
     });
 });

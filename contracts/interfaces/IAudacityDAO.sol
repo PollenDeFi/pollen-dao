@@ -6,11 +6,17 @@ pragma solidity >=0.6 <0.7.0;
 * @author gtlewis
 * @author scorpion9979
 */
-
-enum ProposalType {Invest, Divest, Last}
-enum TokenType {ERC20, Last}
-
 interface IAudacityDAO {
+    /**
+    * @notice Type for representing a proposal type
+    */
+    enum ProposalType {Invest, Divest, Last}
+
+    /**
+    * @notice Type for representing a token type
+    */
+    enum TokenType {ERC20, Last}
+
     /**
     * @notice Submit a proposal (external)
     * @param proposalType The type of proposal (e.g., Invest, Divest)
