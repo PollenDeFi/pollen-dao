@@ -89,7 +89,7 @@ contract('dao', function (accounts) {
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         const now = await time.latest();
-        const expiryDelay = new BN('60000');
+        const expiryDelay = new BN('180');
         expect(proposal.votingExpiry).to.be.bignumber.equal(now.add(expiryDelay));
         expect(proposal.executionExpiry).to.be.bignumber.equal(now.add(expiryDelay).add(expiryDelay));
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Submitted);
