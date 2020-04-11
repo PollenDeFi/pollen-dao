@@ -1,10 +1,10 @@
 pragma solidity >=0.6 <0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/IAudacityDAO.sol";
 import "./DAOToken.sol";
+import "./interfaces/IAudacityDAO.sol";
+import "./lib/AddressSet.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
 
 /**
 * @title AudacityDAO Contract
@@ -13,6 +13,8 @@ import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
 * @author scorpion9979
 */
 contract AudacityDAO is IAudacityDAO {
+    using AddressSet for AddressSet.Set;
+
     /**
     * @notice Type for representing a token proposal status
     */
@@ -62,6 +64,11 @@ contract AudacityDAO is IAudacityDAO {
     uint256 private _proposalCount;
 
     /**
+    * @notice The set of assets that the DAO holds (private)
+    */
+    AddressSet.Set private assets;
+
+    /**
     * @notice Constructor deploys a new DAO token instance and becomes owner (public)
     */
     constructor() public {
@@ -70,6 +77,7 @@ contract AudacityDAO is IAudacityDAO {
 
     /**
     * @notice Get the DAO token contract address (external view)
+    * @return The DAO token contract address
     */
     function getDaoTokenAddress() external view returns(address) {
         return address(_daoToken);
@@ -78,6 +86,7 @@ contract AudacityDAO is IAudacityDAO {
     /**
     * @notice Get a proposal at index (external view)
     * @param proposalId The proposal ID
+    * @return The proposal
     */
     function getProposal(uint256 proposalId) external view returns(Proposal memory) {
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
@@ -86,9 +95,18 @@ contract AudacityDAO is IAudacityDAO {
 
     /**
     * @notice Get total proposal count (external view)
+    * @return The total proposal count
     */
     function getProposalCount() external view returns(uint256) {
         return _proposalCount;
+    }
+
+    /**
+    * @notice Get the assets that the DAO holds (external view)
+    * @return The set of asset token addresses
+    */
+    function getAssets() external view returns (address[] memory) {
+        return assets.elements;
     }
 
     /**
@@ -122,9 +140,9 @@ contract AudacityDAO is IAudacityDAO {
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.submitter = msg.sender;
         // TODO: set proper voting expiry
-        proposal.votingExpiry = _proposalCount == 0? now : now + 60000;
+        proposal.votingExpiry = _proposalCount == 0? now : now + 180;
         // TODO: set proper execution expiry
-        proposal.executionExpiry = proposal.votingExpiry + 60000;
+        proposal.executionExpiry = proposal.votingExpiry + 180;
         proposal.status = ProposalStatus.Submitted;
 
         _proposals[_proposalCount] = proposal;
@@ -184,9 +202,13 @@ contract AudacityDAO is IAudacityDAO {
             IERC20(_proposals[proposalId].assetTokenAddress).transferFrom(msg.sender, address(this), _proposals[proposalId].assetTokenAmount);
             _daoToken.mint(_proposals[proposalId].daoTokenAmount);
             _daoToken.transfer(msg.sender, _proposals[proposalId].daoTokenAmount);
+            assets.add(_proposals[proposalId].assetTokenAddress);
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
             _daoToken.transferFrom(msg.sender, address(this), _proposals[proposalId].daoTokenAmount);
             IERC20(_proposals[proposalId].assetTokenAddress).transfer(msg.sender, _proposals[proposalId].assetTokenAmount);
+            if (IERC20(_proposals[proposalId].assetTokenAddress).balanceOf(address(this)) == 0) {
+                assets.remove(_proposals[proposalId].assetTokenAddress);
+            }
             // TODO: implement the payout
         }
 
