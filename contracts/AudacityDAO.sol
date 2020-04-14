@@ -31,6 +31,7 @@ contract AudacityDAO is IAudacityDAO {
     * @member yesVotes The total of yes votes for the proposal in DAO tokens
     * @member noVotes The total of no votes for the proposal in DAO tokens
     * @member votingExpiry The expiry timestamp for proposal voting
+    * @member executionOpen The starting timestamp for proposal execution
     * @member executionExpiry The expiry timestamp for proposal execution
     * @member status The status of the proposal
     */
@@ -44,6 +45,7 @@ contract AudacityDAO is IAudacityDAO {
         uint256 yesVotes;
         uint256 noVotes;
         uint256 votingExpiry;
+        uint256 executionOpen;
         uint256 executionExpiry;
         ProposalStatus status;
     }
@@ -69,10 +71,44 @@ contract AudacityDAO is IAudacityDAO {
     AddressSet.Set private assets;
 
     /**
-    * @notice Constructor deploys a new DAO token instance and becomes owner (public)
+    * @notice The quorum required to pass a proposal vote in % points (private)
     */
-    constructor() public {
+    uint256 private _quorum;
+
+    /**
+    * @notice The number of seconds until voting expires after proposal submission (private)
+    */
+    uint256 private _votingExpiryDelay;
+
+    /**
+    * @notice The number of seconds until execution opens after proposal voting expires (private)
+    */
+    uint256 private _executionOpenDelay;
+
+    /**
+    * @notice The number of seconds until execution expires after proposal execution opens (private)
+    */
+    uint256 private _executionExpiryDelay;
+
+    /**
+    * @notice Constructor deploys a new DAO token instance and becomes owner (public)
+    * @param quorum The quorum required to pass a proposal vote in % points
+    * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
+    * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
+    * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
+    */
+    constructor(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public {
+        require(quorum <= 100, "AudacityDAO: invalid quorum");
+        // TODO: Define realistic min's and max's
+        require(votingExpiryDelay > 60, "AudacityDAO: invalid voting expiry delay");
+        require(executionOpenDelay > 60, "AudacityDAO: invalid execution open delay");
+        require(executionExpiryDelay > 60, "AudacityDAO: invalid execution expiry delay");
+
         _daoToken = new DAOToken();
+        _quorum = quorum;
+        _votingExpiryDelay = votingExpiryDelay;
+        _executionOpenDelay = executionOpenDelay;
+        _executionExpiryDelay = executionExpiryDelay;
     }
 
     /**
@@ -110,6 +146,38 @@ contract AudacityDAO is IAudacityDAO {
     }
 
     /**
+    * @notice Get the voting expiry delay (external view)
+    * @return The number of seconds until voting expires after proposal submission
+    */
+    function getVotingExpiryDelay() external view returns(uint256) {
+        return _votingExpiryDelay;
+    }
+
+    /**
+    * @notice Get the exection open delay (external view)
+    * @return The number of seconds until execution opens after proposal voting expires
+    */
+    function getExecutionOpenDelay() external view returns(uint256) {
+        return _executionOpenDelay;
+    }
+
+    /**
+    * @notice Get the exection expiry delay (external view)
+    * @return The number of seconds until execution expires after proposal exection opens
+    */
+    function getExecutionExpiryDelay() external view returns(uint256) {
+        return _executionExpiryDelay;
+    }
+
+    /**
+    * @notice Get the quorum required to pass a proposal vote (external view)
+    * @return The quorum in % points
+    */
+    function getQuorum() external view returns(uint256) {
+        return _quorum;
+    }
+
+    /**
     * @notice Submit a proposal (external)
     * @param proposalType The type of proposal (e.g., Invest, Divest)
     * @param assetTokenType The type of the asset token (e.g., ERC20)
@@ -139,13 +207,13 @@ contract AudacityDAO is IAudacityDAO {
         proposal.assetTokenAmount = assetTokenAmount;
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.submitter = msg.sender;
-        // TODO: set proper voting expiry
-        proposal.votingExpiry = _proposalCount == 0? now : now + 180;
-        // TODO: set proper execution expiry
-        proposal.executionExpiry = proposal.votingExpiry + 180;
+        proposal.votingExpiry = _proposalCount == 0? now : now + _votingExpiryDelay;
+        proposal.executionOpen = proposal.votingExpiry + _executionOpenDelay;
+        proposal.executionExpiry = proposal.executionOpen + _executionExpiryDelay;
         proposal.status = ProposalStatus.Submitted;
 
         _proposals[_proposalCount] = proposal;
+        _addVote(_proposalCount, msg.sender, true, _daoToken.balanceOf(msg.sender));
         _proposalCount++;
 
         emit Submitted(
@@ -170,12 +238,7 @@ contract AudacityDAO is IAudacityDAO {
         uint256 balance = _daoToken.balanceOf(msg.sender);
         require(balance > 0, "AudacityDAO: no voting tokens");
 
-        // TODO: crude implementation for now, change to prevent multiple votes / allow changing votes
-        if (vote) {
-            _proposals[proposalId].yesVotes += balance;
-        } else {
-            _proposals[proposalId].noVotes += balance;
-        }
+        _addVote(proposalId, msg.sender, vote, balance);
 
         emit VotedOn(
             _proposals[proposalId].proposalType,
@@ -193,8 +256,10 @@ contract AudacityDAO is IAudacityDAO {
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
         require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
         require(now >= _proposals[proposalId].votingExpiry, "AudacityDAO: vote not expired");
-        // TODO: require quorum
+        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _daoToken.totalSupply() * _quorum / 100) || proposalId == 0,
+            "AudacityDAO: vote did not reach quorum");
         require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "AudacityDAO: vote failed");
+        require(now >= _proposals[proposalId].executionOpen, "AudacityDAO: execution not open");
         require(now < _proposals[proposalId].executionExpiry, "AudacityDAO: execution expired");
         require(_proposals[proposalId].submitter == msg.sender, "AudacityDAO: only submitter can execute");
 
@@ -219,5 +284,21 @@ contract AudacityDAO is IAudacityDAO {
             msg.sender,
             proposalId
         );
+    }
+
+    /**
+    * @notice _addVote (private)
+    * @param proposalId The proposal ID
+    * @param voter The voter address
+    * @param vote The yes/no vote
+    * @param amount The amount of tokens voting
+    */
+    function _addVote(uint256 proposalId, address voter, bool vote, uint256 amount) private {
+        // TODO: basic implementation for now, change to prevent multiple votes / allow changing votes
+        if (vote) {
+            _proposals[proposalId].yesVotes += amount;
+        } else {
+            _proposals[proposalId].noVotes += amount;
+        }
     }
 }
