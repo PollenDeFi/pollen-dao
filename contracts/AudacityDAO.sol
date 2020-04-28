@@ -21,6 +21,11 @@ contract AudacityDAO is IAudacityDAO {
     enum ProposalStatus {Null, Submitted, Executed, Last}
 
     /**
+    * @notice Type for representing the state of a vote on a proposal
+    */
+    enum VoterState {Null, VotedYes, VotedNo}
+
+    /**
     * @notice Type for representing a token proposal
     * @member proposalType The type of proposal (e.g., Invest, Divest)
     * @member assetTokenType The type of the asset token (e.g., ERC20)
@@ -28,6 +33,7 @@ contract AudacityDAO is IAudacityDAO {
     * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
     * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
     * @member submitter The submitter of the proposal
+    * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
     * @member yesVotes The total of yes votes for the proposal in DAO tokens
     * @member noVotes The total of no votes for the proposal in DAO tokens
     * @member votingExpiry The expiry timestamp for proposal voting
@@ -42,6 +48,7 @@ contract AudacityDAO is IAudacityDAO {
         uint256 assetTokenAmount;
         uint256 daoTokenAmount;
         address submitter;
+        mapping(address => VoterState) voters;
         uint256 yesVotes;
         uint256 noVotes;
         uint256 votingExpiry;
@@ -122,11 +129,50 @@ contract AudacityDAO is IAudacityDAO {
     /**
     * @notice Get a proposal at index (external view)
     * @param proposalId The proposal ID
-    * @return The proposal
+    * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
+    * daoTokenAmount , submitter , yesVotes , noVotes , votingExpiry , executionOpen
+    * executionExpiry , status
     */
-    function getProposal(uint256 proposalId) external view returns(Proposal memory) {
+    function getProposal(uint256 proposalId) external view returns(
+        ProposalType proposalType,
+        TokenType assetTokenType,
+        address assetTokenAddress,
+        uint256 assetTokenAmount,
+        uint256 daoTokenAmount,
+        address submitter,
+        uint256 yesVotes,
+        uint256 noVotes,
+        uint256 votingExpiry,
+        uint256 executionOpen,
+        uint256 executionExpiry,
+        ProposalStatus status
+    ) {
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
-        return _proposals[proposalId];
+        Proposal memory proposal = _proposals[proposalId];
+        return (
+            proposal.proposalType,
+            proposal.assetTokenType,
+            proposal.assetTokenAddress,
+            proposal.assetTokenAmount,
+            proposal.daoTokenAmount,
+            proposal.submitter,
+            proposal.yesVotes,
+            proposal.noVotes,
+            proposal.votingExpiry,
+            proposal.executionOpen,
+            proposal.executionExpiry,
+            proposal.status
+        );
+    }
+
+    /**
+    * @notice Get the state of a voter on a specified proposal (external view)
+    * @param proposalId The proposal ID
+    * @return The state of the vote
+    */
+    function getVoterState(uint256 proposalId) external view returns(VoterState) {
+        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
+        return (_proposals[proposalId].voters[msg.sender]);
     }
 
     /**
@@ -295,10 +341,22 @@ contract AudacityDAO is IAudacityDAO {
     */
     function _addVote(uint256 proposalId, address voter, bool vote, uint256 amount) private {
         // TODO: basic implementation for now, change to prevent multiple votes / allow changing votes
+        // if voter had already voted on the proposal, and if so what his vote was.
+        VoterState voterState = _proposals[proposalId].voters[voter];
+
+        // allows to change old vote
+        if (voterState == VoterState.VotedYes) {
+            _proposals[proposalId].yesVotes -= amount;
+        } else if (voterState == VoterState.VotedNo) {
+            _proposals[proposalId].noVotes -= amount;
+        }
+
         if (vote) {
             _proposals[proposalId].yesVotes += amount;
+            _proposals[proposalId].voters[voter] = VoterState.VotedYes;
         } else {
             _proposals[proposalId].noVotes += amount;
+            _proposals[proposalId].voters[voter] = VoterState.VotedNo;
         }
     }
 }
