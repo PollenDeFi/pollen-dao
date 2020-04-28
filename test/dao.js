@@ -7,6 +7,7 @@ const { expectRevert, expectEvent, time, BN } = require('@openzeppelin/test-help
 const ProposalType = { Invest: '0', Divest: '1', Last: '2' }
 const TokenType = { ERC20: '0', Last: '1' }
 const ProposalStatus = { Null: '0', Submitted: '1', Executed: '2', Last: '3' }
+const VoterState = { Null: '0', VotedYes: '1', VotedNo: '2' }
 
 const address0 = '0x0000000000000000000000000000000000000000';
 
@@ -178,6 +179,16 @@ contract('dao', function (accounts) {
         );
     });
 
+    it('should automatically vote yes on submitter\'s own proposal', async function () {
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(1);
+        const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        expect(daoTokenBalance).to.be.bignumber.greaterThan('0');
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+    });
+
     it('should increase yes votes by voter DAO token balance when voting yes', async function () {
         await this.daoToken.transfer(accounts[1], 1);
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
@@ -189,7 +200,7 @@ contract('dao', function (accounts) {
         let receipt;
         receipt = await this.dao.voteOn(1, true);
         proposal = await this.dao.getProposal(1);
-        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(daoTokenBalance));
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
             receipt,
@@ -197,7 +208,7 @@ contract('dao', function (accounts) {
         );
         receipt = await this.dao.voteOn(1, true, {from: accounts[1]});
         proposal = await this.dao.getProposal(1);
-        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(daoTokenBalance).add(new BN('1')));
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
             receipt,
@@ -216,7 +227,7 @@ contract('dao', function (accounts) {
         let receipt;
         receipt = await this.dao.voteOn(1, false);
         proposal = await this.dao.getProposal(1);
-        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
         expectEvent(
             receipt,
@@ -224,12 +235,226 @@ contract('dao', function (accounts) {
         );
         receipt = await this.dao.voteOn(1, false, {from: accounts[1]});
         proposal = await this.dao.getProposal(1);
-        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
         expectEvent(
             receipt,
             'VotedOn'
         );
+    });
+
+    it('should prevent same voter from double voting yes', async function () {
+        await this.daoToken.transfer(accounts[1], 1);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(1);
+        const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        // automatic vote by submitter
+        expect(daoTokenBalance).to.be.bignumber.greaterThan('0');
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        //
+        let receipt;
+        // no increase on double voting yes
+        receipt = await this.dao.voteOn(1, true);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // increase as usual when another account votes
+        receipt = await this.dao.voteOn(1, true, {from: accounts[1]});
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // no increase when that same other account double votes yes
+        receipt = await this.dao.voteOn(1, true, {from: accounts[1]});
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+    });
+
+    it('should prevent same voter from double voting no', async function () {
+        await this.daoToken.transfer(accounts[1], 1);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        let proposal;
+        proposal = await this.dao.getProposal(1);
+        const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        // automatic vote by submitter
+        expect(daoTokenBalance).to.be.bignumber.greaterThan('0');
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        //
+        let receipt;
+        // change vote from yes to no
+        receipt = await this.dao.voteOn(1, false);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // prevent submitter from double voting no
+        receipt = await this.dao.voteOn(1, false);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // increase as usual when another account votes
+        receipt = await this.dao.voteOn(1, false, {from: accounts[1]});
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // no increase when that same other account double votes no
+        receipt = await this.dao.voteOn(1, false, {from: accounts[1]});
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+    });
+
+    it('should allow voter to change vote from yes to no', async function () {
+        await this.daoToken.transfer(accounts[1], 1);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        let proposal, vote;
+        proposal = await this.dao.getProposal(1);
+        vote = await this.dao.getVoterState(1);
+        expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
+        const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        // automatic vote by submitter
+        expect(daoTokenBalance).to.be.bignumber.greaterThan('0');
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        //
+        let receipt;
+        // change vote from yes to no
+        receipt = await this.dao.voteOn(1, false);
+        vote = await this.dao.getVoterState(1);
+        expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // same behavior when another account votes
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.Null);
+        receipt = await this.dao.voteOn(1, true, {from: accounts[1]});
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(new BN('1'));
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        receipt = await this.dao.voteOn(1, false, {from: accounts[1]});
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+    });
+
+    it('should allow voter to change vote from no to yes', async function () {
+        await this.daoToken.transfer(accounts[1], 1);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3);
+        let proposal, vote;
+        proposal = await this.dao.getProposal(1);
+        vote = await this.dao.getVoterState(1);
+        expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
+        const daoTokenBalance = await this.daoToken.balanceOf(accounts[0]);
+        // automatic vote by submitter
+        expect(daoTokenBalance).to.be.bignumber.greaterThan('0');
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        //
+        let receipt;
+        // change vote from yes to no
+        receipt = await this.dao.voteOn(1, false);
+        vote = await this.dao.getVoterState(1);
+        expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal('0');
+        expect(proposal.noVotes).to.be.bignumber.equal(daoTokenBalance);
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // change vote from no to yes again
+        receipt = await this.dao.voteOn(1, true);
+        vote = await this.dao.getVoterState(1);
+        expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
+        // same behavior when another account votes
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.Null);
+        receipt = await this.dao.voteOn(1, false, {from: accounts[1]});
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance);
+        expect(proposal.noVotes).to.be.bignumber.equal(new BN('1'));
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        receipt = await this.dao.voteOn(1, true, {from: accounts[1]});
+        vote = await this.dao.getVoterState(1, {from: accounts[1]});
+        expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
+        proposal = await this.dao.getProposal(1);
+        expect(proposal.yesVotes).to.be.bignumber.equal(daoTokenBalance.add(new BN('1')));
+        expect(proposal.noVotes).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'VotedOn'
+        );
+        //
     });
 
     //===== EXECUTE =====
