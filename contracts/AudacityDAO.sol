@@ -333,6 +333,33 @@ contract AudacityDAO is IAudacityDAO {
     }
 
     /**
+    * @notice Redeem DAO tokens for the relative proportion of each asset token held by the DAO (external)
+    * @param daoTokenAmount The amount of DAO tokens to redeem
+    */
+    function redeem(uint256 daoTokenAmount) external override {
+        require(daoTokenAmount != 0, "AudacityDAO: can't redeem zero amount");
+
+        uint256 totalSupply = _daoToken.totalSupply();
+        _daoToken.transferFrom(msg.sender, address(this), daoTokenAmount);
+
+        // TODO: cap the asset list to prevent unbounded loop
+        for (uint256 i=0; i < assets.elements.length; i++) {
+            if (assets.elements[i] != address(0)) {
+                uint256 assetTokenAmount = (IERC20(assets.elements[i]).balanceOf(address(this)) * daoTokenAmount) / totalSupply;
+                IERC20(assets.elements[i]).transfer(msg.sender, assetTokenAmount);
+                if (IERC20(assets.elements[i]).balanceOf(address(this)) == 0) {
+                   assets.remove(assets.elements[i]);
+                }
+            }
+        }
+
+        emit Redeemed(
+            msg.sender,
+            daoTokenAmount
+        );
+    }
+
+    /**
     * @notice _addVote (private)
     * @param proposalId The proposal ID
     * @param voter The voter address
@@ -340,7 +367,6 @@ contract AudacityDAO is IAudacityDAO {
     * @param amount The amount of tokens voting
     */
     function _addVote(uint256 proposalId, address voter, bool vote, uint256 amount) private {
-        // TODO: basic implementation for now, change to prevent multiple votes / allow changing votes
         // if voter had already voted on the proposal, and if so what his vote was.
         VoterState voterState = _proposals[proposalId].voters[voter];
 

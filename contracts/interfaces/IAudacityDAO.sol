@@ -47,6 +47,12 @@ interface IAudacityDAO {
     function execute(uint256 proposalId) external;
 
     /**
+    * @notice Redeem DAO tokens for asset tokens (external)
+    * @param daoTokenAmount The amount of DAO tokens to redeem
+    */
+    function redeem(uint256 daoTokenAmount) external;
+
+    /**
      * @notice Event emitted when a proposal is submitted
      */
     event Submitted(
@@ -74,5 +80,13 @@ interface IAudacityDAO {
         ProposalType proposalType,
         address executor,
         uint256 proposalId
+    );
+
+    /**
+     * @notice Event emitted when DAO tokens are redeemed
+     */
+    event Redeemed(
+        address sender,
+        uint256 daoTokenAmount
     );
 }
