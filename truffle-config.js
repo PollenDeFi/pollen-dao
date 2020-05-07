@@ -1,3 +1,5 @@
+require('babel-register');
+require('babel-polyfill');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 require("dotenv").config();
 const infuraKey = process.env.INFURA_KEY;

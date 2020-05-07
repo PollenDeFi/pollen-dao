@@ -1,6 +1,6 @@
 const DAOToken = artifacts.require("DAOToken");
-const { expect } = require('chai');
-const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
+import { expect } from 'chai';
+import { expectRevert, expectEvent } from '@openzeppelin/test-helpers';
 
 contract('daoToken', function (accounts) {
     beforeEach(async function () {
