@@ -1,5 +1,5 @@
 const MockAddressSetWrapper = artifacts.require('MockAddressSetWrapper');
-const { expect } = require('chai');
+import { expect } from 'chai';
 
 const address0 = '0x0000000000000000000000000000000000000000';
 const address1 = '0x0000000000000000000000000000000000000001';
