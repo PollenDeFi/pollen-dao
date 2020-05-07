@@ -10,11 +10,19 @@ export const redeem = () => contract('redeeming DAO tokens', function ([deployer
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, { from: deployer });
-        const proposal = await this.dao.getProposal(0);
+        let proposal;
+        proposal = await this.dao.getProposal(0);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
         await this.dao.execute(0, { from: deployer });
         await this.daoToken.transfer(bob, 100, { from: deployer });
+        this.assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
+        this.assetToken2.mint(99, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken2.address, 10, 2, { from: bob });
+        proposal = await this.dao.getProposal(1);
+        await time.increaseTo(proposal.executionOpen);
+        await this.assetToken2.approve(this.dao.address, 10, { from: bob });
+        await this.dao.execute(1, { from: bob });
     });
 
     it('should fail when redeeming 0 DAO tokens', function () {
@@ -65,24 +73,17 @@ export const redeem = () => contract('redeeming DAO tokens', function ([deployer
     });
 
     it('should redeem all asset tokens when redeeming all DAO tokens and the DAO is holding multiple assets', async function () {
-        const assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
-        assetToken2.mint(99, { from: bob });
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, assetToken2.address, 99, 1, { from: bob });
-        const proposal = await this.dao.getProposal(1);
-        await time.increaseTo(proposal.executionOpen);
-        await assetToken2.approve(this.dao.address, 99, { from: bob });
-        await this.dao.execute(1, { from: bob });
         const daoTokenBalance = await this.daoToken.balanceOf(bob);
         const assetTokenBalanceOfDao = await this.assetToken.balanceOf(this.dao.address);
-        const assetToken2BalanceOfDao = await assetToken2.balanceOf(this.dao.address);
+        const assetToken2BalanceOfDao = await this.assetToken2.balanceOf(this.dao.address);
         const assetTokenBalanceOfRedeemer = await this.assetToken.balanceOf(bob);
-        const assetToken2BalanceOfRedeemer = await assetToken2.balanceOf(bob);
+        const assetToken2BalanceOfRedeemer = await this.assetToken2.balanceOf(bob);
         await this.daoToken.approve(this.dao.address, daoTokenBalance, { from: bob });
         await this.dao.redeem(daoTokenBalance, { from: bob });
         const newAssetTokenBalanceOfDao = await this.assetToken.balanceOf(this.dao.address);
-        const newAssetToken2BalanceOfDao = await assetToken2.balanceOf(this.dao.address);
+        const newAssetToken2BalanceOfDao = await this.assetToken2.balanceOf(this.dao.address);
         const newAssetTokenBalanceOfRedeemer = await this.assetToken.balanceOf(bob);
-        const newAssetToken2BalanceOfRedeemer = await assetToken2.balanceOf(bob);
+        const newAssetToken2BalanceOfRedeemer = await this.assetToken2.balanceOf(bob);
         expect(newAssetTokenBalanceOfDao).to.be.bignumber.equal('0');
         expect(newAssetToken2BalanceOfDao).to.be.bignumber.equal('0');
         expect(newAssetTokenBalanceOfRedeemer).to.be.bignumber.equal(assetTokenBalanceOfRedeemer.add(assetTokenBalanceOfDao));
@@ -90,24 +91,17 @@ export const redeem = () => contract('redeeming DAO tokens', function ([deployer
     });
 
     it('should redeem 50% of asset tokens when redeeming 50% of DAO tokens and the DAO is holding multiple assets', async function () {
-        const assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
-        assetToken2.mint(99, { from: bob });
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, assetToken2.address, 10, 2, { from: bob });
-        const proposal = await this.dao.getProposal(1);
-        await time.increaseTo(proposal.executionOpen);
-        await assetToken2.approve(this.dao.address, 10, { from: bob });
-        await this.dao.execute(1, { from: bob });
         const daoTokenBalance = await this.daoToken.balanceOf(bob);
         const assetTokenBalanceOfDao = await this.assetToken.balanceOf(this.dao.address);
-        const assetToken2BalanceOfDao = await assetToken2.balanceOf(this.dao.address);
+        const assetToken2BalanceOfDao = await this.assetToken2.balanceOf(this.dao.address);
         const assetTokenBalanceOfRedeemer = await this.assetToken.balanceOf(bob);
-        const assetToken2BalanceOfRedeemer = await assetToken2.balanceOf(bob);
+        const assetToken2BalanceOfRedeemer = await this.assetToken2.balanceOf(bob);
         await this.daoToken.approve(this.dao.address, daoTokenBalance.div(new BN('2')), { from: bob });
         await this.dao.redeem(daoTokenBalance.div(new BN('2')), { from: bob });
         const newAssetTokenBalanceOfDao = await this.assetToken.balanceOf(this.dao.address);
-        const newAssetToken2BalanceOfDao = await assetToken2.balanceOf(this.dao.address);
+        const newAssetToken2BalanceOfDao = await this.assetToken2.balanceOf(this.dao.address);
         const newAssetTokenBalanceOfRedeemer = await this.assetToken.balanceOf(bob);
-        const newAssetToken2BalanceOfRedeemer = await assetToken2.balanceOf(bob);
+        const newAssetToken2BalanceOfRedeemer = await this.assetToken2.balanceOf(bob);
         expect(newAssetTokenBalanceOfDao).to.be.bignumber.equal(assetTokenBalanceOfDao.div(new BN('2')));
         expect(newAssetToken2BalanceOfDao).to.be.bignumber.equal(assetToken2BalanceOfDao.div(new BN('2')));
         expect(newAssetTokenBalanceOfRedeemer).to.be.bignumber.equal(assetTokenBalanceOfRedeemer.add(assetTokenBalanceOfDao.div(new BN('2'))));
