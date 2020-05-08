@@ -33,6 +33,7 @@ contract AudacityDAO is IAudacityDAO {
     * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
     * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
     * @member submitter The submitter of the proposal
+    * @member snapshotId The id of snapshot storing balances and total supply during proposal submission
     * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
     * @member yesVotes The total of yes votes for the proposal in DAO tokens
     * @member noVotes The total of no votes for the proposal in DAO tokens
@@ -48,6 +49,7 @@ contract AudacityDAO is IAudacityDAO {
         uint256 assetTokenAmount;
         uint256 daoTokenAmount;
         address submitter;
+        uint256 snapshotId;
         mapping(address => VoterState) voters;
         uint256 yesVotes;
         uint256 noVotes;
@@ -253,13 +255,14 @@ contract AudacityDAO is IAudacityDAO {
         proposal.assetTokenAmount = assetTokenAmount;
         proposal.daoTokenAmount = daoTokenAmount;
         proposal.submitter = msg.sender;
+        proposal.snapshotId = _daoToken.snapshot();
         proposal.votingExpiry = _proposalCount == 0? now : now + _votingExpiryDelay;
         proposal.executionOpen = proposal.votingExpiry + _executionOpenDelay;
         proposal.executionExpiry = proposal.executionOpen + _executionExpiryDelay;
         proposal.status = ProposalStatus.Submitted;
 
         _proposals[_proposalCount] = proposal;
-        _addVote(_proposalCount, msg.sender, true, _daoToken.balanceOf(msg.sender));
+        _addVote(_proposalCount, msg.sender, true, _daoToken.balanceOfAt(msg.sender, proposal.snapshotId));
         _proposalCount++;
 
         emit Submitted(
@@ -281,7 +284,7 @@ contract AudacityDAO is IAudacityDAO {
         require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
         require(now < _proposals[proposalId].votingExpiry, "AudacityDAO: vote expired");
 
-        uint256 balance = _daoToken.balanceOf(msg.sender);
+        uint256 balance = _daoToken.balanceOfAt(msg.sender, _proposals[proposalId].snapshotId);
         require(balance > 0, "AudacityDAO: no voting tokens");
 
         _addVote(proposalId, msg.sender, vote, balance);
@@ -302,7 +305,7 @@ contract AudacityDAO is IAudacityDAO {
         require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
         require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
         require(now >= _proposals[proposalId].votingExpiry, "AudacityDAO: vote not expired");
-        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _daoToken.totalSupply() * _quorum / 100) || proposalId == 0,
+        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _daoToken.totalSupplyAt(_proposals[proposalId].snapshotId) * _quorum / 100) || proposalId == 0,
             "AudacityDAO: vote did not reach quorum");
         require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "AudacityDAO: vote failed");
         require(now >= _proposals[proposalId].executionOpen, "AudacityDAO: execution not open");
