@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
 import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './consts';
 
-export const submit = () => contract('proposal submission', function ([deployer, bob, alice]) {
+contract('proposal submission', function ([deployer, bob, alice]) {
     beforeEach(async function () {
         this.dao = await Artifacts.AudacityDAO.new(30, 120, 180, 240, { from: deployer });
         const daoTokenAddress = await this.dao.getDaoTokenAddress();
