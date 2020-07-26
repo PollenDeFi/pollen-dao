@@ -32,3 +32,7 @@ await dao.submit(0, 0, assetToken.address, this.web3.utils.toBN('200000000000000
 await assetToken.approve(dao.address, this.web3.utils.toBN('200000000000000000000'))
 await dao.execute(0)
 ```
+
+License
+===========
+TBA (plan is to move to an open-source license)
