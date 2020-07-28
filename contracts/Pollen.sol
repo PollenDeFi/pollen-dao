@@ -5,16 +5,16 @@ import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
 
 /**
- * @title DAOToken
- * @dev The main token for the Audacity DAO
+ * @title Pollen
+ * @dev The main token for the Pollen DAO
  * @author gtlewis
  * @author scorpion9979
  */
-contract DAOToken is ERC20Snapshot, ERC20Detailed, Ownable {
+contract Pollen is ERC20Snapshot, ERC20Detailed, Ownable {
     /**
-    * @notice Constructor sets the DAO token display values (public)
+    * @notice Constructor sets the Pollen display values (public)
     */
-    constructor() public ERC20Detailed("DAOToken", "DAOT", 18) {}
+    constructor() public ERC20Detailed("Pollen", "PLN", 18) {}
 
     /**
     * @notice Mint tokens to the owner account (external)

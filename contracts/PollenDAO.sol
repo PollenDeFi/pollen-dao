@@ -1,18 +1,18 @@
 pragma solidity >=0.6 <0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./DAOToken.sol";
-import "./interfaces/IAudacityDAO.sol";
+import "./Pollen.sol";
+import "./interfaces/IPollenDAO.sol";
 import "./lib/AddressSet.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
-* @title AudacityDAO Contract
-* @notice The main Audacity DAO contract
+* @title PollenDAO Contract
+* @notice The main Pollen DAO contract
 * @author gtlewis
 * @author scorpion9979
 */
-contract AudacityDAO is IAudacityDAO {
+contract PollenDAO is IPollenDAO {
     using AddressSet for AddressSet.Set;
 
     /**
@@ -31,12 +31,12 @@ contract AudacityDAO is IAudacityDAO {
     * @member assetTokenType The type of the asset token (e.g., ERC20)
     * @member assetTokenAddress The address of the asset token
     * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
-    * @member daoTokenAmount The amount of the DAO token being proposed to pay/receive
+    * @member pollenAmount The amount of the Pollen being proposed to pay/receive
     * @member submitter The submitter of the proposal
     * @member snapshotId The id of snapshot storing balances and total supply during proposal submission
     * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
-    * @member yesVotes The total of yes votes for the proposal in DAO tokens
-    * @member noVotes The total of no votes for the proposal in DAO tokens
+    * @member yesVotes The total of yes votes for the proposal in Pollens
+    * @member noVotes The total of no votes for the proposal in Pollens
     * @member votingExpiry The expiry timestamp for proposal voting
     * @member executionOpen The starting timestamp for proposal execution
     * @member executionExpiry The expiry timestamp for proposal execution
@@ -47,7 +47,7 @@ contract AudacityDAO is IAudacityDAO {
         TokenType assetTokenType;
         address assetTokenAddress;
         uint256 assetTokenAmount;
-        uint256 daoTokenAmount;
+        uint256 pollenAmount;
         address submitter;
         uint256 snapshotId;
         mapping(address => VoterState) voters;
@@ -60,9 +60,9 @@ contract AudacityDAO is IAudacityDAO {
     }
 
     /**
-    * @notice The DAO token contract instance (private)
+    * @notice The Pollen token contract instance (private)
     */
-    DAOToken private _daoToken;
+    Pollen private _pollen;
 
     /**
     * @notice The proposals (private)
@@ -100,20 +100,20 @@ contract AudacityDAO is IAudacityDAO {
     uint256 private _executionExpiryDelay;
 
     /**
-    * @notice Constructor deploys a new DAO token instance and becomes owner (public)
+    * @notice Constructor deploys a new Pollen instance and becomes owner (public)
     * @param quorum The quorum required to pass a proposal vote in % points
     * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
     * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
     * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
     */
     constructor(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public {
-        require(quorum <= 100, "AudacityDAO: invalid quorum");
+        require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
-        require(votingExpiryDelay > 60, "AudacityDAO: invalid voting expiry delay");
-        require(executionOpenDelay > 60, "AudacityDAO: invalid execution open delay");
-        require(executionExpiryDelay > 60, "AudacityDAO: invalid execution expiry delay");
+        require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");
+        require(executionOpenDelay > 60, "PollenDAO: invalid execution open delay");
+        require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
 
-        _daoToken = new DAOToken();
+        _pollen = new Pollen();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
         _executionOpenDelay = executionOpenDelay;
@@ -121,18 +121,18 @@ contract AudacityDAO is IAudacityDAO {
     }
 
     /**
-    * @notice Get the DAO token contract address (external view)
-    * @return The DAO token contract address
+    * @notice Get the Pollen token contract address (external view)
+    * @return The Pollen contract address
     */
-    function getDaoTokenAddress() external view returns(address) {
-        return address(_daoToken);
+    function getPollenAddress() external view returns(address) {
+        return address(_pollen);
     }
 
     /**
     * @notice Get a proposal at index (external view)
     * @param proposalId The proposal ID
     * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
-    * daoTokenAmount , submitter , yesVotes , noVotes , votingExpiry , executionOpen
+    * pollenAmount , submitter , yesVotes , noVotes , votingExpiry , executionOpen
     * executionExpiry , status
     */
     function getProposal(uint256 proposalId) external view returns(
@@ -140,7 +140,7 @@ contract AudacityDAO is IAudacityDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 daoTokenAmount,
+        uint256 pollenAmount,
         address submitter,
         uint256 yesVotes,
         uint256 noVotes,
@@ -149,14 +149,14 @@ contract AudacityDAO is IAudacityDAO {
         uint256 executionExpiry,
         ProposalStatus status
     ) {
-        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         Proposal memory proposal = _proposals[proposalId];
         return (
             proposal.proposalType,
             proposal.assetTokenType,
             proposal.assetTokenAddress,
             proposal.assetTokenAmount,
-            proposal.daoTokenAmount,
+            proposal.pollenAmount,
             proposal.submitter,
             proposal.yesVotes,
             proposal.noVotes,
@@ -173,7 +173,7 @@ contract AudacityDAO is IAudacityDAO {
     * @return The state of the vote
     */
     function getVoterState(uint256 proposalId) external view returns(VoterState) {
-        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         return (_proposals[proposalId].voters[msg.sender]);
     }
 
@@ -231,38 +231,40 @@ contract AudacityDAO is IAudacityDAO {
     * @param assetTokenType The type of the asset token (e.g., ERC20)
     * @param assetTokenAddress The address of the asset token
     * @param assetTokenAmount The amount of the asset token to invest/divest
-    * @param daoTokenAmount The amount of DAO token to be paid/received
+    * @param pollenAmount The amount of Pollen to be paid/received
     */
     function submit(
         ProposalType proposalType,
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 daoTokenAmount
+        uint256 pollenAmount
     ) external override {
-        require(proposalType < ProposalType.Last, "AudacityDAO: invalid proposal type");
-        require(assetTokenType < TokenType.Last, "AudacityDAO: invalid asset token type");
-        require(assetTokenAddress != address(0), "AudacityDAO: invalid asset token address");
+        require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
+        require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
+        require(assetTokenAddress != address(0), "PollenDAO: invalid asset token address");
+        require(assetTokenAddress != this.getPollenAddress(), "PollenDAO: invalid usage of Pollen as asset token");
         require(
-            assetTokenAmount != 0 || daoTokenAmount != 0,
-            "AudacityDAO: both asset token amount and DAO token amount zero"
+            assetTokenAmount != 0 || pollenAmount != 0,
+            "PollenDAO: both asset token amount and Pollen amount zero"
         );
 
         Proposal memory proposal;
+        uint256 proposalId = _proposalCount;
         proposal.proposalType = proposalType;
         proposal.assetTokenType = assetTokenType;
         proposal.assetTokenAddress = assetTokenAddress;
         proposal.assetTokenAmount = assetTokenAmount;
-        proposal.daoTokenAmount = daoTokenAmount;
+        proposal.pollenAmount = pollenAmount;
         proposal.submitter = msg.sender;
-        proposal.snapshotId = _daoToken.snapshot();
-        proposal.votingExpiry = _proposalCount == 0? now : now + _votingExpiryDelay;
+        proposal.snapshotId = _pollen.snapshot();
+        proposal.votingExpiry = proposalId == 0? now : now + _votingExpiryDelay;
         proposal.executionOpen = proposal.votingExpiry + _executionOpenDelay;
         proposal.executionExpiry = proposal.executionOpen + _executionExpiryDelay;
         proposal.status = ProposalStatus.Submitted;
 
-        _proposals[_proposalCount] = proposal;
-        _addVote(_proposalCount, msg.sender, true, _daoToken.balanceOfAt(msg.sender, proposal.snapshotId));
+        _proposals[proposalId] = proposal;
+        _addVote(proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId));
         _proposalCount++;
 
         emit Submitted(
@@ -270,7 +272,8 @@ contract AudacityDAO is IAudacityDAO {
             assetTokenType,
             assetTokenAddress,
             assetTokenAmount,
-            daoTokenAmount
+            pollenAmount,
+            proposalId
         );
     }
 
@@ -280,12 +283,12 @@ contract AudacityDAO is IAudacityDAO {
     * @param vote The yes/no vote
     */
     function voteOn(uint256 proposalId, bool vote) external override {
-        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
-        require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
-        require(now < _proposals[proposalId].votingExpiry, "AudacityDAO: vote expired");
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
+        require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
+        require(now < _proposals[proposalId].votingExpiry, "PollenDAO: vote expired");
 
-        uint256 balance = _daoToken.balanceOfAt(msg.sender, _proposals[proposalId].snapshotId);
-        require(balance > 0, "AudacityDAO: no voting tokens");
+        uint256 balance = _pollen.balanceOfAt(msg.sender, _proposals[proposalId].snapshotId);
+        require(balance > 0, "PollenDAO: no voting tokens");
 
         _addVote(proposalId, msg.sender, vote, balance);
 
@@ -302,23 +305,23 @@ contract AudacityDAO is IAudacityDAO {
     * @param proposalId The proposal ID
     */
     function execute(uint256 proposalId) external override {
-        require(proposalId < _proposalCount, "AudacityDAO: invalid proposal id");
-        require(_proposals[proposalId].status == ProposalStatus.Submitted, "AudacityDAO: invalid proposal status");
-        require(now >= _proposals[proposalId].votingExpiry, "AudacityDAO: vote not expired");
-        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _daoToken.totalSupplyAt(_proposals[proposalId].snapshotId) * _quorum / 100) || proposalId == 0,
-            "AudacityDAO: vote did not reach quorum");
-        require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "AudacityDAO: vote failed");
-        require(now >= _proposals[proposalId].executionOpen, "AudacityDAO: execution not open");
-        require(now < _proposals[proposalId].executionExpiry, "AudacityDAO: execution expired");
-        require(_proposals[proposalId].submitter == msg.sender, "AudacityDAO: only submitter can execute");
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
+        require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
+        require(now >= _proposals[proposalId].votingExpiry, "PollenDAO: vote not expired");
+        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _pollen.totalSupplyAt(_proposals[proposalId].snapshotId) * _quorum / 100) || proposalId == 0,
+            "PollenDAO: vote did not reach quorum");
+        require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "PollenDAO: vote failed");
+        require(now >= _proposals[proposalId].executionOpen, "PollenDAO: execution not open");
+        require(now < _proposals[proposalId].executionExpiry, "PollenDAO: execution expired");
+        require(_proposals[proposalId].submitter == msg.sender, "PollenDAO: only submitter can execute");
 
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {
             IERC20(_proposals[proposalId].assetTokenAddress).transferFrom(msg.sender, address(this), _proposals[proposalId].assetTokenAmount);
-            _daoToken.mint(_proposals[proposalId].daoTokenAmount);
-            _daoToken.transfer(msg.sender, _proposals[proposalId].daoTokenAmount);
+            _pollen.mint(_proposals[proposalId].pollenAmount);
+            _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
             assets.add(_proposals[proposalId].assetTokenAddress);
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
-            _daoToken.transferFrom(msg.sender, address(this), _proposals[proposalId].daoTokenAmount);
+            _pollen.transferFrom(msg.sender, address(this), _proposals[proposalId].pollenAmount);
             IERC20(_proposals[proposalId].assetTokenAddress).transfer(msg.sender, _proposals[proposalId].assetTokenAmount);
             if (IERC20(_proposals[proposalId].assetTokenAddress).balanceOf(address(this)) == 0) {
                 assets.remove(_proposals[proposalId].assetTokenAddress);
@@ -336,19 +339,19 @@ contract AudacityDAO is IAudacityDAO {
     }
 
     /**
-    * @notice Redeem DAO tokens for the relative proportion of each asset token held by the DAO (external)
-    * @param daoTokenAmount The amount of DAO tokens to redeem
+    * @notice Redeem Pollens for the relative proportion of each asset token held by the DAO (external)
+    * @param pollenAmount The amount of Pollens to redeem
     */
-    function redeem(uint256 daoTokenAmount) external override {
-        require(daoTokenAmount != 0, "AudacityDAO: can't redeem zero amount");
+    function redeem(uint256 pollenAmount) external override {
+        require(pollenAmount != 0, "PollenDAO: can't redeem zero amount");
 
-        uint256 totalSupply = _daoToken.totalSupply();
-        _daoToken.transferFrom(msg.sender, address(this), daoTokenAmount);
+        uint256 totalSupply = _pollen.totalSupply();
+        _pollen.transferFrom(msg.sender, address(this), pollenAmount);
 
         // TODO: cap the asset list to prevent unbounded loop
         for (uint256 i=0; i < assets.elements.length; i++) {
             if (assets.elements[i] != address(0)) {
-                uint256 assetTokenAmount = (IERC20(assets.elements[i]).balanceOf(address(this)) * daoTokenAmount) / totalSupply;
+                uint256 assetTokenAmount = (IERC20(assets.elements[i]).balanceOf(address(this)) * pollenAmount) / totalSupply;
                 IERC20(assets.elements[i]).transfer(msg.sender, assetTokenAmount);
                 if (IERC20(assets.elements[i]).balanceOf(address(this)) == 0) {
                    assets.remove(assets.elements[i]);
@@ -358,7 +361,7 @@ contract AudacityDAO is IAudacityDAO {
 
         emit Redeemed(
             msg.sender,
-            daoTokenAmount
+            pollenAmount
         );
     }
 

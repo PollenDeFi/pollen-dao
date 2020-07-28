@@ -1,7 +1,7 @@
-Investment Fund DAO
+Pollen DAO
 ===================
 
-Repository for the Investment Fund DAO - DApp and smart contracts
+Repository for the Pollen DAO - DApp and smart contracts
 
 Development
 ===========
@@ -20,12 +20,12 @@ HD_MNEMONIC (your ETH wallet private key which will act as the contract owner)
 ```
 const assetToken = await MockERC20.deployed()
 await assetToken.mint(this.web3.utils.toBN('1200000000000000000000'))
-const dao = await AudacityDAO.deployed()
+const dao = await PollenDAO.deployed()
 ```
 
 2- Use the contract instance to call the contract functions.
-For the first run, you need to submit an invest proposal then execute it to send a defined amount of asset tokens in exchange for a defined amount of DAO tokens.
-> E.g., get 1000 DAO tokens in exchange for 200 asset tokens.
+For the first run, you need to submit an invest proposal then execute it to send a defined amount of asset tokens in exchange for a defined amount of Pollens.
+> E.g., get 1000 Pollens in exchange for 200 asset tokens.
 
 ```
 await dao.submit(0, 0, assetToken.address, this.web3.utils.toBN('200000000000000000000'), this.web3.utils.toBN('1000000000000000000000'))
