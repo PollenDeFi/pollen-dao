@@ -1,12 +1,12 @@
 pragma solidity >=0.6 <0.7.0;
 
 /**
-* @title IAudacityDAO Interface
-* @notice Interface for the Audacity DAO
+* @title IPollenDAO Interface
+* @notice Interface for the Pollen DAO
 * @author gtlewis
 * @author scorpion9979
 */
-interface IAudacityDAO {
+interface IPollenDAO {
     /**
     * @notice Type for representing a proposal type
     */
@@ -23,14 +23,14 @@ interface IAudacityDAO {
     * @param assetTokenType The type of the asset token (e.g., ERC20)
     * @param assetTokenAddress The address of the asset token
     * @param assetTokenAmount The amount of the asset token to invest/divest
-    * @param daoTokenAmount The amount of DAO token to be paid/received
+    * @param pollenAmount The amount of Pollen to be paid/received
     */
     function submit(
         ProposalType proposalType,
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 daoTokenAmount
+        uint256 pollenAmount
     ) external;
 
     /**
@@ -47,10 +47,10 @@ interface IAudacityDAO {
     function execute(uint256 proposalId) external;
 
     /**
-    * @notice Redeem DAO tokens for asset tokens (external)
-    * @param daoTokenAmount The amount of DAO tokens to redeem
+    * @notice Redeem Pollens for asset tokens (external)
+    * @param pollenAmount The amount of Pollens to redeem
     */
-    function redeem(uint256 daoTokenAmount) external;
+    function redeem(uint256 pollenAmount) external;
 
     /**
      * @notice Event emitted when a proposal is submitted
@@ -60,7 +60,8 @@ interface IAudacityDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 daoTokenAmount
+        uint256 pollenAmount,
+        uint256 proposalId
     );
 
     /**
@@ -83,10 +84,10 @@ interface IAudacityDAO {
     );
 
     /**
-     * @notice Event emitted when DAO tokens are redeemed
+     * @notice Event emitted when Pollens are redeemed
      */
     event Redeemed(
         address sender,
-        uint256 daoTokenAmount
+        uint256 pollenAmount
     );
 }

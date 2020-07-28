@@ -4,9 +4,9 @@ import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './
 
 contract('proposal execution', function ([deployer, bob, alice, carol]) {
     beforeEach(async function () {
-        this.dao = await Artifacts.AudacityDAO.new(30, 120, 180, 240, { from: deployer });
-        const daoTokenAddress = await this.dao.getDaoTokenAddress();
-        this.daoToken = await Artifacts.DAOToken.at(daoTokenAddress);
+        this.dao = await Artifacts.PollenDAO.new(30, 120, 180, 240, { from: deployer });
+        const pollenAddress = await this.dao.getPollenAddress();
+        this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, { from: deployer });
@@ -14,7 +14,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
         await this.dao.execute(0, { from: deployer });
-        await this.daoToken.transfer(bob, 100, { from: deployer });
+        await this.pollen.transfer(bob, 100, { from: deployer });
         await this.assetToken.transfer(bob, 2, { from: deployer });
     });
 
@@ -47,7 +47,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
 
     it('should fail when executing a proposal that has not reached voting quorum', async function () {
         const quorum = await this.dao.getQuorum();
-        await this.daoToken.transfer(alice, new BN('100').sub(quorum), { from: bob });
+        await this.pollen.transfer(alice, new BN('100').sub(quorum), { from: bob });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
@@ -59,8 +59,8 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
 
     it('should succeed when executing a proposal if yes votes plus no votes exceed quorum', async function () {
         const quorum = await this.dao.getQuorum();
-        await this.daoToken.transfer(alice, new BN('100').sub(quorum), { from: bob });
-        await this.daoToken.transfer(carol, '1', { from: alice });
+        await this.pollen.transfer(alice, new BN('100').sub(quorum), { from: bob });
+        await this.pollen.transfer(carol, '1', { from: alice });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         await this.dao.voteOn(1, false, { from: carol });
         const proposal = await this.dao.getProposal(1);
@@ -74,7 +74,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
     });
 
     it('should fail when executing a proposal that has failed voting', async function () {
-        await this.daoToken.transfer(alice, '51', { from: bob });
+        await this.pollen.transfer(alice, '51', { from: bob });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         await this.dao.voteOn(1, false, { from: alice });
         const proposal = await this.dao.getProposal(1);
@@ -124,7 +124,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         );
     });
 
-    it('should fail when executing a divest proposal if the DAO token can not be transferred', async function () {
+    it('should fail when executing a divest proposal if the Pollen token can not be transferred', async function () {
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
@@ -135,7 +135,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
 
     it('should transfer tokens when executing an invest proposal', async function () {
         const initialAssetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
-        const initialDaoTokenBalance = await this.daoToken.balanceOf(bob);
+        const initialPollenBalance = await this.pollen.balanceOf(bob);
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
@@ -144,8 +144,8 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         const receipt = await this.dao.execute(1, { from: bob });
         const newAssetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
-        const newDaoTokenBalance = await this.daoToken.balanceOf(bob);
-        expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
+        const newPollenBalance = await this.pollen.balanceOf(bob);
+        expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([this.assetToken.address]);
         proposal = await this.dao.getProposal(1);
@@ -158,17 +158,17 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
 
     it('should transfer tokens when executing a divest proposal', async function () {
         const initialAssetTokenBalance = await this.assetToken.balanceOf(bob);
-        const initialDaoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
+        const initialPollenBalance = await this.pollen.balanceOf(this.dao.address);
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
-        await this.daoToken.approve(this.dao.address, 3, { from: bob });
+        await this.pollen.approve(this.dao.address, 3, { from: bob });
         const receipt = await this.dao.execute(1, { from: bob });
         const newAssetTokenBalance = await this.assetToken.balanceOf(bob);
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
-        const newDaoTokenBalance = await this.daoToken.balanceOf(this.dao.address);
-        expect(newDaoTokenBalance).to.be.bignumber.equal(initialDaoTokenBalance.add(new BN('3')));
+        const newPollenBalance = await this.pollen.balanceOf(this.dao.address);
+        expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([address0]);
         proposal = await this.dao.getProposal(1);
@@ -183,7 +183,7 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 1, 2, { from: bob });
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
-        await this.daoToken.approve(this.dao.address, 2, { from: bob });
+        await this.pollen.approve(this.dao.address, 2, { from: bob });
         await this.dao.execute(1, { from: bob });
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([this.assetToken.address]);
