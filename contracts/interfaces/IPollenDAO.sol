@@ -30,7 +30,8 @@ interface IPollenDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 pollenAmount
+        uint256 pollenAmount,
+        uint256 submissionCid
     ) external;
 
     /**
@@ -61,7 +62,8 @@ interface IPollenDAO {
         address assetTokenAddress,
         uint256 assetTokenAmount,
         uint256 pollenAmount,
-        uint256 proposalId
+        uint256 proposalId,
+        uint256 submissionCid
     );
 
     /**

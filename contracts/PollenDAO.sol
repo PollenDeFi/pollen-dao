@@ -238,7 +238,8 @@ contract PollenDAO is IPollenDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 pollenAmount
+        uint256 pollenAmount,
+        uint256 submissionCid
     ) external override {
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
         require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
@@ -273,7 +274,8 @@ contract PollenDAO is IPollenDAO {
             assetTokenAddress,
             assetTokenAmount,
             pollenAmount,
-            proposalId
+            proposalId,
+            submissionCid
         );
     }
 

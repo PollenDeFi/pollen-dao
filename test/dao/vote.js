@@ -9,7 +9,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 102, { from: deployer });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 102, 1337, { from: deployer });
         const proposal = await this.dao.getProposal(0);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
@@ -34,7 +34,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should fail when voting on a proposal that has been executed', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: bob });
@@ -46,7 +46,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should fail when voting on a proposal that has expired voting', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         const proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
@@ -56,7 +56,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should fail when voting on a proposal if voter has Pollen balance 0', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         expectRevert(
             this.dao.voteOn(1, false, { from: carol }),
             'no voting tokens'
@@ -64,7 +64,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should automatically vote yes on submitter\'s own proposal', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -74,7 +74,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should increase yes votes by voter Pollen balance when voting yes', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -100,7 +100,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should increase no votes by voter Pollen balance when voting no', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -126,7 +126,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should prevent same voter from double voting yes', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -169,7 +169,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should prevent same voter from double voting no', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -222,7 +222,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should allow voter to change vote from yes to no', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal, vote;
         proposal = await this.dao.getProposal(1);
         vote = await this.dao.getVoterState(1, { from: bob });
@@ -273,7 +273,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should allow voter to change vote from no to yes', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal, vote;
         proposal = await this.dao.getProposal(1);
         vote = await this.dao.getVoterState(1, { from: bob });
@@ -338,7 +338,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     // Using Snapshots:
 
     it('should prevent same voter with different balance from double voting no', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -368,7 +368,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should prevent same voter with different balance from double voting yes', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         let proposal;
         proposal = await this.dao.getProposal(1);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -388,7 +388,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should prevent double voting by token shuffling', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         const firstBalance = await this.pollen.balanceOf(bob);
         const proposal = await this.dao.getProposal(1);
 
@@ -407,7 +407,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should not increase votes when shuffling tokens and changing vote', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         const firstBalance = await this.pollen.balanceOf(bob);
 
         expect(firstBalance).to.be.bignumber.greaterThan('0');
@@ -423,7 +423,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     });
 
     it('should prevent double voting by token shuffling across multiple accounts including non-empty', async function () {
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 1337, { from: bob });
         const firstBalance = await this.pollen.balanceOf(bob);
         let proposal;
         proposal = await this.dao.getProposal(1);
