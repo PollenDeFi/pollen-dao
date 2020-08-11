@@ -9,7 +9,7 @@ contract('DAO contract instantiation', function ([deployer]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999);
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 1337);
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC');
         const proposal = await this.dao.getProposal(0);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2);

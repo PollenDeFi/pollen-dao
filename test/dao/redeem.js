@@ -9,7 +9,7 @@ contract('redeeming Pollens', function ([deployer, bob]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 1337, { from: deployer });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
         let proposal;
         proposal = await this.dao.getProposal(0);
         await time.increaseTo(proposal.executionOpen);
@@ -18,7 +18,7 @@ contract('redeeming Pollens', function ([deployer, bob]) {
         await this.pollen.transfer(bob, 100, { from: deployer });
         this.assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
         this.assetToken2.mint(99, { from: bob });
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken2.address, 10, 2, 1337, { from: bob });
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken2.address, 10, 2, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         proposal = await this.dao.getProposal(1);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken2.approve(this.dao.address, 10, { from: bob });
