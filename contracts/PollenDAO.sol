@@ -272,7 +272,8 @@ contract PollenDAO is IPollenDAO {
         _proposals[proposalId] = proposal;
         _addVote(proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId));
         _proposalCount++;
-
+        // NOTE: this is the max stack size, can't add more event params
+        // TODO: find a way to insert initial yesVotes (submitter's own vote) into event params
         emit Submitted(
             proposalId,
             proposalType,
@@ -280,7 +281,12 @@ contract PollenDAO is IPollenDAO {
             assetTokenAddress,
             assetTokenAmount,
             pollenAmount,
-            descriptionCid
+            descriptionCid,
+            proposal.submitter,
+            proposal.snapshotId,
+            proposal.votingExpiry,
+            proposal.executionOpen,
+            proposal.executionExpiry
         );
     }
 
@@ -300,10 +306,11 @@ contract PollenDAO is IPollenDAO {
         _addVote(proposalId, msg.sender, vote, balance);
 
         emit VotedOn(
-            _proposals[proposalId].proposalType,
-            msg.sender,
             proposalId,
-            vote
+            msg.sender,
+            vote,
+            _proposals[proposalId].yesVotes,
+            _proposals[proposalId].noVotes
         );
     }
 
@@ -339,8 +346,6 @@ contract PollenDAO is IPollenDAO {
         _proposals[proposalId].status = ProposalStatus.Executed;
 
         emit Executed(
-            _proposals[proposalId].proposalType,
-            msg.sender,
             proposalId
         );
     }

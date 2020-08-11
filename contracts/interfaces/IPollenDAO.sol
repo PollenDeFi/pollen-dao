@@ -63,25 +63,29 @@ interface IPollenDAO {
         address assetTokenAddress,
         uint256 assetTokenAmount,
         uint256 pollenAmount,
-        string descriptionCid
+        string descriptionCid,
+        address submitter,
+        uint256 snapshotId,
+        uint256 votingExpiry,
+        uint256 executionOpen,
+        uint256 executionExpiry
     );
 
     /**
      * @notice Event emitted when a proposal is voted on
      */
     event VotedOn(
-        ProposalType proposalType,
-        address voter,
         uint256 proposalId,
-        bool vote
+        address voter,
+        bool vote,
+        uint256 totalYesVotes,
+        uint256 totalNoVotes
     );
 
     /**
      * @notice Event emitted when a proposal is executed
      */
     event Executed(
-        ProposalType proposalType,
-        address executor,
         uint256 proposalId
     );
 

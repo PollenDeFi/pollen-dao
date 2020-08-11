@@ -87,19 +87,35 @@ contract('proposal submission', function ([deployer, bob, alice]) {
         expect(proposal.noVotes).to.be.bignumber.equal('0');
     });
 
-    it('should emit different CIDs in submission events', async function () {
-        const bobReceipt = await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
-        const aliceReceipt = await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse', { from: alice });
+    it('should emit accurate proposal data in submission events', async function () {
+        const bobsReceipt = await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
+        const alicesReceipt = await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 350, 755, 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse', { from: alice });
         expectEvent(
-            bobReceipt,
+            bobsReceipt,
             'Submitted', {
-               descriptionCid: 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC'
+                proposalId: new BN('1'),
+                proposalType: ProposalType.Divest,
+                assetTokenType: TokenType.ERC20,
+                assetTokenAddress: this.assetToken.address,
+                assetTokenAmount: new BN('2'),
+                pollenAmount: new BN('3'),
+                descriptionCid: 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC',
+                submitter: bob,
+                snapshotId: new BN('2')
             }
         );
         expectEvent(
-            aliceReceipt,
+            alicesReceipt,
             'Submitted', {
-               descriptionCid: 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse'
+                proposalId: new BN('2'),
+                proposalType: ProposalType.Invest,
+                assetTokenType: TokenType.ERC20,
+                assetTokenAddress: this.assetToken.address,
+                assetTokenAmount: new BN('350'),
+                pollenAmount: new BN('755'),
+                descriptionCid: 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse',
+                submitter: alice,
+                snapshotId: new BN('3')
             }
         );
     });
