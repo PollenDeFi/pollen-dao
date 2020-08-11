@@ -48,6 +48,7 @@ contract PollenDAO is IPollenDAO {
         address assetTokenAddress;
         uint256 assetTokenAmount;
         uint256 pollenAmount;
+        string descriptionCid;
         address submitter;
         uint256 snapshotId;
         mapping(address => VoterState) voters;
@@ -149,6 +150,8 @@ contract PollenDAO is IPollenDAO {
         uint256 executionExpiry,
         ProposalStatus status
     ) {
+        // TODO: can't add any more return params, getting 'Stack too deep, try removing local variables.' error
+        // argument for migrating to event-based data
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         Proposal memory proposal = _proposals[proposalId];
         return (
@@ -239,8 +242,9 @@ contract PollenDAO is IPollenDAO {
         address assetTokenAddress,
         uint256 assetTokenAmount,
         uint256 pollenAmount,
-        uint256 submissionCid
+        string memory descriptionCid
     ) external override {
+        // TODO: validate IPFS CID format for descriptionCid
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
         require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
         require(assetTokenAddress != address(0), "PollenDAO: invalid asset token address");
@@ -257,6 +261,7 @@ contract PollenDAO is IPollenDAO {
         proposal.assetTokenAddress = assetTokenAddress;
         proposal.assetTokenAmount = assetTokenAmount;
         proposal.pollenAmount = pollenAmount;
+        proposal.descriptionCid = descriptionCid;
         proposal.submitter = msg.sender;
         proposal.snapshotId = _pollen.snapshot();
         proposal.votingExpiry = proposalId == 0? now : now + _votingExpiryDelay;
@@ -269,13 +274,13 @@ contract PollenDAO is IPollenDAO {
         _proposalCount++;
 
         emit Submitted(
+            proposalId,
             proposalType,
             assetTokenType,
             assetTokenAddress,
             assetTokenAmount,
             pollenAmount,
-            proposalId,
-            submissionCid
+            descriptionCid
         );
     }
 

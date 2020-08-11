@@ -93,13 +93,13 @@ contract('proposal submission', function ([deployer, bob, alice]) {
         expectEvent(
             bobReceipt,
             'Submitted', {
-               submissionCid: 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC'
+               descriptionCid: 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC'
             }
         );
         expectEvent(
             aliceReceipt,
             'Submitted', {
-               submissionCid: 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse'
+               descriptionCid: 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse'
             }
         );
     });
