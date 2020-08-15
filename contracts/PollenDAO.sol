@@ -142,13 +142,13 @@ contract PollenDAO is IPollenDAO {
         address assetTokenAddress,
         uint256 assetTokenAmount,
         uint256 pollenAmount,
+        string memory descriptionCid,
         address submitter,
         uint256 yesVotes,
         uint256 noVotes,
         uint256 votingExpiry,
         uint256 executionOpen,
-        uint256 executionExpiry,
-        ProposalStatus status
+        uint256 executionExpiry
     ) {
         // TODO: can't add any more return params, getting 'Stack too deep, try removing local variables.' error
         // argument for migrating to event-based data
@@ -160,13 +160,13 @@ contract PollenDAO is IPollenDAO {
             proposal.assetTokenAddress,
             proposal.assetTokenAmount,
             proposal.pollenAmount,
+            proposal.descriptionCid,
             proposal.submitter,
             proposal.yesVotes,
             proposal.noVotes,
             proposal.votingExpiry,
             proposal.executionOpen,
-            proposal.executionExpiry,
-            proposal.status
+            proposal.executionExpiry
         );
     }
 
@@ -277,16 +277,8 @@ contract PollenDAO is IPollenDAO {
         emit Submitted(
             proposalId,
             proposalType,
-            assetTokenType,
-            assetTokenAddress,
-            assetTokenAmount,
-            pollenAmount,
-            descriptionCid,
-            proposal.submitter,
-            proposal.snapshotId,
-            proposal.votingExpiry,
-            proposal.executionOpen,
-            proposal.executionExpiry
+            msg.sender,
+            proposal.snapshotId
         );
     }
 
@@ -308,9 +300,7 @@ contract PollenDAO is IPollenDAO {
         emit VotedOn(
             proposalId,
             msg.sender,
-            vote,
-            _proposals[proposalId].yesVotes,
-            _proposals[proposalId].noVotes
+            vote
         );
     }
 

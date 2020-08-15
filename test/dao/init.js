@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { expectRevert, time } from '@openzeppelin/test-helpers';
-import { ProposalType, TokenType, ProposalStatus, Artifacts } from './consts';
+import { expectEvent, expectRevert, time } from '@openzeppelin/test-helpers';
+import { ProposalType, TokenType, Artifacts } from './consts';
 
 contract('DAO contract instantiation', function ([deployer]) {
     beforeEach(async function () {
@@ -13,7 +13,11 @@ contract('DAO contract instantiation', function ([deployer]) {
         const proposal = await this.dao.getProposal(0);
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2);
-        await this.dao.execute(0);
+        const receipt = await this.dao.execute(0);
+        expectEvent(
+            receipt,
+            'Executed'
+        );
     });
 
     it('should fail when ETH sent to the DAO', function () {
@@ -47,8 +51,6 @@ contract('DAO contract instantiation', function ([deployer]) {
     });
 
     it('should have executed proposal 0 and received 2 asset tokens and minted and sent 100 Pollens', async function () {
-        const proposal = await this.dao.getProposal(0);
-        expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         const assetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
         expect(assetTokenBalance).to.be.bignumber.equal('2');
         let pollenBalance;

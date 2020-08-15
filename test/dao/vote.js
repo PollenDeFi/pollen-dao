@@ -356,8 +356,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: bob,
                 vote: false,
-                totalYesVotes: new BN('0'),
-                totalNoVotes: bobsBalance,
             }
         );
         proposal = await this.dao.getProposal(1);
@@ -373,8 +371,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: bob,
                 vote: false,
-                totalYesVotes: new BN('0'),
-                totalNoVotes: bobsBalance,
             }
         );
         proposal = await this.dao.getProposal(1);
@@ -403,8 +399,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: bob,
                 vote: true,
-                totalYesVotes: pollenBalance,
-                totalNoVotes: new BN('0'),
             }
         );
         proposal = await this.dao.getProposal(1);
@@ -445,8 +439,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: alice,
                 vote: false,
-                totalYesVotes: firstBalance,
-                totalNoVotes: new BN('1'),
             }
         );
         await this.pollen.transfer(alice, firstBalance, { from: bob });
@@ -457,8 +449,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: alice,
                 vote: true,
-                totalYesVotes: firstBalance.add(new BN('1')),
-                totalNoVotes: new BN('0'),
             }
         );
 
@@ -490,8 +480,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: alice,
                 vote: true,
-                totalYesVotes: firstBalance.add(alicesBalanceBefore),
-                totalNoVotes: new BN('0'),
             }
         );
 
@@ -533,8 +521,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: bob,
                 vote: false,
-                totalYesVotes: alicesBalanceBefore,
-                totalNoVotes: firstBalance,
             }
         );
         proposal = await this.dao.getProposal(1);
@@ -547,8 +533,6 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 proposalId: new BN('1'),
                 voter: alice,
                 vote: false,
-                totalYesVotes: new BN('0'),
-                totalNoVotes: firstBalance.add(alicesBalanceBefore),
             }
         );
         proposal = await this.dao.getProposal(1);

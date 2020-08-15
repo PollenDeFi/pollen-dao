@@ -149,7 +149,6 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([this.assetToken.address]);
         proposal = await this.dao.getProposal(1);
-        expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(
             receipt,
             'Executed'
@@ -172,7 +171,6 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([address0]);
         proposal = await this.dao.getProposal(1);
-        expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         expectEvent(
             receipt,
             'Executed'

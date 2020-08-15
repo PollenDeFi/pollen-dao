@@ -72,7 +72,6 @@ contract('proposal submission', function ([deployer, bob, alice]) {
         expect(proposal.executionOpen).to.be.bignumber.equal(new BN(proposal.votingExpiry).add(executionOpenDelay));
         const executionExpiryDelay = await this.dao.getExecutionExpiryDelay();
         expect(proposal.executionExpiry).to.be.bignumber.equal(new BN(proposal.executionOpen).add(executionExpiryDelay));
-        expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Submitted);
         expect(await this.dao.getProposalCount()).to.be.bignumber.equal('2');
         expectEvent(
             receipt,
@@ -95,11 +94,6 @@ contract('proposal submission', function ([deployer, bob, alice]) {
             'Submitted', {
                 proposalId: new BN('1'),
                 proposalType: ProposalType.Divest,
-                assetTokenType: TokenType.ERC20,
-                assetTokenAddress: this.assetToken.address,
-                assetTokenAmount: new BN('2'),
-                pollenAmount: new BN('3'),
-                descriptionCid: 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC',
                 submitter: bob,
                 snapshotId: new BN('2')
             }
@@ -109,11 +103,6 @@ contract('proposal submission', function ([deployer, bob, alice]) {
             'Submitted', {
                 proposalId: new BN('2'),
                 proposalType: ProposalType.Invest,
-                assetTokenType: TokenType.ERC20,
-                assetTokenAddress: this.assetToken.address,
-                assetTokenAmount: new BN('350'),
-                pollenAmount: new BN('755'),
-                descriptionCid: 'Qmep6YpPDkAwiKi8r3uq6QEpdw1Led2vDWdF6AnQSAYVse',
                 submitter: alice,
                 snapshotId: new BN('3')
             }

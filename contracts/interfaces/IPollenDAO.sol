@@ -59,16 +59,8 @@ interface IPollenDAO {
     event Submitted(
         uint256 proposalId,
         ProposalType proposalType,
-        TokenType assetTokenType,
-        address assetTokenAddress,
-        uint256 assetTokenAmount,
-        uint256 pollenAmount,
-        string descriptionCid,
         address submitter,
-        uint256 snapshotId,
-        uint256 votingExpiry,
-        uint256 executionOpen,
-        uint256 executionExpiry
+        uint256 snapshotId
     );
 
     /**
@@ -77,9 +69,7 @@ interface IPollenDAO {
     event VotedOn(
         uint256 proposalId,
         address voter,
-        bool vote,
-        uint256 totalYesVotes,
-        uint256 totalNoVotes
+        bool vote
     );
 
     /**
