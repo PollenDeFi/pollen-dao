@@ -32,6 +32,7 @@ contract PollenDAO is IPollenDAO {
     * @member assetTokenAddress The address of the asset token
     * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
     * @member pollenAmount The amount of the Pollen being proposed to pay/receive
+    * @member descriptionCid The IPFS CID hash of the proposal description text
     * @member submitter The submitter of the proposal
     * @member snapshotId The id of snapshot storing balances and total supply during proposal submission
     * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
@@ -130,13 +131,12 @@ contract PollenDAO is IPollenDAO {
     }
 
     /**
-    * @notice Get a proposal at index (external view)
+    * @notice Get a proposal's data at index (external view)
     * @param proposalId The proposal ID
     * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
-    * pollenAmount , submitter , yesVotes , noVotes , votingExpiry , executionOpen
-    * executionExpiry , status
+    * pollenAmount , descriptionCid, submitter , snapshotId , yesVotes , noVotes , status
     */
-    function getProposal(uint256 proposalId) external view returns(
+    function getProposalData(uint256 proposalId) external view returns(
         ProposalType proposalType,
         TokenType assetTokenType,
         address assetTokenAddress,
@@ -144,14 +144,11 @@ contract PollenDAO is IPollenDAO {
         uint256 pollenAmount,
         string memory descriptionCid,
         address submitter,
+        uint256 snapshotId,
         uint256 yesVotes,
         uint256 noVotes,
-        uint256 votingExpiry,
-        uint256 executionOpen,
-        uint256 executionExpiry
+        ProposalStatus status
     ) {
-        // TODO: can't add any more return params, getting 'Stack too deep, try removing local variables.' error
-        // argument for migrating to event-based data
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         Proposal memory proposal = _proposals[proposalId];
         return (
@@ -162,8 +159,26 @@ contract PollenDAO is IPollenDAO {
             proposal.pollenAmount,
             proposal.descriptionCid,
             proposal.submitter,
+            proposal.snapshotId,
             proposal.yesVotes,
             proposal.noVotes,
+            proposal.status
+        );
+    }
+
+    /**
+    * @notice Get a proposal's voting and execution timestamps at index (external view)
+    * @param proposalId The proposal ID
+    * @return votingExpiry , executionOpen , executionExpiry
+    */
+    function getProposalTimestamps(uint256 proposalId) external view returns(
+        uint256 votingExpiry,
+        uint256 executionOpen,
+        uint256 executionExpiry
+    ) {
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
+        Proposal memory proposal = _proposals[proposalId];
+        return (
             proposal.votingExpiry,
             proposal.executionOpen,
             proposal.executionExpiry

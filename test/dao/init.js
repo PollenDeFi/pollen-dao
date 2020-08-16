@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { expectEvent, expectRevert, time } from '@openzeppelin/test-helpers';
-import { ProposalType, TokenType, Artifacts } from './consts';
+import { ProposalType, TokenType, ProposalStatus, Artifacts } from './consts';
 
 contract('DAO contract instantiation', function ([deployer]) {
     beforeEach(async function () {
@@ -10,7 +10,8 @@ contract('DAO contract instantiation', function ([deployer]) {
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999);
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC');
-        const proposal = await this.dao.getProposal(0);
+        const proposalId = 0;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2);
         const receipt = await this.dao.execute(0);
@@ -51,6 +52,9 @@ contract('DAO contract instantiation', function ([deployer]) {
     });
 
     it('should have executed proposal 0 and received 2 asset tokens and minted and sent 100 Pollens', async function () {
+        const proposalId = 0;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
+        expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         const assetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
         expect(assetTokenBalance).to.be.bignumber.equal('2');
         let pollenBalance;

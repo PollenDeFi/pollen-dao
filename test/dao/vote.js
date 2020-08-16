@@ -10,7 +10,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 102, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
-        const proposal = await this.dao.getProposal(0);
+        const proposalId = 0;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
         await this.dao.execute(0, { from: deployer });
@@ -35,7 +36,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
 
     it('should fail when voting on a proposal that has been executed', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
-        const proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: bob });
         await this.dao.execute(1, { from: bob });
@@ -47,7 +49,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
 
     it('should fail when voting on a proposal that has expired voting', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
-        const proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.votingExpiry);
         expectRevert(
             this.dao.voteOn(1, false, { from: bob }),
@@ -66,7 +69,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should automatically vote yes on submitter\'s own proposal', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
         expect(pollenBalance).to.be.bignumber.greaterThan('0');
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
@@ -76,13 +80,14 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should increase yes votes by voter Pollen balance when voting yes', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         let receipt;
         receipt = await this.dao.voteOn(1, true, { from: bob });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -90,7 +95,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
             'VotedOn'
         );
         receipt = await this.dao.voteOn(1, true, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -102,13 +107,14 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should increase no votes by voter Pollen balance when voting no', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         let receipt;
         receipt = await this.dao.voteOn(1, false, { from: bob });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -116,7 +122,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
             'VotedOn'
         );
         receipt = await this.dao.voteOn(1, false, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expectEvent(
@@ -128,7 +134,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should prevent same voter from double voting yes', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
         // automatic vote by submitter
         expect(pollenBalance).to.be.bignumber.greaterThan('0');
@@ -138,7 +145,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         let receipt;
         // no increase on double voting yes
         receipt = await this.dao.voteOn(1, true, { from: bob });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -148,7 +155,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         //
         // increase as usual when another account votes
         receipt = await this.dao.voteOn(1, true, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -158,7 +165,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         //
         // no increase when that same other account double votes yes
         receipt = await this.dao.voteOn(1, true, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -171,7 +178,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should prevent same voter from double voting no', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
         // automatic vote by submitter
         expect(pollenBalance).to.be.bignumber.greaterThan('0');
@@ -181,7 +189,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         let receipt;
         // change vote from yes to no
         receipt = await this.dao.voteOn(1, false, { from: bob });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -191,7 +199,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         //
         // prevent submitter from double voting no
         receipt = await this.dao.voteOn(1, false, { from: bob });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -201,7 +209,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         //
         // increase as usual when another account votes
         receipt = await this.dao.voteOn(1, false, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expectEvent(
@@ -211,7 +219,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         //
         // no increase when that same other account double votes no
         receipt = await this.dao.voteOn(1, false, { from: alice });
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expectEvent(
@@ -224,7 +232,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should allow voter to change vote from yes to no', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal, vote;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         vote = await this.dao.getVoterState(1, { from: bob });
         expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -238,7 +247,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, false, { from: bob });
         vote = await this.dao.getVoterState(1, { from: bob });
         expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -252,7 +261,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, true, { from: alice });
         vote = await this.dao.getVoterState(1, { from: alice });
         expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(new BN('1'));
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -262,7 +271,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, false, { from: alice });
         vote = await this.dao.getVoterState(1, { from: alice });
         expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expectEvent(
@@ -275,7 +284,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should allow voter to change vote from no to yes', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal, vote;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         vote = await this.dao.getVoterState(1, { from: bob });
         expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
         const pollenBalance = await this.pollen.balanceOf(bob);
@@ -289,7 +299,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, false, { from: bob });
         vote = await this.dao.getVoterState(1, { from: bob });
         expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(pollenBalance);
         expectEvent(
@@ -301,7 +311,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, true, { from: bob });
         vote = await this.dao.getVoterState(1, { from: bob });
         expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -315,7 +325,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, false, { from: alice });
         vote = await this.dao.getVoterState(1, { from: alice });
         expect(vote).to.be.bignumber.equal(VoterState.VotedNo);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal(new BN('1'));
         expectEvent(
@@ -325,7 +335,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         receipt = await this.dao.voteOn(1, true, { from: alice });
         vote = await this.dao.getVoterState(1, { from: alice });
         expect(vote).to.be.bignumber.equal(VoterState.VotedYes);
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
         expectEvent(
@@ -340,7 +350,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should prevent same voter with different balance from double voting no', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const bobsBalance = await this.pollen.balanceOf(bob);
 
         // automatic vote by submitter
@@ -358,7 +369,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 vote: false,
             }
         );
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(bobsBalance);
 
@@ -373,7 +384,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 vote: false,
             }
         );
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         expect(proposal.yesVotes).to.be.bignumber.equal('0');
         expect(proposal.noVotes).to.be.bignumber.equal(bobsBalance);
@@ -382,7 +393,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should prevent same voter with different balance from double voting yes', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         const pollenBalance = await this.pollen.balanceOf(bob);
 
         // automatic vote by submitter
@@ -401,7 +413,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 vote: true,
             }
         );
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         expect(proposal.yesVotes).to.be.bignumber.equal(pollenBalance);
         expect(proposal.noVotes).to.be.bignumber.equal('0');
@@ -410,7 +422,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
     it('should prevent double voting by token shuffling', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         const firstBalance = await this.pollen.balanceOf(bob);
-        const proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         expect(firstBalance).to.be.bignumber.greaterThan('0');
         expect(proposal.yesVotes).to.be.bignumber.equal(firstBalance);
@@ -452,7 +465,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
             }
         );
 
-        const proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         expect(proposal.yesVotes).to.be.bignumber.equal(firstBalance.add(new BN('1')));
         expect(proposal.noVotes).to.be.bignumber.equal('0');
@@ -462,7 +476,8 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         const firstBalance = await this.pollen.balanceOf(bob);
         let proposal;
-        proposal = await this.dao.getProposal(1);
+        const proposalId = 1;
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         expect(firstBalance).to.be.bignumber.greaterThan('0');
         expect(proposal.yesVotes).to.be.bignumber.equal(firstBalance);
@@ -510,7 +525,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
             'no voting tokens'
         );
 
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.yesVotes).to.be.bignumber.equal(firstBalance.add(alicesBalanceBefore));
 
         // Change votes from yes to no gradually
@@ -523,7 +538,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 vote: false,
             }
         );
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.noVotes).to.be.bignumber.equal(firstBalance);
 
         const alicesReceiptAfter = await this.dao.voteOn(1, false, { from: alice });
@@ -535,7 +550,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
                 vote: false,
             }
         );
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.noVotes).to.be.bignumber.equal(firstBalance.add(alicesBalanceBefore));
 
         await expectRevert(
@@ -547,7 +562,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
             'no voting tokens'
         );
 
-        proposal = await this.dao.getProposal(1);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.noVotes).to.be.bignumber.equal(firstBalance.add(alicesBalanceBefore));
     });
 });
