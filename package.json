@@ -15,7 +15,10 @@
     "babel-register": "^6.26.0",
     "dotenv": "^8.2.0",
     "ganache-cli": "^6.8.2",
-    "truffle": "^5.1.10"
+    "lodash": "^4.17.20",
+    "minimist": "^1.2.5",
+    "truffle": "^5.1.10",
+    "winston": "^3.3.3"
   },
   "scripts": {
     "init": "truffle init",
@@ -24,6 +27,7 @@
     "testnet-migrate": "./scripts/start-ganache.sh && truffle migrate --reset --network ropsten",
     "testnet-console": "./scripts/start-ganache.sh && truffle console --network ropsten",
     "mainnet-migrate": "./scripts/start-ganache.sh && truffle migrate --network mainnet",
+    "abi-extract": "node ./scripts/abi-extract.js -v -a artifacts/contracts/Pollen.json -a artifacts/contracts/PollenDAO.json",
     "clean": "./scripts/clean.sh"
   }
 }

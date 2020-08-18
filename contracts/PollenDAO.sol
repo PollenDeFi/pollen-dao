@@ -32,6 +32,7 @@ contract PollenDAO is IPollenDAO {
     * @member assetTokenAddress The address of the asset token
     * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
     * @member pollenAmount The amount of the Pollen being proposed to pay/receive
+    * @member descriptionCid The IPFS CID hash of the proposal description text
     * @member submitter The submitter of the proposal
     * @member snapshotId The id of snapshot storing balances and total supply during proposal submission
     * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
@@ -48,6 +49,7 @@ contract PollenDAO is IPollenDAO {
         address assetTokenAddress;
         uint256 assetTokenAmount;
         uint256 pollenAmount;
+        string descriptionCid;
         address submitter;
         uint256 snapshotId;
         mapping(address => VoterState) voters;
@@ -129,24 +131,22 @@ contract PollenDAO is IPollenDAO {
     }
 
     /**
-    * @notice Get a proposal at index (external view)
+    * @notice Get a proposal's data at index (external view)
     * @param proposalId The proposal ID
     * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
-    * pollenAmount , submitter , yesVotes , noVotes , votingExpiry , executionOpen
-    * executionExpiry , status
+    * pollenAmount , descriptionCid, submitter , snapshotId , yesVotes , noVotes , status
     */
-    function getProposal(uint256 proposalId) external view returns(
+    function getProposalData(uint256 proposalId) external view returns(
         ProposalType proposalType,
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
         uint256 pollenAmount,
+        string memory descriptionCid,
         address submitter,
+        uint256 snapshotId,
         uint256 yesVotes,
         uint256 noVotes,
-        uint256 votingExpiry,
-        uint256 executionOpen,
-        uint256 executionExpiry,
         ProposalStatus status
     ) {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
@@ -157,13 +157,31 @@ contract PollenDAO is IPollenDAO {
             proposal.assetTokenAddress,
             proposal.assetTokenAmount,
             proposal.pollenAmount,
+            proposal.descriptionCid,
             proposal.submitter,
+            proposal.snapshotId,
             proposal.yesVotes,
             proposal.noVotes,
+            proposal.status
+        );
+    }
+
+    /**
+    * @notice Get a proposal's voting and execution timestamps at index (external view)
+    * @param proposalId The proposal ID
+    * @return votingExpiry , executionOpen , executionExpiry
+    */
+    function getProposalTimestamps(uint256 proposalId) external view returns(
+        uint256 votingExpiry,
+        uint256 executionOpen,
+        uint256 executionExpiry
+    ) {
+        require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
+        Proposal memory proposal = _proposals[proposalId];
+        return (
             proposal.votingExpiry,
             proposal.executionOpen,
-            proposal.executionExpiry,
-            proposal.status
+            proposal.executionExpiry
         );
     }
 
@@ -238,8 +256,10 @@ contract PollenDAO is IPollenDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 pollenAmount
+        uint256 pollenAmount,
+        string memory descriptionCid
     ) external override {
+        // TODO: validate IPFS CID format for descriptionCid
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
         require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
         require(assetTokenAddress != address(0), "PollenDAO: invalid asset token address");
@@ -256,6 +276,7 @@ contract PollenDAO is IPollenDAO {
         proposal.assetTokenAddress = assetTokenAddress;
         proposal.assetTokenAmount = assetTokenAmount;
         proposal.pollenAmount = pollenAmount;
+        proposal.descriptionCid = descriptionCid;
         proposal.submitter = msg.sender;
         proposal.snapshotId = _pollen.snapshot();
         proposal.votingExpiry = proposalId == 0? now : now + _votingExpiryDelay;
@@ -266,14 +287,13 @@ contract PollenDAO is IPollenDAO {
         _proposals[proposalId] = proposal;
         _addVote(proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId));
         _proposalCount++;
-
+        // NOTE: this is the max stack size, can't add more event params
+        // TODO: find a way to insert initial yesVotes (submitter's own vote) into event params
         emit Submitted(
+            proposalId,
             proposalType,
-            assetTokenType,
-            assetTokenAddress,
-            assetTokenAmount,
-            pollenAmount,
-            proposalId
+            msg.sender,
+            proposal.snapshotId
         );
     }
 
@@ -293,9 +313,8 @@ contract PollenDAO is IPollenDAO {
         _addVote(proposalId, msg.sender, vote, balance);
 
         emit VotedOn(
-            _proposals[proposalId].proposalType,
-            msg.sender,
             proposalId,
+            msg.sender,
             vote
         );
     }
@@ -332,8 +351,6 @@ contract PollenDAO is IPollenDAO {
         _proposals[proposalId].status = ProposalStatus.Executed;
 
         emit Executed(
-            _proposals[proposalId].proposalType,
-            msg.sender,
             proposalId
         );
     }

@@ -30,7 +30,8 @@ interface IPollenDAO {
         TokenType assetTokenType,
         address assetTokenAddress,
         uint256 assetTokenAmount,
-        uint256 pollenAmount
+        uint256 pollenAmount,
+        string memory descriptionCid
     ) external;
 
     /**
@@ -56,21 +57,18 @@ interface IPollenDAO {
      * @notice Event emitted when a proposal is submitted
      */
     event Submitted(
+        uint256 proposalId,
         ProposalType proposalType,
-        TokenType assetTokenType,
-        address assetTokenAddress,
-        uint256 assetTokenAmount,
-        uint256 pollenAmount,
-        uint256 proposalId
+        address submitter,
+        uint256 snapshotId
     );
 
     /**
      * @notice Event emitted when a proposal is voted on
      */
     event VotedOn(
-        ProposalType proposalType,
-        address voter,
         uint256 proposalId,
+        address voter,
         bool vote
     );
 
@@ -78,8 +76,6 @@ interface IPollenDAO {
      * @notice Event emitted when a proposal is executed
      */
     event Executed(
-        ProposalType proposalType,
-        address executor,
         uint256 proposalId
     );
 
