@@ -41,7 +41,7 @@ module.exports = {
           enabled: false,
           runs: 200
         },
-        evmVersion: "byzantium"
+        evmVersion: "istanbul"
       }
     }
   },

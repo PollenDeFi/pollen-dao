@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.6 <0.7.0;
 
 import "../lib/AddressSet.sol";
@@ -11,7 +13,7 @@ contract MockAddressSetWrapper {
     using AddressSet for AddressSet.Set;
 
     /**
-    * @notice The address set (private)
+    * @dev The address set (private)
     */
     AddressSet.Set private addressSet;
 
