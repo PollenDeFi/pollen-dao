@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.6 <0.7.0;
-pragma experimental ABIEncoderV2;
 
 import "./Pollen.sol";
 import "./interfaces/IPollenDAO.sol";
@@ -62,42 +63,42 @@ contract PollenDAO is IPollenDAO {
     }
 
     /**
-    * @notice The Pollen token contract instance (private)
+    * @dev The Pollen token contract instance (private)
     */
     Pollen private _pollen;
 
     /**
-    * @notice The proposals (private)
+    * @dev The proposals (private)
     */
     mapping(uint256 => Proposal) private _proposals;
 
     /**
-    * @notice The count of proposals (private)
+    * @dev The count of proposals (private)
     */
     uint256 private _proposalCount;
 
     /**
-    * @notice The set of assets that the DAO holds (private)
+    * @dev The set of assets that the DAO holds (private)
     */
     AddressSet.Set private assets;
 
     /**
-    * @notice The quorum required to pass a proposal vote in % points (private)
+    * @dev The quorum required to pass a proposal vote in % points (private)
     */
     uint256 private _quorum;
 
     /**
-    * @notice The number of seconds until voting expires after proposal submission (private)
+    * @dev The number of seconds until voting expires after proposal submission (private)
     */
     uint256 private _votingExpiryDelay;
 
     /**
-    * @notice The number of seconds until execution opens after proposal voting expires (private)
+    * @dev The number of seconds until execution opens after proposal voting expires (private)
     */
     uint256 private _executionOpenDelay;
 
     /**
-    * @notice The number of seconds until execution expires after proposal execution opens (private)
+    * @dev The number of seconds until execution expires after proposal execution opens (private)
     */
     uint256 private _executionExpiryDelay;
 

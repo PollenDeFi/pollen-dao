@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.6 <0.7.0;
 
-import "../node_modules/@openzeppelin/contracts/drafts/ERC20Snapshot.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Pollen
@@ -10,11 +12,11 @@ import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
  * @author gtlewis
  * @author scorpion9979
  */
-contract Pollen is ERC20Snapshot, ERC20Detailed, Ownable {
+contract Pollen is ERC20, ERC20Snapshot, Ownable {
     /**
     * @notice Constructor sets the Pollen display values (public)
     */
-    constructor() public ERC20Detailed("Pollen", "PLN", 18) {}
+    constructor() public ERC20("Pollen", "PLN") {}
 
     /**
     * @notice Mint tokens to the owner account (external)
@@ -25,12 +27,26 @@ contract Pollen is ERC20Snapshot, ERC20Detailed, Ownable {
         _mint(owner(), amount);
     }
 
-    // TODO: make external and use the internal _snapshot() implementation for V3.0.0
     /**
     * @notice Creates a new snapshot and returns its snapshot id (public)
     */
-    function snapshot() public override onlyOwner returns (uint256)
+    function snapshot() external onlyOwner returns (uint256)
     {
-        return super.snapshot();
+        return super._snapshot();
+    }
+
+    /**
+    * @dev Necessary function overrides for OpenZeppelin ^0.3.0 migration to Solidity 0.6.x
+    */
+    function _burn(address account, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+        return super._burn(account, amount);
+    }
+
+    function _mint(address account, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+        return super._mint(account, amount);
+    }
+
+    function _transfer(address sender, address recipient, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+        return super._transfer(sender, recipient, amount);
     }
 }
