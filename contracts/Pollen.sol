@@ -4,6 +4,7 @@ pragma solidity >=0.6 <0.7.0;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -12,7 +13,7 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
  * @author gtlewis
  * @author scorpion9979
  */
-contract Pollen is ERC20, ERC20Snapshot, Ownable {
+contract Pollen is ERC20, ERC20Snapshot, ERC20Burnable, Ownable {
     /**
     * @notice Constructor sets the Pollen display values (public)
     */
@@ -25,15 +26,6 @@ contract Pollen is ERC20, ERC20Snapshot, Ownable {
     function mint(uint256 amount) external onlyOwner
     {
         _mint(owner(), amount);
-    }
-
-    /**
-    * @notice Burn tokens of the owner account (external)
-    * @param amount The amount of tokens to burn
-    */
-    function burn(uint256 amount) external onlyOwner
-    {
-        _burn(owner(), amount);
     }
 
     /**

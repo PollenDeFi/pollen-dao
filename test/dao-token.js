@@ -38,24 +38,20 @@ contract('pollen', function ([deployer, bob, alice]) {
         );
     });
 
-    it('should fail when a non-owner accounts burns owner tokens', async function () {
-        await this.pollen.mint(10);
-        expectRevert(
-            this.pollen.burn(3, { from: bob }),
-            'Ownable: caller is not the owner'
-        );
-    });
-
-    it('should fail when a owner tries to burn more tokens than available', async function () {
+    it('should fail when burning more tokens than balance', async function () {
         await this.pollen.mint(10);
         expectRevert(
             this.pollen.burn(11),
             'ERC20: burn amount exceeds balance.'
         );
+        expectRevert(
+            this.pollen.burn(3, { from: bob }),
+            'ERC20: burn amount exceeds balance.'
+        );
     });
 
     it('should decrease total supply and owner balance of tokens when burning', async function () {
-        let totalSupply, balance;
+        let totalSupply, balance, receipt;
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('0');
         balance = await this.pollen.balanceOf(deployer);
@@ -66,16 +62,30 @@ contract('pollen', function ([deployer, bob, alice]) {
         expect(totalSupply).to.be.bignumber.equal('13');
         balance = await this.pollen.balanceOf(deployer);
         expect(balance).to.be.bignumber.equal('10');
-        const receipt = await this.pollen.burn(3);
+        receipt = await this.pollen.burn(5);
         totalSupply = await this.pollen.totalSupply();
-        expect(totalSupply).to.be.bignumber.equal('10');
+        expect(totalSupply).to.be.bignumber.equal('8');
         balance = await this.pollen.balanceOf(deployer);
-        expect(balance).to.be.bignumber.equal('7');
+        expect(balance).to.be.bignumber.equal('5');
         expectEvent(
             receipt,
             'Transfer',
             {
                 from: deployer,
+                to: address0,
+                value: new BN('5')
+            }
+        );
+        receipt = await this.pollen.burn(3, { from: alice });
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('5');
+        balance = await this.pollen.balanceOf(alice);
+        expect(balance).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'Transfer',
+            {
+                from: alice,
                 to: address0,
                 value: new BN('3')
             }
