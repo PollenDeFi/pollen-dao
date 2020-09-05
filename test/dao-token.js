@@ -62,7 +62,7 @@ contract('pollen', function ([deployer, bob, alice]) {
         );
     });
 
-    it('should succeed when burning tokens less than allowance', async function () {
+    it('should succeed when burning tokens within allowance', async function () {
         let totalSupply, balance;
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('0');
