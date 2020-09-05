@@ -37,7 +37,7 @@ contract Pollen is ERC20, ERC20Snapshot, Ownable {
     }
 
     /**
-    * @notice Creates a new snapshot and returns its snapshot id (public)
+    * @notice Creates a new snapshot and returns its snapshot id (external)
     */
     function snapshot() external onlyOwner returns (uint256)
     {
