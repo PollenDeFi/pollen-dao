@@ -25,6 +25,15 @@ contract Pollen is ERC20Snapshot, ERC20Detailed, Ownable {
         _mint(owner(), amount);
     }
 
+    /**
+    * @notice Burn tokens of the owner account (external)
+    * @param amount The amount of allowed tokens to burn
+    */
+    function burn(address account, uint256 amount) external onlyOwner
+    {
+        _burn(account, amount);
+    }
+
     // TODO: make external and use the internal _snapshot() implementation for V3.0.0
     /**
     * @notice Creates a new snapshot and returns its snapshot id (public)

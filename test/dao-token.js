@@ -1,6 +1,7 @@
 const Pollen = artifacts.require("Pollen");
 import { expect } from 'chai';
-import { expectRevert, expectEvent } from '@openzeppelin/test-helpers';
+import { address0 } from './dao/consts';
+import { expectRevert, expectEvent, BN } from '@openzeppelin/test-helpers';
 
 contract('pollen', function (accounts) {
     beforeEach(async function () {
@@ -34,6 +35,23 @@ contract('pollen', function (accounts) {
         expectEvent(
             receipt,
             'Transfer'
+        );
+    });
+
+    it('should decrease total supply of tokens when burning', async function () {
+        let receipt;
+        receipt = await this.pollen.mint(10);
+        receipt = await this.pollen.burn(accounts[0], 3);
+        const totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('7');
+        expectEvent(
+            receipt,
+            'Transfer',
+            {
+                from: accounts[0],
+                to: address0,
+                value: new BN('3')
+            }
         );
     });
 });
