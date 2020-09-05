@@ -167,8 +167,8 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
     });
 
     it('should burn Pollen tokens when executing a divest proposal', async function () {
-        const initialDivestorAssetTokenBalance = await this.assetToken.balanceOf(bob);
-        const initialDivestorPollenBalance = await this.pollen.balanceOf(bob);
+        const initialAssetTokenBalance = await this.assetToken.balanceOf(bob);
+        const initialPollenBalance = await this.pollen.balanceOf(bob);
         const initialPollenSupply = await this.pollen.totalSupply();
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         let proposal;
@@ -177,10 +177,10 @@ contract('proposal execution', function ([deployer, bob, alice, carol]) {
         await time.increaseTo(proposal.executionOpen);
         await this.pollen.approve(this.dao.address, 3, { from: bob });
         const receipt = await this.dao.execute(1, { from: bob });
-        const newDivestorAssetTokenBalance = await this.assetToken.balanceOf(bob);
-        expect(newDivestorAssetTokenBalance).to.be.bignumber.equal(initialDivestorAssetTokenBalance.add(new BN('2')));
-        const newDivestorPollenBalance = await this.pollen.balanceOf(bob);
-        expect(newDivestorPollenBalance).to.be.bignumber.equal(initialDivestorPollenBalance.sub(new BN('3')));
+        const newAssetTokenBalance = await this.assetToken.balanceOf(bob);
+        expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
+        const newPollenBalance = await this.pollen.balanceOf(bob);
+        expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.sub(new BN('3')));
         const newPollenSupply = await this.pollen.totalSupply();
         expect(newPollenSupply).to.be.bignumber.equal(initialPollenSupply.sub(new BN('3')));
         const assets = await this.dao.getAssets();
