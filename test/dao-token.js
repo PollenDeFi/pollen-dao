@@ -63,29 +63,37 @@ contract('pollen', function ([deployer, bob, alice]) {
     });
 
     it('should succeed when burning tokens within allowance', async function () {
-        let totalSupply, balance;
-        totalSupply = await this.pollen.totalSupply();
-        expect(totalSupply).to.be.bignumber.equal('0');
-        balance = await this.pollen.balanceOf(deployer);
-        expect(balance).to.be.bignumber.equal('0');
+        let receipt;
         await this.pollen.mint(10);
-        totalSupply = await this.pollen.totalSupply();
-        expect(totalSupply).to.be.bignumber.equal('10');
-        balance = await this.pollen.balanceOf(deployer);
-        expect(balance).to.be.bignumber.equal('10');
-        balance = await this.pollen.balanceOf(bob);
-        expect(balance).to.be.bignumber.equal('0');
         await this.pollen.approve(bob, new BN('10'));
-        const receipt = await this.pollen.burnFrom(deployer, 10, { from: bob });
-        balance = await this.pollen.balanceOf(deployer);
-        expect(balance).to.be.bignumber.equal('0');
+        receipt = await this.pollen.burnFrom(deployer, 7, { from: bob });
         expectEvent(
             receipt,
             'Transfer',
             {
                 from: deployer,
                 to: address0,
-                value: new BN('10')
+                value: new BN('7')
+            }
+        );
+        receipt = await this.pollen.burnFrom(deployer, 3, { from: bob });
+        expectEvent(
+            receipt,
+            'Transfer',
+            {
+                from: deployer,
+                to: address0,
+                value: new BN('3')
+            }
+        );
+        receipt = await this.pollen.burnFrom(deployer, 0, { from: bob });
+        expectEvent(
+            receipt,
+            'Transfer',
+            {
+                from: deployer,
+                to: address0,
+                value: new BN('0')
             }
         );
     });
