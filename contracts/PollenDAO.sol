@@ -5,7 +5,7 @@ pragma solidity >=0.6 <0.7.0;
 import "./Pollen.sol";
 import "./interfaces/IPollenDAO.sol";
 import "./lib/AddressSet.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 
 /**
 * @title PollenDAO Contract
@@ -117,6 +117,7 @@ contract PollenDAO is IPollenDAO {
         require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
 
         _pollen = new Pollen();
+        _pollen.initialize();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
         _executionOpenDelay = executionOpenDelay;

@@ -2,9 +2,9 @@
 
 pragma solidity >=0.6 <0.7.0;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol";
+import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 
 /**
  * @title Pollen
@@ -12,11 +12,15 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
  * @author gtlewis
  * @author scorpion9979
  */
-contract Pollen is ERC20, ERC20Snapshot, Ownable {
+contract Pollen is ERC20UpgradeSafe, ERC20SnapshotUpgradeSafe, OwnableUpgradeSafe {
     /**
-    * @notice Constructor sets the Pollen display values (public)
+    * @notice Initializer sets the Pollen display values (public)
     */
-    constructor() public ERC20("Pollen", "PLN") {}
+    function initialize() public initializer {
+        super. __ERC20_init("Pollen", "PLN");
+        super.__ERC20Snapshot_init();
+        super.__Ownable_init();
+    }
 
     /**
     * @notice Mint tokens to the owner account (external)
@@ -38,15 +42,15 @@ contract Pollen is ERC20, ERC20Snapshot, Ownable {
     /**
     * @dev Necessary function overrides for OpenZeppelin ^0.3.0 migration to Solidity 0.6.x
     */
-    function _burn(address account, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+    function _burn(address account, uint256 amount) internal override(ERC20UpgradeSafe, ERC20SnapshotUpgradeSafe) virtual {
         return super._burn(account, amount);
     }
 
-    function _mint(address account, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+    function _mint(address account, uint256 amount) internal override(ERC20UpgradeSafe, ERC20SnapshotUpgradeSafe) virtual {
         return super._mint(account, amount);
     }
 
-    function _transfer(address sender, address recipient, uint256 amount) internal override(ERC20, ERC20Snapshot) virtual {
+    function _transfer(address sender, address recipient, uint256 amount) internal override(ERC20UpgradeSafe, ERC20SnapshotUpgradeSafe) virtual {
         return super._transfer(sender, recipient, amount);
     }
 }
