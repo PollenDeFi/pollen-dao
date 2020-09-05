@@ -54,7 +54,7 @@ contract('pollen', function ([deployer, bob, alice]) {
         );
     });
 
-    it('should decrease total supply of tokens when burning', async function () {
+    it('should decrease total supply and owner balance of tokens when burning', async function () {
         let totalSupply, balance;
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('0');
