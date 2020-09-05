@@ -6,6 +6,7 @@ import "./Pollen.sol";
 import "./interfaces/IPollenDAO.sol";
 import "./lib/AddressSet.sol";
 import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
 /**
 * @title PollenDAO Contract
@@ -13,7 +14,7 @@ import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/token
 * @author gtlewis
 * @author scorpion9979
 */
-contract PollenDAO is IPollenDAO {
+contract PollenDAO is IPollenDAO, Initializable {
     using AddressSet for AddressSet.Set;
 
     /**
@@ -103,13 +104,13 @@ contract PollenDAO is IPollenDAO {
     uint256 private _executionExpiryDelay;
 
     /**
-    * @notice Constructor deploys a new Pollen instance and becomes owner (public)
+    * @notice Initializer deploys a new Pollen instance and becomes owner (public)
     * @param quorum The quorum required to pass a proposal vote in % points
     * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
     * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
     * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
     */
-    constructor(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public {
+    function initialize(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public initializer {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
         require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");

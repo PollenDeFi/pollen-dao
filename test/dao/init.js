@@ -4,7 +4,8 @@ import { ProposalType, TokenType, ProposalStatus, Artifacts } from './consts';
 
 contract('DAO contract instantiation', function ([deployer]) {
     beforeEach(async function () {
-        this.dao = await Artifacts.PollenDAO.new(30, 120, 180, 240);
+        this.dao = await Artifacts.PollenDAO.new();
+        await this.dao.initialize(30, 120, 180, 240);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
@@ -27,21 +28,22 @@ contract('DAO contract instantiation', function ([deployer]) {
         );
     });
 
-    it('should fail when constructor parameters invalid', function () {
+    it('should fail when constructor parameters invalid', async function () {
+        const tempDao = await Artifacts.PollenDAO.new();
         expectRevert(
-            Artifacts.PollenDAO.new(101, 120, 180, 240),
+            tempDao.initialize(101, 120, 180, 240),
             'invalid quorum'
         );
         expectRevert(
-            Artifacts.PollenDAO.new(100, 60, 180, 240),
+            tempDao.initialize(100, 60, 180, 240),
             'invalid voting expiry delay'
         );
         expectRevert(
-            Artifacts.PollenDAO.new(100, 120, 60, 240),
+            tempDao.initialize(100, 120, 60, 240),
             'invalid execution open delay'
         );
         expectRevert(
-            Artifacts.PollenDAO.new(100, 120, 180, 60),
+            tempDao.initialize(100, 120, 180, 60),
             'invalid execution expiry delay'
         );
     });

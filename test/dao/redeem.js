@@ -4,7 +4,8 @@ import { ProposalType, TokenType, Artifacts } from './consts';
 
 contract('redeeming Pollens', function ([deployer, bob]) {
     beforeEach(async function () {
-        this.dao = await Artifacts.PollenDAO.new(30, 120, 180, 240, { from: deployer });
+        this.dao = await Artifacts.PollenDAO.new();
+        await this.dao.initialize(30, 120, 180, 240);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
