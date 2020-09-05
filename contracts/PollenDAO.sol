@@ -342,7 +342,7 @@ contract PollenDAO is IPollenDAO {
             assets.add(_proposals[proposalId].assetTokenAddress);
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
             IERC20(_proposals[proposalId].assetTokenAddress).transfer(msg.sender, _proposals[proposalId].assetTokenAmount);
-            _pollen.burn(msg.sender, _proposals[proposalId].pollenAmount);
+            _pollen.burn(_proposals[proposalId].pollenAmount);
             if (IERC20(_proposals[proposalId].assetTokenAddress).balanceOf(address(this)) == 0) {
                 assets.remove(_proposals[proposalId].assetTokenAddress);
             }

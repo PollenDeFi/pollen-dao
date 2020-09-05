@@ -29,11 +29,11 @@ contract Pollen is ERC20, ERC20Snapshot, Ownable {
 
     /**
     * @notice Burn tokens of the owner account (external)
-    * @param amount The amount of allowed tokens to burn
+    * @param amount The amount of tokens to burn
     */
-    function burn(address account, uint256 amount) external onlyOwner
+    function burn(uint256 amount) external onlyOwner
     {
-        _burn(account, amount);
+        _burn(owner(), amount);
     }
 
     /**

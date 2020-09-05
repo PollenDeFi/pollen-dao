@@ -41,7 +41,7 @@ contract('pollen', function (accounts) {
     it('should decrease total supply of tokens when burning', async function () {
         let receipt;
         receipt = await this.pollen.mint(10);
-        receipt = await this.pollen.burn(accounts[0], 3);
+        receipt = await this.pollen.burn(3);
         const totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('7');
         expectEvent(
