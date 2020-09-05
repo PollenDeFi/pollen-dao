@@ -1,7 +1,7 @@
 const Pollen = artifacts.require("Pollen");
 import { expect } from 'chai';
-import { address0 } from './dao/consts';
 import { expectRevert, expectEvent, BN } from '@openzeppelin/test-helpers';
+import { address0 } from './dao/consts';
 
 contract('pollen', function ([deployer, bob, alice]) {
     beforeEach(async function () {
@@ -62,6 +62,8 @@ contract('pollen', function ([deployer, bob, alice]) {
         expect(totalSupply).to.be.bignumber.equal('13');
         balance = await this.pollen.balanceOf(deployer);
         expect(balance).to.be.bignumber.equal('10');
+        balance = await this.pollen.balanceOf(alice);
+        expect(balance).to.be.bignumber.equal('3');
         receipt = await this.pollen.burn(5);
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('8');
