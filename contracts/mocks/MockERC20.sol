@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.6 <0.7.0;
 
 import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
 /**
  * @title MockERC20
@@ -9,11 +10,11 @@ import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol
  * @author gtlewis
  * @author scorpion9979
  */
-contract MockERC20 is ERC20, ERC20Detailed {
+contract MockERC20 is ERC20 {
     /**
     * @notice Constructor sets token display values (public)
     */
-    constructor(string memory name, string memory symbol) public ERC20Detailed(name, symbol, 18) {}
+    constructor(string memory name, string memory symbol) public ERC20(name, symbol) {}
 
     /**
     * @notice Mint tokens to the sender (external)
