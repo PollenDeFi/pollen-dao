@@ -3,19 +3,19 @@ import { expect } from 'chai';
 import { address0 } from './dao/consts';
 import { expectRevert, expectEvent, BN } from '@openzeppelin/test-helpers';
 
-contract('pollen', function (accounts) {
+contract('pollen', function ([deployer, bob]) {
     beforeEach(async function () {
         this.pollen = await Pollen.new();
     });
 
     it('should set the owner to be the account that created the token', async function () {
         const owner = await this.pollen.owner();
-        expect(owner).to.be.equal(accounts[0]);
+        expect(owner).to.be.equal(deployer);
     });
 
     it('should fail when a non-owner accounts mints', function () {
         expectRevert(
-            this.pollen.mint(0, {from: accounts[1]}),
+            this.pollen.mint(0, {from: bob}),
             'Ownable: caller is not the owner'
         );
     });
@@ -25,12 +25,12 @@ contract('pollen', function (accounts) {
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('0');
         let balance;
-        balance = await this.pollen.balanceOf(accounts[0]);
+        balance = await this.pollen.balanceOf(deployer);
         expect(balance).to.be.bignumber.equal('0');
         const receipt = await this.pollen.mint(1);
         totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('1');
-        balance = await this.pollen.balanceOf(accounts[0]);
+        balance = await this.pollen.balanceOf(deployer);
         expect(balance).to.be.bignumber.equal('1');
         expectEvent(
             receipt,
@@ -40,7 +40,7 @@ contract('pollen', function (accounts) {
 
     it('should decrease total supply of tokens when burning', async function () {
         let receipt;
-        receipt = await this.pollen.mint(10);
+        await this.pollen.mint(10);
         receipt = await this.pollen.burn(3);
         const totalSupply = await this.pollen.totalSupply();
         expect(totalSupply).to.be.bignumber.equal('7');
@@ -48,7 +48,7 @@ contract('pollen', function (accounts) {
             receipt,
             'Transfer',
             {
-                from: accounts[0],
+                from: deployer,
                 to: address0,
                 value: new BN('3')
             }
