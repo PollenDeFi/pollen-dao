@@ -50,6 +50,46 @@ contract('pollen', function ([deployer, bob, alice]) {
         );
     });
 
+    it('should fail when burning more tokens than allowance', async function () {
+        await this.pollen.mint(10);
+        expectRevert(
+            this.pollen.burnFrom(deployer, 10, { from: bob }),
+            'ERC20: burn amount exceeds allowance.'
+        );
+        expectRevert(
+            this.pollen.burnFrom(deployer, 1, { from: bob }),
+            'ERC20: burn amount exceeds allowance.'
+        );
+    });
+
+    it('should succeed when burning tokens less than allowance', async function () {
+        let totalSupply, balance;
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('0');
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('0');
+        await this.pollen.mint(10);
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('10');
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('10');
+        balance = await this.pollen.balanceOf(bob);
+        expect(balance).to.be.bignumber.equal('0');
+        await this.pollen.approve(bob, new BN('10'));
+        const receipt = await this.pollen.burnFrom(deployer, 10, { from: bob });
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('0');
+        expectEvent(
+            receipt,
+            'Transfer',
+            {
+                from: deployer,
+                to: address0,
+                value: new BN('10')
+            }
+        );
+    });
+
     it('should decrease total supply and balance of tokens when burning', async function () {
         let totalSupply, balance, receipt;
         totalSupply = await this.pollen.totalSupply();
