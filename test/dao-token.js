@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { address0 } from './dao/consts';
 import { expectRevert, expectEvent, BN } from '@openzeppelin/test-helpers';
 
-contract('pollen', function ([deployer, bob]) {
+contract('pollen', function ([deployer, bob, alice]) {
     beforeEach(async function () {
         this.pollen = await Pollen.new();
     });
@@ -38,12 +38,39 @@ contract('pollen', function ([deployer, bob]) {
         );
     });
 
-    it('should decrease total supply of tokens when burning', async function () {
-        let receipt;
+    it('should fail when a non-owner accounts burns owner tokens', async function () {
         await this.pollen.mint(10);
-        receipt = await this.pollen.burn(3);
-        const totalSupply = await this.pollen.totalSupply();
-        expect(totalSupply).to.be.bignumber.equal('7');
+        expectRevert(
+            this.pollen.burn(3, { from: bob }),
+            'Ownable: caller is not the owner'
+        );
+    });
+
+    it('should fail when a owner tries to burn more tokens than available', async function () {
+        await this.pollen.mint(10);
+        expectRevert(
+            this.pollen.burn(11),
+            'ERC20: burn amount exceeds balance.'
+        );
+    });
+
+    it('should decrease total supply of tokens when burning', async function () {
+        let totalSupply, balance;
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('0');
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('0');
+        await this.pollen.mint(13);
+        await this.pollen.transfer(alice, 3);
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('13');
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('10');
+        const receipt = await this.pollen.burn(3);
+        totalSupply = await this.pollen.totalSupply();
+        expect(totalSupply).to.be.bignumber.equal('10');
+        balance = await this.pollen.balanceOf(deployer);
+        expect(balance).to.be.bignumber.equal('7');
         expectEvent(
             receipt,
             'Transfer',
