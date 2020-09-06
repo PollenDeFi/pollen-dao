@@ -1,6 +1,8 @@
 {
   "manifestVersion": "2.2",
-  "contracts": {},
+  "contracts": {
+    "PollenDAO": "PollenDAO_v1"
+  },
   "dependencies": {},
   "name": "pollen-dao",
   "version": "1.0.0",
