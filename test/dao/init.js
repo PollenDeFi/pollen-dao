@@ -53,6 +53,11 @@ contract('DAO contract instantiation', function ([deployer]) {
         expect(owner).to.be.equal(this.dao.address);
     });
 
+    it('should return the correct version of the DAO', async function () {
+        const version = await this.dao.version();
+        expect(version).to.be.equal("v1");
+    });
+
     it('should have executed proposal 0 and received 2 asset tokens and minted and sent 100 Pollens', async function () {
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));

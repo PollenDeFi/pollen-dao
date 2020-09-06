@@ -126,6 +126,14 @@ contract PollenDAO_v1 is IPollenDAO, Initializable {
     }
 
     /**
+    * @notice Returns the current version of the DAO (public)
+    * @return The current version of the Pollen DAO
+    */
+    function version() public pure returns (string memory) {
+        return "v1";
+    }
+
+    /**
     * @notice Get the Pollen token contract address (external view)
     * @return The Pollen contract address
     */
