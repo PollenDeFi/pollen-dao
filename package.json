@@ -24,7 +24,8 @@
   },
   "scripts": {
     "compile": "truffle compile",
-    "test": "./scripts/start-ganache.sh && yarn clean && truffle compile && truffle test",
+    "test": "./scripts/start-ganache.sh && truffle test",
+    "test:ci": "./scripts/start-ganache.sh && rm -rf artifacts/contracts && truffle compile && truffle test",
     "interact": "oz call",
     "migrate:ropsten": "truffle migrate --reset --network ropsten",
     "console:ropsten": "truffle console --network ropsten",
