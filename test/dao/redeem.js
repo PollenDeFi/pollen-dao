@@ -5,9 +5,8 @@ import { ProposalType, TokenType, Artifacts } from './consts';
 contract('redeeming Pollens', function ([deployer, bob]) {
     beforeEach(async function () {
         this.dao = await Artifacts.PollenDAO.new();
-        await this.dao.initialize(30, 120, 180, 240);
-        const pollenAddress = await this.dao.getPollenAddress();
-        this.pollen = await Artifacts.Pollen.at(pollenAddress);
+        this.pollen = await Artifacts.Pollen.new();
+        await this.dao.initialize(this.pollen.address, 30, 120, 180, 240);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         this.assetToken.mint(999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
