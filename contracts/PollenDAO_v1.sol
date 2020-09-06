@@ -110,14 +110,14 @@ contract PollenDAO_v1 is IPollenDAO, Initializable {
     * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
     * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
     */
-    function initialize(Pollen pollen, uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public initializer {
+    function initialize(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public initializer {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
         require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");
         require(executionOpenDelay > 60, "PollenDAO: invalid execution open delay");
         require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
 
-        _pollen = pollen;
+        _pollen = new Pollen();
         _pollen.initialize();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;

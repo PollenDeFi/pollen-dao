@@ -24,7 +24,7 @@
   },
   "scripts": {
     "compile": "./scripts/start-ganache.sh && truffle compile",
-    "test": "./scripts/start-ganache.sh && truffle test",
+    "test": "./scripts/start-ganache.sh && yarn clean && truffle compile && truffle test",
     "testnet-migrate": "./scripts/start-ganache.sh && truffle migrate --reset --network ropsten",
     "testnet-console": "./scripts/start-ganache.sh && truffle console --network ropsten",
     "mainnet-migrate": "./scripts/start-ganache.sh && truffle migrate --network mainnet",
