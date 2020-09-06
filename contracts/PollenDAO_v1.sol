@@ -14,7 +14,7 @@ import "../node_modules/@openzeppelin/contracts-ethereum-package/contracts/Initi
 * @author gtlewis
 * @author scorpion9979
 */
-contract PollenDAO is IPollenDAO, Initializable {
+contract PollenDAO_v1 is IPollenDAO, Initializable {
     using AddressSet for AddressSet.Set;
 
     /**
@@ -104,20 +104,20 @@ contract PollenDAO is IPollenDAO, Initializable {
     uint256 private _executionExpiryDelay;
 
     /**
-    * @notice Initializer deploys a new Pollen instance and becomes owner (public)
+    * @notice Initializer deploys a new Pollen instance and becomes owner of Pollen token (public)
     * @param quorum The quorum required to pass a proposal vote in % points
     * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
     * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
     * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
     */
-    function initialize(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public initializer {
+    function initialize(Pollen pollen, uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public initializer {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
         require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");
         require(executionOpenDelay > 60, "PollenDAO: invalid execution open delay");
         require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
 
-        _pollen = new Pollen();
+        _pollen = pollen;
         _pollen.initialize();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
