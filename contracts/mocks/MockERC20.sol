@@ -16,4 +16,9 @@ contract MockERC20 is ERC20PresetMinterPauserUpgradeSafe {
     constructor(string memory name, string memory symbol) public {
         initialize(name, symbol);
     }
+
+    /// @dev the caller must have the `MINTER_ROLE`
+    function mint(uint256 amount) public {
+        super.mint(msg.sender, amount);
+    }
 }
