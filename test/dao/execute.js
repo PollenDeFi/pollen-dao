@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
 import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './consts';
 
-contract('proposal execution', function ([deployer, bob, alice, carol]) {
+contract.skip('proposal execution', function ([deployer, bob, alice, carol]) {
     beforeEach(async function () {
         this.dao = await Artifacts.PollenDAO.new();
         await this.dao.initialize(30, 120, 180, 240);

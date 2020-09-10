@@ -1,15 +1,20 @@
+/* global after, afterEach, artifacts, before, beforeEach, contract, describe, it, web3 */
+
 import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
+import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
+import { getProxy } from '../helpers/oz-sdk';
 import { ProposalType, TokenType, VoterState, Artifacts } from './consts';
 
-contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
-    beforeEach(async function () {
-        this.dao = await Artifacts.PollenDAO.new();
-        await this.dao.initialize(30, 120, 180, 240);
+contract.skip('proposal voting', function ([deployer, , bob, alice, carol, dave]) {
+
+    before(async function () {
+        const [{ address: daoAddress }]= await getProxy("PollenDAO");
+        this.dao = await Artifacts.PollenDAO.at(daoAddress);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
-        this.assetToken.mint(999, { from: deployer });
+        await this.assetToken.mint(deployer, 999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 102, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
@@ -19,12 +24,18 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         await this.pollen.transfer(bob, 99, { from: deployer });
         await this.pollen.transfer(alice, 1, { from: deployer });
         await this.assetToken.transfer(bob, 2, { from: deployer });
+
+        this.snapshot = await createSnapshot();
+    });
+
+    beforeEach(async function () {
+        await revertToSnapshot(this.snapshot);
     });
 
     it('should fail when voting on proposal 0', function () {
         expectRevert(
             this.dao.voteOn(0, false, { from: bob }),
-            'invalid proposal status'
+            'invalid proposal status.'
         );
     });
 
@@ -44,7 +55,7 @@ contract('proposal voting', function ([deployer, bob, alice, carol, dave]) {
         await this.dao.execute(1, { from: bob });
         expectRevert(
             this.dao.voteOn(1, false),
-            'invalid proposal status'
+            'invalid proposal status.'
         );
     });
 
