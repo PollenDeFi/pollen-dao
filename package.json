@@ -8,7 +8,6 @@
   "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
   "devDependencies": {
     "@openzeppelin/cli": "^2.8.2",
-    "@openzeppelin/contracts": "^3.1.0",
     "@openzeppelin/contracts-ethereum-package": "^3.0.0",
     "@openzeppelin/test-helpers": "^0.5.4",
     "@truffle/hdwallet-provider": "^1.0.32",
@@ -24,10 +23,12 @@
   },
   "scripts": {
     "compile": "truffle compile",
-    "test": "./scripts/start-ganache.sh && truffle test",
-    "test:ci": "./scripts/start-ganache.sh && rm -rf artifacts/contracts && truffle compile && truffle test",
+    "test": "./scripts/test.sh",
+    "test:ci": "./scripts/clean.sh --all && truffle compile && ./scripts/test.sh",
     "interact": "oz call",
-    "migrate:ropsten": "truffle migrate --reset --network ropsten",
+    "start:pln-chain": "./scripts/start-pln-chain.sh --no-migrate",
+    "migrate:pln-chain": "./scripts/start-pln-chain.sh",
+    "migrate:ropsten": "truffle migrate --network ropsten",
     "console:ropsten": "truffle console --network ropsten",
     "migrate:mainnet": "truffle migrate --network mainnet",
     "console:mainnet": "truffle console --network mainnet",
