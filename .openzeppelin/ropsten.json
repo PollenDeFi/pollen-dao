@@ -1,0 +1,621 @@
+{
+  "contracts": {
+    "Pollen": {
+      "address": "0x4AEE1e2F1a8caA9bB2e8640fECADE30D46C1001d",
+      "constructorCode": "608060405234801561001057600080fd5b50611921806100206000396000f3fe",
+      "bodyBytecodeHash": "8f4c4dca539e23274e88d1dc522c9322dfcb4e25bede0e818bec3a5fdf3fda70",
+      "localBytecodeHash": "0f7901cb908d9f341116c64e167147df7a3932cb036bded5a71f268c506fa532",
+      "deployedBytecodeHash": "0f7901cb908d9f341116c64e167147df7a3932cb036bded5a71f268c506fa532",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_array:49<t_uint256>": {
+          "id": "t_array:49<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "49",
+          "kind": "array",
+          "label": "uint256[49]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_uint8": {
+          "id": "t_uint8",
+          "kind": "elementary",
+          "label": "uint8"
+        },
+        "t_array:44<t_uint256>": {
+          "id": "t_array:44<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "44",
+          "kind": "array",
+          "label": "uint256[44]"
+        },
+        "t_struct<ERC20SnapshotUpgradeSafe.Snapshots>": {
+          "id": "t_struct<ERC20SnapshotUpgradeSafe.Snapshots>",
+          "kind": "struct",
+          "label": "ERC20SnapshotUpgradeSafe.Snapshots",
+          "members": [
+            {
+              "label": "ids",
+              "astId": 3535,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "2662:13:22"
+            },
+            {
+              "label": "values",
+              "astId": 3538,
+              "type": "t_array:dyn<t_uint256>",
+              "src": "2685:16:22"
+            }
+          ]
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_mapping<t_struct<ERC20SnapshotUpgradeSafe.Snapshots>>": {
+          "id": "t_mapping<t_struct<ERC20SnapshotUpgradeSafe.Snapshots>>",
+          "valueType": "t_struct<ERC20SnapshotUpgradeSafe.Snapshots>",
+          "label": "mapping(key => ERC20SnapshotUpgradeSafe.Snapshots)",
+          "kind": "mapping"
+        },
+        "t_struct<Counters.Counter>": {
+          "id": "t_struct<Counters.Counter>",
+          "kind": "struct",
+          "label": "Counters.Counter",
+          "members": [
+            {
+              "label": "_value",
+              "astId": 4086,
+              "type": "t_uint256",
+              "src": "1024:14:26"
+            }
+          ]
+        },
+        "t_array:46<t_uint256>": {
+          "id": "t_array:46<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "46",
+          "kind": "array",
+          "label": "uint256[46]"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 1865,
+          "type": "t_bool",
+          "src": "757:24:13"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 1868,
+          "type": "t_bool",
+          "src": "876:25:13"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 1933,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:13"
+        },
+        {
+          "contract": "ContextUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
+          "label": "__gap",
+          "astId": 1858,
+          "type": "t_array:50<t_uint256>",
+          "src": "1277:25:12"
+        },
+        {
+          "contract": "OwnableUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
+          "label": "_owner",
+          "astId": 2235,
+          "type": "t_address",
+          "src": "651:22:15"
+        },
+        {
+          "contract": "OwnableUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
+          "label": "__gap",
+          "astId": 2353,
+          "type": "t_array:49<t_uint256>",
+          "src": "2434:25:15"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_balances",
+          "astId": 2836,
+          "type": "t_mapping<t_uint256>",
+          "src": "1481:46:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_allowances",
+          "astId": 2842,
+          "type": "t_mapping<t_uint256>",
+          "src": "1534:69:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_totalSupply",
+          "astId": 2844,
+          "type": "t_uint256",
+          "src": "1610:28:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_name",
+          "astId": 2846,
+          "type": "t_string",
+          "src": "1645:20:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_symbol",
+          "astId": 2848,
+          "type": "t_string",
+          "src": "1671:22:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "_decimals",
+          "astId": 2850,
+          "type": "t_uint8",
+          "src": "1699:23:19"
+        },
+        {
+          "contract": "ERC20UpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "label": "__gap",
+          "astId": 3345,
+          "type": "t_array:44<t_uint256>",
+          "src": "11045:25:19"
+        },
+        {
+          "contract": "ERC20SnapshotUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol",
+          "label": "_accountBalanceSnapshots",
+          "astId": 3543,
+          "type": "t_mapping<t_struct<ERC20SnapshotUpgradeSafe.Snapshots>>",
+          "src": "2714:63:22"
+        },
+        {
+          "contract": "ERC20SnapshotUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol",
+          "label": "_totalSupplySnapshots",
+          "astId": 3545,
+          "type": "t_struct<ERC20SnapshotUpgradeSafe.Snapshots>",
+          "src": "2783:39:22"
+        },
+        {
+          "contract": "ERC20SnapshotUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol",
+          "label": "_currentSnapshotId",
+          "astId": 3547,
+          "type": "t_struct<Counters.Counter>",
+          "src": "2926:43:22"
+        },
+        {
+          "contract": "ERC20SnapshotUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol",
+          "label": "__gap",
+          "astId": 3849,
+          "type": "t_array:46<t_uint256>",
+          "src": "8505:25:22"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "PollenDAO": {
+      "address": "0xcF07bBc7Bbb71B7B62052B09EB6180697231434A",
+      "constructorCode": "608060405234801561001057600080fd5b50612555806100206000396000f3fe",
+      "bodyBytecodeHash": "35e820d98a5a4c6f7c876f1a9c3dbd138593e5a8d5e7f6fdb9740c685a72c2f9",
+      "localBytecodeHash": "9b47847792868183cfcc877e68885c3a9918cbfa367f0aa29301975c1573b0c8",
+      "deployedBytecodeHash": "9b47847792868183cfcc877e68885c3a9918cbfa367f0aa29301975c1573b0c8",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_struct<PollenDAO_v1.Proposal>": {
+          "id": "t_struct<PollenDAO_v1.Proposal>",
+          "kind": "struct",
+          "label": "PollenDAO_v1.Proposal",
+          "members": [
+            {
+              "label": "proposalType",
+              "astId": 53,
+              "type": "t_enum<IPollenDAO.ProposalType>",
+              "src": "1781:25:1"
+            },
+            {
+              "label": "assetTokenType",
+              "astId": 55,
+              "type": "t_enum<IPollenDAO.TokenType>",
+              "src": "1816:24:1"
+            },
+            {
+              "label": "assetTokenAddress",
+              "astId": 57,
+              "type": "t_address",
+              "src": "1850:25:1"
+            },
+            {
+              "label": "assetTokenAmount",
+              "astId": 59,
+              "type": "t_uint256",
+              "src": "1885:24:1"
+            },
+            {
+              "label": "pollenAmount",
+              "astId": 61,
+              "type": "t_uint256",
+              "src": "1919:20:1"
+            },
+            {
+              "label": "descriptionCid",
+              "astId": 63,
+              "type": "t_string",
+              "src": "1949:21:1"
+            },
+            {
+              "label": "submitter",
+              "astId": 65,
+              "type": "t_address",
+              "src": "1980:17:1"
+            },
+            {
+              "label": "snapshotId",
+              "astId": 67,
+              "type": "t_uint256",
+              "src": "2007:18:1"
+            },
+            {
+              "label": "voters",
+              "astId": 71,
+              "type": "t_mapping<t_enum<IPollenDAO.VoterState>>",
+              "src": "2035:37:1"
+            },
+            {
+              "label": "yesVotes",
+              "astId": 73,
+              "type": "t_uint256",
+              "src": "2082:16:1"
+            },
+            {
+              "label": "noVotes",
+              "astId": 75,
+              "type": "t_uint256",
+              "src": "2108:15:1"
+            },
+            {
+              "label": "votingExpiry",
+              "astId": 77,
+              "type": "t_uint256",
+              "src": "2133:20:1"
+            },
+            {
+              "label": "executionOpen",
+              "astId": 79,
+              "type": "t_uint256",
+              "src": "2163:21:1"
+            },
+            {
+              "label": "executionExpiry",
+              "astId": 81,
+              "type": "t_uint256",
+              "src": "2194:23:1"
+            },
+            {
+              "label": "status",
+              "astId": 83,
+              "type": "t_enum<IPollenDAO.ProposalStatus>",
+              "src": "2227:21:1"
+            }
+          ]
+        },
+        "t_enum<IPollenDAO.ProposalType>": {
+          "id": "t_enum<IPollenDAO.ProposalType>",
+          "kind": "enum",
+          "label": "IPollenDAO.ProposalType",
+          "members": [
+            "Invest",
+            "Divest",
+            "Last"
+          ]
+        },
+        "t_enum<IPollenDAO.TokenType>": {
+          "id": "t_enum<IPollenDAO.TokenType>",
+          "kind": "enum",
+          "label": "IPollenDAO.TokenType",
+          "members": [
+            "ERC20",
+            "Last"
+          ]
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_enum<IPollenDAO.VoterState>": {
+          "id": "t_enum<IPollenDAO.VoterState>",
+          "kind": "enum",
+          "label": "IPollenDAO.VoterState",
+          "members": [
+            "Null",
+            "VotedYes",
+            "VotedNo"
+          ]
+        },
+        "t_mapping<t_enum<IPollenDAO.VoterState>>": {
+          "id": "t_mapping<t_enum<IPollenDAO.VoterState>>",
+          "valueType": "t_enum<IPollenDAO.VoterState>",
+          "label": "mapping(key => IPollenDAO.VoterState)",
+          "kind": "mapping"
+        },
+        "t_enum<IPollenDAO.ProposalStatus>": {
+          "id": "t_enum<IPollenDAO.ProposalStatus>",
+          "kind": "enum",
+          "label": "IPollenDAO.ProposalStatus",
+          "members": [
+            "Null",
+            "Submitted",
+            "Executed",
+            "Last"
+          ]
+        },
+        "t_mapping<t_struct<PollenDAO_v1.Proposal>>": {
+          "id": "t_mapping<t_struct<PollenDAO_v1.Proposal>>",
+          "valueType": "t_struct<PollenDAO_v1.Proposal>",
+          "label": "mapping(key => PollenDAO_v1.Proposal)",
+          "kind": "mapping"
+        },
+        "t_struct<AddressSet.Set>": {
+          "id": "t_struct<AddressSet.Set>",
+          "kind": "struct",
+          "label": "AddressSet.Set",
+          "members": [
+            {
+              "label": "elements",
+              "astId": 1585,
+              "type": "t_array:dyn<t_address>",
+              "src": "472:18:9"
+            },
+            {
+              "label": "indexes",
+              "astId": 1589,
+              "type": "t_mapping<t_struct<AddressSet.Index>>",
+              "src": "500:33:9"
+            }
+          ]
+        },
+        "t_array:dyn<t_address>": {
+          "id": "t_array:dyn<t_address>",
+          "valueType": "t_address",
+          "length": "dyn",
+          "kind": "array",
+          "label": "address[]"
+        },
+        "t_struct<AddressSet.Index>": {
+          "id": "t_struct<AddressSet.Index>",
+          "kind": "struct",
+          "label": "AddressSet.Index",
+          "members": [
+            {
+              "label": "index",
+              "astId": 1592,
+              "type": "t_uint256",
+              "src": "740:13:9"
+            },
+            {
+              "label": "exists",
+              "astId": 1594,
+              "type": "t_bool",
+              "src": "763:11:9"
+            }
+          ]
+        },
+        "t_mapping<t_struct<AddressSet.Index>>": {
+          "id": "t_mapping<t_struct<AddressSet.Index>>",
+          "valueType": "t_struct<AddressSet.Index>",
+          "label": "mapping(key => AddressSet.Index)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 1865,
+          "type": "t_bool",
+          "src": "757:24:13"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 1868,
+          "type": "t_bool",
+          "src": "876:25:13"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 1933,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:13"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_pollen",
+          "astId": 87,
+          "type": "t_address",
+          "src": "2332:23:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_proposals",
+          "astId": 92,
+          "type": "t_mapping<t_struct<PollenDAO_v1.Proposal>>",
+          "src": "2412:47:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_proposalCount",
+          "astId": 95,
+          "type": "t_uint256",
+          "src": "2525:30:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "assets",
+          "astId": 98,
+          "type": "t_struct<AddressSet.Set>",
+          "src": "2635:29:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_quorum",
+          "astId": 101,
+          "type": "t_uint256",
+          "src": "2763:23:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_votingExpiryDelay",
+          "astId": 104,
+          "type": "t_uint256",
+          "src": "2898:34:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_executionOpenDelay",
+          "astId": 107,
+          "type": "t_uint256",
+          "src": "3049:35:1"
+        },
+        {
+          "contract": "PollenDAO_v1",
+          "path": "contracts/PollenDAO_v1.sol",
+          "label": "_executionExpiryDelay",
+          "astId": 110,
+          "type": "t_uint256",
+          "src": "3204:37:1"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "pollen-dao/Pollen": [
+      {
+        "address": "0xe88B849FD0109e5d9A943A42EED98c5507c32E01",
+        "version": "1.0.0",
+        "implementation": "0x4AEE1e2F1a8caA9bB2e8640fECADE30D46C1001d",
+        "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
+        "kind": "Upgradeable"
+      }
+    ],
+    "pollen-dao/PollenDAO": [
+      {
+        "address": "0x58cdDaaCae33f2df3DE8ffe20B07C67ed310aAc6",
+        "version": "1.0.0",
+        "implementation": "0xcF07bBc7Bbb71B7B62052B09EB6180697231434A",
+        "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "1.0.0",
+  "proxyAdmin": {
+    "address": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4"
+  }
+}
