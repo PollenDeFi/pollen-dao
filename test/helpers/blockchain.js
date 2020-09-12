@@ -1,4 +1,6 @@
 /* global module, web3 */
+const getCounter = ((n) => () => n++)(1);
+
 module.exports = {
     createSnapshot,
     revertToSnapshot,
@@ -10,9 +12,14 @@ async function createSnapshot () {
             jsonrpc: '2.0',
             method: 'evm_snapshot',
             params: [],
-            id: new Date().getSeconds()
+            id: getCounter(),
         }, async (err, res) => {
-            if (err) { reject(err); }
+            if (err) {
+                return reject(err);
+            }
+            if ( res.result === false ) {
+                return reject(new Error(`failed to create a snapshot: ${JSON.stringify(res)}`));
+            }
             return resolve(res.result);
         });
     });
@@ -24,9 +31,14 @@ async function revertToSnapshot (snapshot) {
             jsonrpc: '2.0',
             method: 'evm_revert',
             params: [snapshot],
-            id: new Date().getSeconds()
+            id: getCounter(),
         }, async (err, res) => {
-            if (err) { reject(err); }
+            if (err) {
+                return reject(err);
+            }
+            if ( res.result === false ) {
+                return reject(new Error(`failed to revert to the snapshot: ${JSON.stringify(res)}`));
+            }
             return resolve(res);
         });
     });

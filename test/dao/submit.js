@@ -1,24 +1,39 @@
+/* global after, afterEach, artifacts, before, beforeEach, contract, describe, it, web3 */
 import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
+import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
+import { getProxy } from '../helpers/oz-sdk';
 import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './consts';
 
-contract.skip('proposal submission', function ([deployer, bob, alice]) {
-    beforeEach(async function () {
-        this.dao = await Artifacts.PollenDAO.new();
-        await this.dao.initialize(30, 120, 180, 240);
+contract('proposal submission', function ([deployer, bob, alice]) {
+    before(async function () {
+        const [{ address: daoAddress }]= await getProxy("PollenDAO");
+        this.dao = await Artifacts.PollenDAO.at(daoAddress);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
+
         this.assetToken = await Artifacts.AssetToken.new('Artifacts.AssetToken', 'AST');
-        this.assetToken.mint(999, { from: deployer });
+        this.assetToken.mint(deployer, 999, { from: deployer });
+
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
+
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
+
         await time.increaseTo(proposal.executionOpen);
+
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
         await this.dao.execute(0, { from: deployer });
         await this.pollen.transfer(bob, 100, { from: deployer });
     });
 
+    beforeEach(async function () {
+        this.snapshot = await createSnapshot();
+    });
+
+    afterEach(async function () {
+        await revertToSnapshot(this.snapshot);
+    });
     it('should fail when submitting a proposal with token address 0x0', function () {
         expectRevert(
             this.dao.submit(ProposalType.Invest, TokenType.ERC20, address0, 0, 0, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),

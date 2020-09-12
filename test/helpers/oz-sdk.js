@@ -18,7 +18,7 @@ module.exports = {
  * @param network {string=}
  * @return {Promise<Object[]>}
  */
-async function getProxy (contract= "", address= "", network = currentSession.network) {
+async function getProxy(contract= "", address= "", network = currentSession.network) {
     const proxies = cachedProxies
         ? await Promise.resolve(cachedProxies)
         : await readProxiesFromOzNetworkFile(network);
