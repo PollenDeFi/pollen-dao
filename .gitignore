@@ -2,6 +2,3 @@ node_modules/
 ganache-log.txt
 .env
 abi
-# OpenZeppelin
-.openzeppelin/.session
-.openzeppelin/dev-*.json

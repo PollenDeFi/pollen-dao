@@ -7,14 +7,12 @@
   "main": "truffle-config.js",
   "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
   "devDependencies": {
-    "@openzeppelin/cli": "^2.8.2",
-    "@openzeppelin/contracts-ethereum-package": "^3.0.0",
+    "@openzeppelin/contracts": "^3.1.0",
     "@openzeppelin/test-helpers": "^0.5.4",
     "@truffle/hdwallet-provider": "^1.0.32",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0",
-    "chai": "^4.2.0",
     "dotenv": "^8.2.0",
     "ganache-cli": "^6.8.2",
     "lodash": "^4.17.20",
@@ -23,16 +21,11 @@
     "winston": "^3.3.3"
   },
   "scripts": {
-    "compile": "truffle compile",
-    "test": "./scripts/test.sh",
-    "test:ci": "./scripts/clean.sh --all && truffle compile && ./scripts/test.sh",
-    "interact": "oz call",
-    "start:pln-chain": "./scripts/start-pln-chain.sh --no-migrate",
-    "migrate:pln-chain": "./scripts/start-pln-chain.sh",
-    "migrate:ropsten": "truffle migrate --network ropsten",
-    "console:ropsten": "truffle console --network ropsten",
-    "migrate:mainnet": "truffle migrate --network mainnet",
-    "console:mainnet": "truffle console --network mainnet",
+    "compile": "./scripts/start-ganache.sh && truffle compile",
+    "test": "./scripts/start-ganache.sh && truffle test",
+    "testnet-migrate": "./scripts/start-ganache.sh && truffle migrate --reset --network ropsten",
+    "testnet-console": "./scripts/start-ganache.sh && truffle console --network ropsten",
+    "mainnet-migrate": "./scripts/start-ganache.sh && truffle migrate --network mainnet",
     "clean": "./scripts/clean.sh"
   }
 }

@@ -1,0 +1,1 @@
+./node_modules/ganache-cli/cli.js --defaultBalanceEther 1000000 --deterministic --a 8 > ganache-log.txt &

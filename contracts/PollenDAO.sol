@@ -2,11 +2,10 @@
 
 pragma solidity >=0.6 <0.7.0;
 
+import "./Pollen.sol";
 import "./interfaces/IPollenDAO.sol";
-import "./interfaces/IPollen.sol";
 import "./lib/AddressSet.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
 * @title PollenDAO Contract
@@ -14,8 +13,18 @@ import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 * @author gtlewis
 * @author scorpion9979
 */
-contract PollenDAO_v1 is Initializable, IPollenDAO {
+contract PollenDAO is IPollenDAO {
     using AddressSet for AddressSet.Set;
+
+    /**
+    * @notice Type for representing a token proposal status
+    */
+    enum ProposalStatus {Null, Submitted, Executed, Last}
+
+    /**
+    * @notice Type for representing the state of a vote on a proposal
+    */
+    enum VoterState {Null, VotedYes, VotedNo}
 
     /**
     * @notice Type for representing a token proposal
@@ -56,7 +65,7 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     /**
     * @dev The Pollen token contract instance (private)
     */
-    IPollen private _pollen;
+    Pollen private _pollen;
 
     /**
     * @dev The proposals (private)
@@ -94,46 +103,41 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     uint256 private _executionExpiryDelay;
 
     /**
-    * @notice Initializer deploys a new Pollen instance and becomes owner of Pollen token (public)
-    * @param pollen Address ot the Pollen token contract instance
+    * @notice Constructor deploys a new Pollen instance and becomes owner (public)
     * @param quorum The quorum required to pass a proposal vote in % points
     * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
     * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
     * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
     */
-    function initialize(
-        address pollen,
-        uint256 quorum,
-        uint256 votingExpiryDelay,
-        uint256 executionOpenDelay,
-        uint256 executionExpiryDelay
-    ) public initializer {
+    constructor(uint256 quorum, uint256 votingExpiryDelay, uint256 executionOpenDelay, uint256 executionExpiryDelay) public {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
         require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");
         require(executionOpenDelay > 60, "PollenDAO: invalid execution open delay");
         require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
 
-        _pollen = IPollen(pollen);
-        // _pollen.initialize();
+        _pollen = new Pollen();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
         _executionOpenDelay = executionOpenDelay;
         _executionExpiryDelay = executionExpiryDelay;
     }
 
-    /// @inheritdoc IPollenDAO
-    function version() public pure override returns (string memory) {
-        return "v1";
-    }
-
-    /// @inheritdoc IPollenDAO
-    function getPollenAddress() external view override returns(address) {
+    /**
+    * @notice Get the Pollen token contract address (external view)
+    * @return The Pollen contract address
+    */
+    function getPollenAddress() external view returns(address) {
         return address(_pollen);
     }
 
-    /// @inheritdoc IPollenDAO
-    function getProposalData(uint256 proposalId) external view override returns(
+    /**
+    * @notice Get a proposal's data at index (external view)
+    * @param proposalId The proposal ID
+    * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
+    * pollenAmount , descriptionCid, submitter , snapshotId , yesVotes , noVotes , status
+    */
+    function getProposalData(uint256 proposalId) external view returns(
         ProposalType proposalType,
         TokenType assetTokenType,
         address assetTokenAddress,
@@ -163,8 +167,12 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         );
     }
 
-    /// @inheritdoc IPollenDAO
-    function getProposalTimestamps(uint256 proposalId) external view override returns(
+    /**
+    * @notice Get a proposal's voting and execution timestamps at index (external view)
+    * @param proposalId The proposal ID
+    * @return votingExpiry , executionOpen , executionExpiry
+    */
+    function getProposalTimestamps(uint256 proposalId) external view returns(
         uint256 votingExpiry,
         uint256 executionOpen,
         uint256 executionExpiry
@@ -178,43 +186,72 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         );
     }
 
-    /// @inheritdoc IPollenDAO
-    function getVoterState(uint256 proposalId) external view override returns(VoterState) {
+    /**
+    * @notice Get the state of a voter on a specified proposal (external view)
+    * @param proposalId The proposal ID
+    * @return The state of the vote
+    */
+    function getVoterState(uint256 proposalId) external view returns(VoterState) {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         return (_proposals[proposalId].voters[msg.sender]);
     }
 
-    /// @inheritdoc IPollenDAO
-    function getProposalCount() external view override returns(uint256) {
+    /**
+    * @notice Get total proposal count (external view)
+    * @return The total proposal count
+    */
+    function getProposalCount() external view returns(uint256) {
         return _proposalCount;
     }
 
-    /// @inheritdoc IPollenDAO
-    function getAssets() external view override returns (address[] memory) {
+    /**
+    * @notice Get the assets that the DAO holds (external view)
+    * @return The set of asset token addresses
+    */
+    function getAssets() external view returns (address[] memory) {
         return assets.elements;
     }
 
-    /// @inheritdoc IPollenDAO
-    function getVotingExpiryDelay() external view override returns(uint256) {
+    /**
+    * @notice Get the voting expiry delay (external view)
+    * @return The number of seconds until voting expires after proposal submission
+    */
+    function getVotingExpiryDelay() external view returns(uint256) {
         return _votingExpiryDelay;
     }
 
-    /// @inheritdoc IPollenDAO
-    function getExecutionOpenDelay() external view override returns(uint256) {
+    /**
+    * @notice Get the exection open delay (external view)
+    * @return The number of seconds until execution opens after proposal voting expires
+    */
+    function getExecutionOpenDelay() external view returns(uint256) {
         return _executionOpenDelay;
     }
 
-    /// @inheritdoc IPollenDAO
-    function getExecutionExpiryDelay() external view override returns(uint256) {
+    /**
+    * @notice Get the exection expiry delay (external view)
+    * @return The number of seconds until execution expires after proposal exection opens
+    */
+    function getExecutionExpiryDelay() external view returns(uint256) {
         return _executionExpiryDelay;
     }
 
-    /// @inheritdoc IPollenDAO
-    function getQuorum() external view override returns(uint256) {
+    /**
+    * @notice Get the quorum required to pass a proposal vote (external view)
+    * @return The quorum in % points
+    */
+    function getQuorum() external view returns(uint256) {
         return _quorum;
     }
 
-    /// @inheritdoc IPollenDAO
+    /**
+    * @notice Submit a proposal (external)
+    * @param proposalType The type of proposal (e.g., Invest, Divest)
+    * @param assetTokenType The type of the asset token (e.g., ERC20)
+    * @param assetTokenAddress The address of the asset token
+    * @param assetTokenAmount The amount of the asset token to invest/divest
+    * @param pollenAmount The amount of Pollen to be paid/received
+    */
     function submit(
         ProposalType proposalType,
         TokenType assetTokenType,
@@ -261,7 +298,11 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         );
     }
 
-    /// @inheritdoc IPollenDAO
+    /**
+    * @notice Vote on a proposal (external)
+    * @param proposalId The proposal ID
+    * @param vote The yes/no vote
+    */
     function voteOn(uint256 proposalId, bool vote) external override {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
@@ -279,7 +320,10 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         );
     }
 
-    /// @inheritdoc IPollenDAO
+    /**
+    * @notice Execute a proposal (external)
+    * @param proposalId The proposal ID
+    */
     function execute(uint256 proposalId) external override {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
         require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
@@ -312,7 +356,10 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         );
     }
 
-    /// @inheritdoc IPollenDAO
+    /**
+    * @notice Redeem Pollens for the relative proportion of each asset token held by the DAO (external)
+    * @param pollenAmount The amount of Pollens to redeem
+    */
     function redeem(uint256 pollenAmount) external override {
         require(pollenAmount != 0, "PollenDAO: can't redeem zero amount");
 

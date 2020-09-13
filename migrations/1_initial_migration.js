@@ -1,3 +1,5 @@
-module.exports = function (deployer) {
-  console.log(`Skipped Migrations.sol deployment on ${deployer.network}`);
-}
+const Migrations = artifacts.require("Migrations");
+
+module.exports = function(deployer) {
+  deployer.deploy(Migrations);
+};

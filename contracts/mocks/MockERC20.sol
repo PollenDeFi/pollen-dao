@@ -2,8 +2,7 @@
 
 pragma solidity >=0.6 <0.7.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/presets/ERC20PresetMinterPauser.sol";
-
+import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title MockERC20
@@ -11,14 +10,18 @@ import "@openzeppelin/contracts-ethereum-package/contracts/presets/ERC20PresetMi
  * @author gtlewis
  * @author scorpion9979
  */
-contract MockERC20 is ERC20PresetMinterPauserUpgradeSafe {
+contract MockERC20 is ERC20 {
+    /**
+    * @notice Constructor sets token display values (public)
+    */
+    constructor(string memory name, string memory symbol) public ERC20(name, symbol) {}
 
-    constructor(string memory name, string memory symbol) public {
-        initialize(name, symbol);
-    }
-
-    /// @dev the caller must have the `MINTER_ROLE`
-    function mint(uint256 amount) public {
-        super.mint(msg.sender, amount);
+    /**
+    * @notice Mint tokens to the sender (external)
+    * @param amount The amount of tokens to mint
+    */
+    function mint(uint256 amount) external
+    {
+        _mint(msg.sender, amount);
     }
 }

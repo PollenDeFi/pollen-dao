@@ -1,42 +1,26 @@
-/* global after, afterEach, artifacts, before, beforeEach, contract, describe, it, web3 */
 import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
-import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
-import { getProxy } from '../helpers/oz-sdk';
-import { ProposalType, TokenType, address0, Artifacts } from './consts';
+import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './consts';
 
-contract('proposal execution', function ([deployer, , bob, alice, carol]) {
-    before(async function () {
-        const [{ address: daoAddress }]= await getProxy("PollenDAO");
-        this.dao = await Artifacts.PollenDAO.at(daoAddress);
+contract('proposal execution', function ([deployer, bob, alice, carol]) {
+    beforeEach(async function () {
+        this.dao = await Artifacts.PollenDAO.new(30, 120, 180, 240, { from: deployer });
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
-
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
-        await this.assetToken.mint(deployer, 999, { from: deployer });
-
+        this.assetToken.mint(999, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
-
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
-
         await time.increaseTo(proposal.executionOpen);
-
         await this.assetToken.approve(this.dao.address, 2, { from: deployer });
         await this.dao.execute(0, { from: deployer });
         await this.pollen.transfer(bob, 100, { from: deployer });
         await this.assetToken.transfer(bob, 2, { from: deployer });
     });
 
-    beforeEach(async function () {
-        this.snapshot = await createSnapshot();
-    });
-
-    afterEach(async function () {
-        await revertToSnapshot(this.snapshot);
-    });
-    it('should fail when executing a proposal that has not been submitted', async function () {
-        await expectRevert(
+    it('should fail when executing a proposal that has not been submitted', function () {
+        expectRevert(
             this.dao.execute(1),
             'invalid proposal id'
         );
@@ -49,7 +33,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: bob });
         await this.dao.execute(1, { from: bob });
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1, { from: bob }),
             'invalid proposal status'
         );
@@ -57,7 +41,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
 
     it('should fail when executing a proposal that has not yet expired voting', async function () {
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1),
             'vote not expired'
         );
@@ -70,7 +54,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1),
             'vote did not reach quorum'
         );
@@ -100,7 +84,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1),
             'vote failed'
         );
@@ -111,7 +95,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.votingExpiry);
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1),
             'execution not open'
         );
@@ -122,7 +106,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionExpiry);
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1),
             'execution expired'
         );
@@ -133,7 +117,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
-        await expectRevert(
+        expectRevert(
             this.dao.execute(1, { from: alice }),
             'only submitter can execute'
         );
@@ -144,7 +128,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
-        await expectRevert.unspecified(
+        expectRevert.unspecified(
             this.dao.execute(1)
         );
     });
@@ -154,7 +138,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
-        await expectRevert.unspecified(
+        expectRevert.unspecified(
             this.dao.execute(1)
         );
     });
@@ -163,8 +147,9 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const initialAssetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
         const initialPollenBalance = await this.pollen.balanceOf(bob);
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
+        let proposal;
         const proposalId = 1;
-        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
         await this.assetToken.approve(this.dao.address, 2, { from: bob });
         const receipt = await this.dao.execute(1, { from: bob });
@@ -174,6 +159,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([this.assetToken.address]);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expectEvent(
             receipt,
             'Executed'
@@ -184,8 +170,9 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const initialAssetTokenBalance = await this.assetToken.balanceOf(bob);
         const initialPollenBalance = await this.pollen.balanceOf(this.dao.address);
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
+        let proposal;
         const proposalId = 1;
-        const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         await time.increaseTo(proposal.executionOpen);
         await this.pollen.approve(this.dao.address, 3, { from: bob });
         const receipt = await this.dao.execute(1, { from: bob });
@@ -195,6 +182,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([address0]);
+        proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expectEvent(
             receipt,
             'Executed'
