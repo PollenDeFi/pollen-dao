@@ -40,18 +40,23 @@ on_exit() {
 shutdown_ganache() {
   if [ -n "${ganache_pid}" ] && is_ganache_running; then
     kill -9 "${ganache_pid}" 1>"${log_file}" 2>&1
+    [ "$?" == "0" ] && echo -e "\nganache-cli (${ganache_pid}) killed"
   fi
+  clear_oz_session
 }
 
-oz_network_file=".openzeppelin/dev-2020.json"
-[ -f "${oz_network_file}" ] && {
-  rm "${oz_network_file}"
-  echo "Removed ${oz_network_file}"
+clear_oz_session() {
+  for fname in .openzeppelin/dev-2020.json .openzeppelin/.session; do
+    if [ -f "${fname}" ]; then
+       rm "${fname}" && echo "Removed ${fname}"
+    fi
+  done
 }
 
 ganache_port=8555
 networkId=2020
 echo "Starting ganache-cli (port: ${ganache_port}, networkId: ${networkId})"
+clear_oz_session
 npx --quiet ganache-cli \
   --port "${ganache_port}" \
   --networkId "${networkId}" \
