@@ -1,10 +1,12 @@
-const Pollen = artifacts.require("Pollen");
+/* global after, afterEach, artifacts, before, beforeEach, contract, describe, it, web3 */
+const Pollen = artifacts.require("Pollen_v1");
 import { expect } from 'chai';
 import { expectRevert, expectEvent } from '@openzeppelin/test-helpers';
 
-contract('pollen', function (accounts) {
-    beforeEach(async function () {
+contract('Pollen (implementation)', function (accounts) {
+    before(async function () {
         this.pollen = await Pollen.new();
+        await this.pollen.initialize();
     });
 
     it('should set the owner to be the account that created the token', async function () {
