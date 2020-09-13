@@ -46,16 +46,15 @@ module.exports = {
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
 
-      // TODO:as soon as contract deployed on ropsten, define expected addresses
-      contracts: {         // addresses of the contracts on the mainnet
-        proxyAdmin: "",
+      contracts: {         // addresses of deployed contracts
+        proxyAdmin: "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
         proxies: {
-          Pollen: "",
-          PollenDAO: "",
+          Pollen: "0xe88B849FD0109e5d9A943A42EED98c5507c32E01",
+          PollenDAO: "0x58cdDaaCae33f2df3DE8ffe20B07C67ed310aAc6",
         },
         implementations: {
-          Pollen: "",
-          PollenDAO: "",
+          Pollen: "0x4AEE1e2F1a8caA9bB2e8640fECADE30D46C1001d",
+          PollenDAO: "0xcF07bBc7Bbb71B7B62052B09EB6180697231434A",
         }
       },
     },
