@@ -4,7 +4,8 @@ export const ProposalStatus = { Null: '0', Submitted: '1', Executed: '2', Last: 
 export const VoterState = { Null: '0', VotedYes: '1', VotedNo: '2' };
 export const address0 = '0x0000000000000000000000000000000000000000';
 export const Artifacts = {
-    PollenDAO: artifacts.require('PollenDAO'),
-    Pollen: artifacts.require("Pollen"),
+    PollenDAO: artifacts.require('IPollenDAO'),
+    "PollenDAO-Implementation": artifacts.require('PollenDAO_v1'),
+    Pollen: artifacts.require("IPollen"),
     AssetToken: artifacts.require("MockERC20")
 };
