@@ -35,6 +35,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
     afterEach(async function () {
         await revertToSnapshot(this.snapshot);
     });
+
     it('should fail when executing a proposal that has not been submitted', async function () {
         await expectRevert(
             this.dao.execute(1),
@@ -180,9 +181,10 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         );
     });
 
-    it('should transfer tokens when executing a divest proposal', async function () {
+    it('should burn Pollen tokens when executing a divest proposal', async function () {
         const initialAssetTokenBalance = await this.assetToken.balanceOf(bob);
-        const initialPollenBalance = await this.pollen.balanceOf(this.dao.address);
+        const initialPollenBalance = await this.pollen.balanceOf(bob);
+        const initialPollenSupply = await this.pollen.totalSupply();
         await this.dao.submit(ProposalType.Divest, TokenType.ERC20, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         const proposalId = 1;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
@@ -191,8 +193,10 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const receipt = await this.dao.execute(1, { from: bob });
         const newAssetTokenBalance = await this.assetToken.balanceOf(bob);
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
-        const newPollenBalance = await this.pollen.balanceOf(this.dao.address);
-        expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
+        const newPollenBalance = await this.pollen.balanceOf(bob);
+        expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.sub(new BN('3')));
+        const newPollenSupply = await this.pollen.totalSupply();
+        expect(newPollenSupply).to.be.bignumber.equal(initialPollenSupply.sub(new BN('3')));
         const assets = await this.dao.getAssets();
         expect(assets).to.be.eql([address0]);
         expectEvent(

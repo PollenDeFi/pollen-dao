@@ -5,8 +5,11 @@ pragma solidity >=0.6 <0.7.0;
 import "./interfaces/IPollenDAO.sol";
 import "./interfaces/IPollen.sol";
 import "./lib/AddressSet.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/ReentrancyGuard.sol";
 
 /**
 * @title PollenDAO Contract
@@ -14,8 +17,10 @@ import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 * @author gtlewis
 * @author scorpion9979
 */
-contract PollenDAO_v1 is Initializable, IPollenDAO {
+contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     using AddressSet for AddressSet.Set;
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     /**
     * @notice Type for representing a token proposal
@@ -26,8 +31,8 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     * @member pollenAmount The amount of the Pollen being proposed to pay/receive
     * @member descriptionCid The IPFS CID hash of the proposal description text
     * @member submitter The submitter of the proposal
-    * @member snapshotId The id of snapshot storing balances and total supply during proposal submission
-    * @member voters The addresses that voted on the proposal, default voter state is Null for new votes
+    * @member snapshotId The id of the snapshot storing balances during proposal submission
+    * @member voters Addresses which voted on the proposal
     * @member yesVotes The total of yes votes for the proposal in Pollens
     * @member noVotes The total of no votes for the proposal in Pollens
     * @member votingExpiry The expiry timestamp for proposal voting
@@ -52,6 +57,13 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         uint256 executionExpiry;
         ProposalStatus status;
     }
+
+    uint constant maxDelay = 60 * 60 * 24 * 365;
+
+    /**
+     * @dev Reserved for possible storage structure changes
+     */
+    uint256[50] private __gap;
 
     /**
     * @dev The Pollen token contract instance (private)
@@ -98,8 +110,8 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     * @param pollen Address ot the Pollen token contract instance
     * @param quorum The quorum required to pass a proposal vote in % points
     * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
-    * @param executionOpenDelay The number of seconds until execution opens after proposal voting expires
-    * @param executionExpiryDelay The number of seconds until execution expires after proposal execution opens
+    * @param executionOpenDelay The number of seconds until execution opens after voting expires
+    * @param executionExpiryDelay The number of seconds until execution expires after it opens
     */
     function initialize(
         address pollen,
@@ -110,12 +122,22 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     ) public initializer {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
-        require(votingExpiryDelay > 60, "PollenDAO: invalid voting expiry delay");
-        require(executionOpenDelay > 60, "PollenDAO: invalid execution open delay");
-        require(executionExpiryDelay > 60, "PollenDAO: invalid execution expiry delay");
+        require(
+            votingExpiryDelay > 60 && votingExpiryDelay < maxDelay,
+            "PollenDAO: invalid voting expiry delay"
+        );
+        require(
+            executionOpenDelay > 60 && executionOpenDelay < maxDelay,
+            "PollenDAO: invalid execution open delay"
+        );
+        require(
+            executionExpiryDelay > 60 && executionExpiryDelay < maxDelay,
+            "PollenDAO: invalid execution expiry delay"
+        );
+
+        __ReentrancyGuard_init_unchained();
 
         _pollen = IPollen(pollen);
-        // _pollen.initialize();
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
         _executionOpenDelay = executionOpenDelay;
@@ -227,7 +249,10 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
         require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
         require(assetTokenAddress != address(0), "PollenDAO: invalid asset token address");
-        require(assetTokenAddress != this.getPollenAddress(), "PollenDAO: invalid usage of Pollen as asset token");
+        require(
+            assetTokenAddress != this.getPollenAddress(),
+            "PollenDAO: invalid usage of Pollen as asset token"
+        );
         require(
             assetTokenAmount != 0 || pollenAmount != 0,
             "PollenDAO: both asset token amount and Pollen amount zero"
@@ -249,7 +274,9 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
         proposal.status = ProposalStatus.Submitted;
 
         _proposals[proposalId] = proposal;
-        _addVote(proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId));
+        _addVote(
+            proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId)
+        );
         _proposalCount++;
         // NOTE: this is the max stack size, can't add more event params
         // TODO: find a way to insert initial yesVotes (submitter's own vote) into event params
@@ -264,7 +291,10 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     /// @inheritdoc IPollenDAO
     function voteOn(uint256 proposalId, bool vote) external override {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
-        require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
+        require(
+            _proposals[proposalId].status == ProposalStatus.Submitted,
+            "PollenDAO: invalid proposal status"
+        );
         require(now < _proposals[proposalId].votingExpiry, "PollenDAO: vote expired");
 
         uint256 balance = _pollen.balanceOfAt(msg.sender, _proposals[proposalId].snapshotId);
@@ -280,29 +310,44 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     }
 
     /// @inheritdoc IPollenDAO
-    function execute(uint256 proposalId) external override {
+    function execute(uint256 proposalId) external override nonReentrant {
         require(proposalId < _proposalCount, "PollenDAO: invalid proposal id");
-        require(_proposals[proposalId].status == ProposalStatus.Submitted, "PollenDAO: invalid proposal status");
+        require(
+            _proposals[proposalId].status == ProposalStatus.Submitted,
+            "PollenDAO: invalid proposal status"
+        );
         require(now >= _proposals[proposalId].votingExpiry, "PollenDAO: vote not expired");
-        require((_proposals[proposalId].yesVotes + _proposals[proposalId].noVotes > _pollen.totalSupplyAt(_proposals[proposalId].snapshotId) * _quorum / 100) || proposalId == 0,
-            "PollenDAO: vote did not reach quorum");
-        require(_proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0, "PollenDAO: vote failed");
+        require(
+            (
+                _proposals[proposalId].yesVotes.add(_proposals[proposalId].noVotes) >
+                _pollen.totalSupplyAt(_proposals[proposalId].snapshotId).mul(_quorum).div(100)
+            ) || proposalId == 0,
+            "PollenDAO: vote did not reach quorum"
+        );
+        require(
+            _proposals[proposalId].yesVotes > _proposals[proposalId].noVotes || proposalId == 0,
+            "PollenDAO: vote failed"
+        );
         require(now >= _proposals[proposalId].executionOpen, "PollenDAO: execution not open");
         require(now < _proposals[proposalId].executionExpiry, "PollenDAO: execution expired");
-        require(_proposals[proposalId].submitter == msg.sender, "PollenDAO: only submitter can execute");
+        require(
+            _proposals[proposalId].submitter == msg.sender,
+            "PollenDAO: only submitter can execute"
+        );
 
+        IERC20 asset = IERC20(_proposals[proposalId].assetTokenAddress);
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {
-            IERC20(_proposals[proposalId].assetTokenAddress).transferFrom(msg.sender, address(this), _proposals[proposalId].assetTokenAmount);
+            asset.safeTransferFrom(
+                msg.sender,
+                address(this), _proposals[proposalId].assetTokenAmount
+            );
             _pollen.mint(_proposals[proposalId].pollenAmount);
             _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
-            assets.add(_proposals[proposalId].assetTokenAddress);
+            assets.add(address(asset));
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
-            _pollen.transferFrom(msg.sender, address(this), _proposals[proposalId].pollenAmount);
-            IERC20(_proposals[proposalId].assetTokenAddress).transfer(msg.sender, _proposals[proposalId].assetTokenAmount);
-            if (IERC20(_proposals[proposalId].assetTokenAddress).balanceOf(address(this)) == 0) {
-                assets.remove(_proposals[proposalId].assetTokenAddress);
-            }
-            // TODO: implement the payout
+            asset.safeTransfer(msg.sender, _proposals[proposalId].assetTokenAmount);
+            _pollen.burnFrom(msg.sender, _proposals[proposalId].pollenAmount);
+            _removeAssetFromAssetsIfNeeded(address(asset));
         }
 
         _proposals[proposalId].status = ProposalStatus.Executed;
@@ -313,20 +358,23 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     }
 
     /// @inheritdoc IPollenDAO
-    function redeem(uint256 pollenAmount) external override {
+    function redeem(uint256 pollenAmount) external override nonReentrant {
         require(pollenAmount != 0, "PollenDAO: can't redeem zero amount");
 
         uint256 totalSupply = _pollen.totalSupply();
-        _pollen.transferFrom(msg.sender, address(this), pollenAmount);
+        _pollen.burnFrom(msg.sender, pollenAmount);
 
         // TODO: cap the asset list to prevent unbounded loop
         for (uint256 i=0; i < assets.elements.length; i++) {
-            if (assets.elements[i] != address(0)) {
-                uint256 assetTokenAmount = (IERC20(assets.elements[i]).balanceOf(address(this)) * pollenAmount) / totalSupply;
-                IERC20(assets.elements[i]).transfer(msg.sender, assetTokenAmount);
-                if (IERC20(assets.elements[i]).balanceOf(address(this)) == 0) {
-                   assets.remove(assets.elements[i]);
-                }
+            IERC20 asset = IERC20(assets.elements[i]);
+            if (address(asset) != address(0)) {
+                uint256 assetBalance = asset.balanceOf(address(this));
+                uint256 assetTokenAmount = assetBalance.mul(pollenAmount).div(totalSupply);
+                asset.transfer(
+                    msg.sender,
+                    assetTokenAmount > assetBalance ? assetBalance : assetTokenAmount
+                );
+                _removeAssetFromAssetsIfNeeded(address(asset));
             }
         }
 
@@ -337,7 +385,7 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
     }
 
     /**
-    * @notice _addVote (private)
+    * @dev _addVote (private)
     * @param proposalId The proposal ID
     * @param voter The voter address
     * @param vote The yes/no vote
@@ -349,17 +397,23 @@ contract PollenDAO_v1 is Initializable, IPollenDAO {
 
         // allows to change old vote
         if (voterState == VoterState.VotedYes) {
-            _proposals[proposalId].yesVotes -= amount;
+            _proposals[proposalId].yesVotes = _proposals[proposalId].yesVotes.sub(amount);
         } else if (voterState == VoterState.VotedNo) {
-            _proposals[proposalId].noVotes -= amount;
+            _proposals[proposalId].noVotes = _proposals[proposalId].noVotes.sub(amount);
         }
 
         if (vote) {
-            _proposals[proposalId].yesVotes += amount;
+            _proposals[proposalId].yesVotes = _proposals[proposalId].yesVotes.add(amount);
             _proposals[proposalId].voters[voter] = VoterState.VotedYes;
         } else {
-            _proposals[proposalId].noVotes += amount;
+            _proposals[proposalId].noVotes = _proposals[proposalId].noVotes.add(amount);
             _proposals[proposalId].voters[voter] = VoterState.VotedNo;
+        }
+    }
+
+    function _removeAssetFromAssetsIfNeeded(address asset) internal {
+        if (IERC20(asset).balanceOf(address(this)) == 0) {
+            assets.remove(asset);
         }
     }
 }
