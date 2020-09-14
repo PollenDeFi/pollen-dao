@@ -3,6 +3,7 @@
 pragma solidity >=0.6 <0.7.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snapshot.sol";
 
 /**
@@ -13,6 +14,11 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Snap
  * @author vkonst
  */
 contract Pollen_v1 is OwnableUpgradeSafe, ERC20SnapshotUpgradeSafe {
+
+    /**
+     * @dev Reserved for possible storage structure changes
+     */
+    uint256[50] private __gap;
 
     /**
      * @notice Initializes the contract and sets the Pollen token name and symbol (external)
@@ -44,6 +50,18 @@ contract Pollen_v1 is OwnableUpgradeSafe, ERC20SnapshotUpgradeSafe {
     function burn(uint256 amount) external
     {
         _burn(_msgSender(), amount);
+    }
+
+    /**
+     * @notice Destroys `amount` tokens from `account`, deducting from the caller's allowance
+     * Requirements: the caller must have allowance for `accounts`'s tokens of at least `amount`
+     */
+    function burnFrom(address account, uint256 amount) external {
+        uint256 decreasedAllowance = allowance(account, _msgSender())
+            .sub(amount, "Pollen: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
     }
 
     /**

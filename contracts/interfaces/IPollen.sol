@@ -16,6 +16,9 @@ interface IPollen is IERC20 {
      */
     event Snapshot(uint256 id);
 
+    /**
+     * @dev Emitted when the ownership is transferred from the `previousOwner` to the `newOwner`.
+     */
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
@@ -36,6 +39,12 @@ interface IPollen is IERC20 {
      * @param amount The amount of tokens to mint
      */
     function burn(uint256 amount) external;
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's allowance.
+     * Requirements: the caller must have allowance for `accounts`'s tokens of at least `amount`.
+     */
+    function burnFrom(address account, uint256 amount) external;
 
     /**
      * @dev Creates a new snapshot and returns its snapshot id.
