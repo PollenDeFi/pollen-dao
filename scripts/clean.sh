@@ -20,9 +20,15 @@ rm_log() {
 }
 
 rm_artifacts() {
-  [ -n "$(ls -A ./artifacts/contracts/ 2>/dev/null)" ] || return
-  rm -r artifacts/* || panic failed remove truffle ertifacts
-  echo truffle artifacts deleted
+  [ -n "$(ls -A ./artifacts/contracts/ 2>/dev/null)" ] && {
+    rm -r artifacts/* || panic failed remove truffle ertifacts
+    echo truffle artifacts deleted
+  }
+
+  [ -n "$(ls -A ./build/contracts/ 2>/dev/null)" ] && {
+    rm -r build/* || panic failed remove oz artifacts
+    echo oz artifacts deleted
+  }
 }
 
 rm_dev() {
