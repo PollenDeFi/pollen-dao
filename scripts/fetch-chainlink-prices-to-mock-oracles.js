@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 /**
- * @dev It reads price data from "source price feeds" and sends the same data to "mock (or 'destination') price feeds"
- *
- * Example (fetch price data for 'ETH / USD' from 'mainnet' to 'pln-chain'):
- * SRC_FEEDS=ethUsd DST_NETWORK="pln-chain" DST_RPC_URL="http://localhost:8555" fetch-chainlink-prices-to-mock-oracles.js
- */
+ @dev It reads price data from "source price feeds" and sends the same data to "mock (or 'destination') price feeds"
+
+ Examples:
+
+ # fetch price data for 'ETH / USD' from 'mainnet' to 'pln-chain'
+ SRC_FEEDS=ethUsd DST_NETWORK="pln-chain" DST_RPC_URL="http://localhost:8555" fetch-chainlink-prices-to-mock-oracles.js
+
+ # fetch few price feeds on default networks (from 'mainnet' to 'ropsten')
+ SRC_FEEDS="ethUsd:compUsd:daiEth:lendEth:snxEth" ./scripts/fetch-chainlink-prices-to-mock-oracles.js
+*/
 
 const Web3 = require("web3");
 const {
@@ -37,7 +42,8 @@ const paramsPromise = ((env) => {
     const params = { srcNetwork, srcWeb3, dstNetwork, dstWeb3, srcNames };
 
     if (!dstWeb3.eth.defaultAccount && env.PRIVKEY) {
-        const fromAccount = dstWeb3.eth.accounts.privateKeyToAccount(env.PRIVKEY);
+        const pKey = env.PRIVKEY.startsWith("0x") ? env.PRIVKEY : "0x" + env.PRIVKEY;
+        const fromAccount = dstWeb3.eth.accounts.privateKeyToAccount(pKey);
         dstWeb3.eth.accounts.wallet.add(fromAccount);
         dstWeb3.eth.defaultAccount = fromAccount.address;
     } else if(env.DEF_ADDR) {
