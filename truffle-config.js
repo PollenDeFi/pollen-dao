@@ -58,6 +58,7 @@ module.exports = {
             "r:daiEth": "0x6f4a9e4057A99De37537acC02968B2B2c8e575B4",
             "r:lendEth": "0xeE44558Ef55f4f7890ED66cd89d4367051e0cF9d",
             "r:snxEth": "0x87199Ffc02BD459331E1422bbaC1A171262e5744",
+            "r:plnEth": "0x382975824786BF53e5Ad4726b51F89959218d0Ec",
           },
         },
         implementations: {

@@ -793,6 +793,13 @@
         "implementation": "0xA2607E98Ca076c91a608E3f9236429aba6dCE841",
         "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
         "kind": "Upgradeable"
+      },
+      {
+        "address": "0x382975824786BF53e5Ad4726b51F89959218d0Ec",
+        "version": "1.0.0",
+        "implementation": "0xA2607E98Ca076c91a608E3f9236429aba6dCE841",
+        "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
+        "kind": "Upgradeable"
       }
     ]
   },
