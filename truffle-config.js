@@ -4,6 +4,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 require("dotenv").config();
 const infuraKey = process.env.INFURA_KEY;
 const mnemonic = process.env.HD_MNEMONIC;
+const privKey = process.env.PRIVKEY;
 
 module.exports = {
   networks: {
@@ -19,8 +20,8 @@ module.exports = {
           PollenDAO: "0x4fc3D94c0B52723610864Fd21AE121403975E8A5",
         },
         implementations: {
-          Pollen: "0xE36f5cF652a91048F903E4F074afeAedBd8287f4",
-          PollenDAO: "0x00D9ddc02A52C5FbFb2fb9615CD4C4Cd8940E5Ad",
+          Pollen: "0x00D9ddc02A52C5FbFb2fb9615CD4C4Cd8940E5Ad",
+          PollenDAO: "0xE36f5cF652a91048F903E4F074afeAedBd8287f4",
         }
       },
     },
@@ -39,7 +40,7 @@ module.exports = {
     },
 
     ropsten: {
-      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/${infuraKey}`),
+      provider: () => new HDWalletProvider(privKey || mnemonic, `https://ropsten.infura.io/v3/${infuraKey}`),
       network_id: 3,       // Ropsten's id
       gas: 5500000,        // Ropsten has a lower block limit than mainnet
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)

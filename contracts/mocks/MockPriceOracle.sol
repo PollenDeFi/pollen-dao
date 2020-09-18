@@ -1,105 +1,75 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6 <0.7.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-
-
-/**
- * @dev `AggregatorV3Interface` by Chainlink
- * @dev Source: https://docs.chain.link/docs/price-feeds-api-reference
- */
-interface IAggregatorV3 {
-    /*
-     * @dev Get the number of decimals present in the response value
-     */
-    function decimals() external view returns (uint8);
-
-    /*
-     * @dev Get the description of the underlying aggregator that the proxy points to
-     */
-    function description() external view returns (string memory);
-
-    /*
-     * @dev Get the version representing the type of aggregator the proxy points to
-     */
-    function version() external view returns (uint256);
-
-    /**
-     * @dev Get data from a specific round
-     * @notice It raises "No data present" if there is no data to report
-     * @notice Consumers are encouraged to check they're receiving fresh data
-     * by inspecting the updatedAt and answeredInRound return values.
-     * @notice The round id is made up of the aggregator's round ID with the phase ID
-     * in the two highest order bytes (it ensures round IDs get larger as time moves forward)
-     * @param roundId The round ID
-     * @return roundId The round ID
-     * @return answer The price
-     * @return startedAt Timestamp of when the round started
-     * (Only some AggregatorV3Interface implementations return meaningful values)
-     * @return updatedAt Timestamp of when the round was updated (computed)
-     * @return answeredInRound The round ID of the round in which the answer was computed
-     * (Only some AggregatorV3Interface implementations return meaningful values)
-     */
-    function getRoundData(uint80 _roundId) external view returns (
-        uint80 roundId,
-        int256 answer,
-        uint256 startedAt,
-        uint256 updatedAt,
-        uint80 answeredInRound
-    );
-
-    /**
-     * @dev Get data from the last round
-     * Should raise "No data present" if there is no data to report
-     * @return roundId The round ID
-     * @return answer The price
-     * @return startedAt Timestamp of when the round started
-     * @return updatedAt Timestamp of when the round was updated
-     * @return answeredInRound The round ID of the round in which the answer was computed
-     */
-    function latestRoundData() external view returns (
-        uint80 roundId,
-        int256 answer,
-        uint256 startedAt,
-        uint256 updatedAt,
-        uint80 answeredInRound
-    );
-}
+import "../interfaces/IAggregatorV3.sol";
 
 interface IMockAggregatorV3 is IAggregatorV3 {
+
+    /**
+     * @return The address that may change updater
+     */
+    function getOwner() external view  returns (address);
+
+    /**
+     * @return The address that may update price data
+     */
+    function getUpdater() external view  returns (address);
+
+    /**
+     * @dev Change the updater
+     * @param updater The address that may update price data
+     */
+    function changeUpdater(address updater) external;
+
     /**
      * @dev Set mock data
-     * (Can only be called by the owner)
+     * (Can only be called by the updater)
      * @param roundId The round ID
      * @param answer The price
      * @param updatedAt Timestamp of when the round was updated
      */
     function setRoundData(uint80 roundId, int256 answer, uint256 updatedAt) external;
+
+    /**
+     * @dev Initializes the contract
+     * @notice It sets the caller address as the owner and the updater
+     * @param version The version representing the type of aggregator the proxy points to
+     * @param decimals The number of decimals present in the response value
+     * @param description The description of the underlying aggregator that the proxy points to
+     */
+    function initialize(
+        uint32 version,
+        uint8 decimals,
+        string memory description
+    ) external;
 }
 
 /**
  * @dev Mock price feed oracle that simulates `AggregatorV3Interface` by Chainlink
  */
-contract MockPriceOracle is Initializable, OwnableUpgradeSafe, IMockAggregatorV3 {
+contract MockPriceOracle is Initializable, IMockAggregatorV3 {
+
+    string private _description;
+    uint32 private _version;
+    uint8 private _decimals;
+
+    address private _owner;
+    address private _updater;
+    uint80 internal _currentRound;
 
     // roundId => uint256(uint32 updatedAt; int128 answer)
     mapping(uint80 => uint256) internal _rounds;
 
-    string internal _description;
-    uint32 internal _version;
-    uint8 internal _decimals;
-
-    uint80 internal _currentRound;
-
-    /**
-     * @notice Initializes the contract
-     * @dev Sets the contract `owner` account to the deploying account
-     */
-    function initialize(uint32 version, uint8 decimals, string memory description) external
-    initializer
+    /// @inheritdoc IMockAggregatorV3
+    function initialize(
+        uint32 version,
+        uint8 decimals,
+        string memory description
+    ) external override initializer
     {
-        __Ownable_init();
+        _owner = msg.sender;
+        _updater = msg.sender;
         _version = version;
         _decimals = decimals;
         _description = description;
@@ -146,19 +116,45 @@ contract MockPriceOracle is Initializable, OwnableUpgradeSafe, IMockAggregatorV3
     }
 
     /// @inheritdoc IMockAggregatorV3
+    function getOwner() external view override returns (address) {
+        return _owner;
+    }
+
+    /// @inheritdoc IMockAggregatorV3
+    function getUpdater() external view override returns (address) {
+        return _updater;
+    }
+
+    /// @inheritdoc IMockAggregatorV3
+    function changeUpdater(address updater) external override {
+        require(msg.sender == _owner, "MockPriceOracle: caller is not the owner");
+        require(updater != address(0), "MockPriceOracle: invalid updater address");
+        _updater = updater;
+    }
+
+    /// @inheritdoc IMockAggregatorV3
     function setRoundData(uint80 roundId, int256 answer, uint256 updatedAt) external
-    override onlyOwner
+    override
     {
+        require(msg.sender == _updater, "MockPriceOracle: caller is not the updater");
         require(
-            (roundId > _currentRound) && (roundId <= MAX_ROUND_ID),
-            "MockPriceOracle: invalid roundId"
+            (roundId != 0) && (roundId <= MAX_ROUND_ID),
+            "MockPriceOracle: roundId out of range"
         );
-        _currentRound = roundId;
-        _rounds[roundId] = packRound(answer, updatedAt);
+        require((roundId >= _currentRound), "MockPriceOracle: roundId must be incremental");
+
+        if (roundId != _currentRound) {
+            _currentRound = roundId;
+            _rounds[roundId] = packRound(answer, updatedAt);
+        } else {
+            (int256 oldAnswer, uint256 oldUpdatedAt) = unpackRound(_rounds[_currentRound]);
+            require(oldAnswer == answer, "MockPriceOracle: mismatching answer");
+            require(oldUpdatedAt == updatedAt, "MockPriceOracle: mismatching updatedAt");
+        }
     }
 
     /*
-     * private and internal functions (and constants)
+     * private functions and constants
      */
 
     uint256 constant private OFFSET = 128;

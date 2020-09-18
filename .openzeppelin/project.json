@@ -1,9 +1,7 @@
 {
+  "_comments_": "!!! please leave 'contracts' property empty (to let migration scripts set it during runtime)",
   "manifestVersion": "2.2",
-  "contracts": {
-    "PollenDAO": "PollenDAO_v1",
-    "Pollen": "Pollen_v1"
-  },
+  "contracts": {},
   "dependencies": {},
   "name": "pollen-dao",
   "version": "1.0.0",
