@@ -9,7 +9,10 @@
 
  # fetch few price feeds on default networks (from 'mainnet' to 'ropsten')
  SRC_FEEDS="ethUsd:compUsd:daiEth:lendEth:snxEth" ./scripts/fetch-chainlink-prices-to-mock-oracles.js
-*/
+
+ # continuously update given feeds on default networks ('mainnet' to 'ropsten') with 600 seconds pause between updates
+ INTERVAL_SECS=600 SRC_FEEDS="ethUsd:compUsd:daiEth:lendEth:snxEth" ./scripts/fetch-chainlink-prices-to-mock-oracles.js
+ */
 
 const Web3 = require("web3");
 const {
@@ -23,6 +26,7 @@ const { log } = console;
 
 /**
  * It reads following environmental params:
+ * @param {string=} env.INTERVAL_SECS If provided, continuously update with this number of seconds between updates
  * @param {string=} env.SRC_FEEDS A name a price feed, or a column-delimited list of feeds names to process
  * (if omitted, all configured price feeds to be processed)
  * @param {string=} env.SRC_NETWORK The network of source price feeds (by default, 'mainnet')
@@ -50,6 +54,10 @@ const paramsPromise = ((env) => {
         dstWeb3.eth.defaultAccount = env.DEF_ADDR;
     }
 
+    params.doAction = env.INTERVAL_SECS
+        ? (options) => continuouslyUpdateMockPriceFeeds(options, env.INTERVAL_SECS)
+        : (options) => updateMockPriceFeeds(options);
+
     return dstWeb3.eth.defaultAccount
         ? Promise.resolve(params)
         : dstWeb3.eth.getAccounts().then((accounts) => {
@@ -59,7 +67,7 @@ const paramsPromise = ((env) => {
 })(process.env);
 
 return paramsPromise
-    .then(params => updateMockPriceFeeds(params))
+    .then(params => params.doAction(params))
     .then(() => log(`[OK] DONE`))
     .catch((error) => { throw new Error(error); });
 
@@ -79,9 +87,16 @@ async function updateMockPriceFeeds({ srcNames, srcNetwork, srcWeb3, dstNetwork,
     );
 }
 
+async function continuouslyUpdateMockPriceFeeds(options, intervalSeconds) {
+    for (;;) { // endless loop
+        await updateMockPriceFeeds(options);
+        await (new Promise((res) => setTimeout(() => res(), 1000 * intervalSeconds)));
+    }
+}
+
 async function updateMockPriceFeed(srcFeed, dstFeed) {
     const { roundId, updatedAt, answer } = await srcFeed.readLatest();
     log(`${srcFeed.params.name}: ${JSON.stringify({ roundId, updatedAt, answer })}`);
     return dstFeed.write({ roundId, updatedAt, answer })
-        .then(() => console.log(`${dstFeed.params.name}: updated`));
+        .then((r) => console.log(`${dstFeed.params.name}: ${typeof r === "string" ? r : "updated"}`));
 }

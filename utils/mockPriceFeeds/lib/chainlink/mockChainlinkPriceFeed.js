@@ -51,13 +51,19 @@ module.exports = class {
     }
 
     /**
-     * Send (write) data to the contract
+     * Send (write) new data to the contract
+     * (it does not re-send known data)
      * @param reading {Reading} data to send
      * @param opts {{from?: string, gas: string}} Params to send a transaction with
      */
     async write(reading, opts = {gas: "100000"}) {
         if (!opts.from) { opts.from = this.web3.eth.defaultAccount; }
         const { roundId, answer, updatedAt } = this.sanitizeReading(reading)
+        const { roundId: latestRoundId, answer: latestAnswer, updatedAt: latestUpdatedAt } = await this.readLatest();
+
+        if ( latestRoundId === roundId && latestAnswer === answer && latestUpdatedAt === updatedAt ) {
+            return Promise.resolve("known data ignored");
+        }
         return this.instance.methods.setRoundData(roundId, answer, updatedAt).send(opts);
     }
 
