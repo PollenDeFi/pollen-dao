@@ -1,7 +1,26 @@
 {
-  "_comments_": "!!! please leave 'contracts' property empty (to let migration scripts set it during runtime)",
   "manifestVersion": "2.2",
-  "contracts": {},
+  "contracts": {
+    "Pollen": "Pollen_v1",
+    "PollenDAO": "PollenDAO_v1"
+  },
+  "_comments_": "!!! please leave 'contracts' property empty (to let migration scripts set it on runtime)",
+  "_contracts_": {
+    "pln-chain": {
+      "Pollen": "Pollen_v1",
+      "PollenDAO": "PollenDAO_v1"
+    },
+    "ropsten": {
+      "Pollen": "Pollen_v1",
+      "PollenDAO": "PollenDAO_v1",
+      "MockPriceOracle": "MockPriceOracle",
+      "MockAssetToken": "MockAssetToken"
+    },
+    "mainnet": {
+      "Pollen": "Pollen_v1",
+      "PollenDAO": "PollenDAO_v1"
+    }
+  },
   "dependencies": {},
   "name": "pollen-dao",
   "version": "1.0.0",
