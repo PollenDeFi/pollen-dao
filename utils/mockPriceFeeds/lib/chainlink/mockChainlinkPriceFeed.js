@@ -59,7 +59,11 @@ module.exports = class {
     async write(reading, opts = {gas: "100000"}) {
         if (!opts.from) { opts.from = this.web3.eth.defaultAccount; }
         const { roundId, answer, updatedAt } = this.sanitizeReading(reading)
-        const { roundId: latestRoundId, answer: latestAnswer, updatedAt: latestUpdatedAt } = await this.readLatest();
+        const {
+            roundId: latestRoundId,
+            answer: latestAnswer,
+            updatedAt: latestUpdatedAt
+        } = await this.readLatest().catch(()=>({}));
 
         if ( latestRoundId === roundId && latestAnswer === answer && latestUpdatedAt === updatedAt ) {
             return Promise.resolve("known data ignored");
