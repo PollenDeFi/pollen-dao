@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity >=0.6 <0.7.0;
+
 
 /**
 * @title Interface for `Ownable` (and `OwnableUpgradeSafe`) from the "@openzeppelin" package(s)

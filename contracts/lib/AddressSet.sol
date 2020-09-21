@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: UNLICENSED
-
 pragma solidity >=0.6 <0.7.0;
 
 /**
@@ -67,7 +65,7 @@ library AddressSet {
     * @notice Returns true if an element is in the set (internal view)
     * @param self The set
     * @param value The element
-    * @return True if the element is in the set 
+    * @return True if the element is in the set
     */
     function contains(Set storage self, address value) internal view returns (bool)
     {

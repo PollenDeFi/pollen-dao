@@ -3,7 +3,7 @@
 ## To build the image (from inside the build context folder):
 # $ docker build --tag "pollen/pricefeeds-updater" .
 ## To run the image (just an example - see fetch-chainlink-prices-to-mock-oracles.js for run options)
-# $ docker run -d --rm --name mock-updater --restart unless-stopped -e PRIVKEY="$PRIVKEY" -e INFURA_KEY="$INFURA_KEY" -e INTERVAL_SECS=600 -e SRC_FEEDS="ethUsd:compUsd:daiEth:lendEth:snxEth" "pollen/pricefeeds-updater"
+# $ docker run -d --name mock-updater --restart on-failure:5 -e PRIVKEY="$PRIVKEY" -e INFURA_KEY="$INFURA_KEY" -e INTERVAL_SECS=1200 -e SRC_FEEDS="ethUsd:compUsd:daiEth:lendEth:snxEth" pollen/pricefeeds-updater
 
 FROM node:14-slim
 

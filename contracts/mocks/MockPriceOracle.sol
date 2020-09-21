@@ -2,7 +2,8 @@
 pragma solidity >=0.6 <0.7.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "../interfaces/IAggregatorV3.sol";
+import "../interfaces/chainlink/IAggregatorV3.sol";
+
 
 interface IMockAggregatorV3 is IAggregatorV3 {
 
