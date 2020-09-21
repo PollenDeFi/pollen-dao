@@ -26,7 +26,7 @@ const feeds = [
     { name: "r:daiEth",  network: "ropsten", address: "0x6f4a9e4057A99De37537acC02968B2B2c8e575B4", source: getSrc("daiEth",  "mainnet")[0] },
     { name: "r:lendEth", network: "ropsten", address: "0xeE44558Ef55f4f7890ED66cd89d4367051e0cF9d", source: getSrc("lendEth", "mainnet")[0] },
     { name: "r:linkEth", network: "ropsten", address: "", source: getSrc("linkEth", "mainnet")[0] },
-    { name: "r:mkrEth",  network: "ropsten", address: "", source: getSrc("mkrEth",  "mainnet")[0] },
+    { name: "r:mkrEth",  network: "ropsten", address: "0x75064F1347FB6196EF8f6B53120630281ba6cb35", source: getSrc("mkrEth",  "mainnet")[0] },
     { name: "r:snxEth",  network: "ropsten", address: "0x87199Ffc02BD459331E1422bbaC1A171262e5744", source: getSrc("snxEth",  "mainnet")[0] },
 
     { name: "p:ethUsd",  network: "pln-chain", address: "0xcCD9C9c3BBf5939423909e9F8EC86a5d3F5f1198", source: getSrc("ethUsd",  "mainnet")[0] },

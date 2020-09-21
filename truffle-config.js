@@ -59,12 +59,13 @@ module.exports = {
             "r:lendEth": "0xeE44558Ef55f4f7890ED66cd89d4367051e0cF9d",
             "r:snxEth": "0x87199Ffc02BD459331E1422bbaC1A171262e5744",
             "r:plnEth": "0x382975824786BF53e5Ad4726b51F89959218d0Ec",
+            "r:mkrEth": "0x75064F1347FB6196EF8f6B53120630281ba6cb35",
           },
         },
         implementations: {
-          Pollen: "0x4AEE1e2F1a8caA9bB2e8640fECADE30D46C1001d",
-          PollenDAO: "0xcF07bBc7Bbb71B7B62052B09EB6180697231434A",
-          MockPriceOracle: "0xA2607E98Ca076c91a608E3f9236429aba6dCE841",
+          Pollen: "0xbef545Ec09386B1aB34e84C48e7CD431678190Dd",
+          PollenDAO: "0x74Ebe39599a26C2B9410607E2F6e4f71FFC3bFFE",
+          MockPriceOracle: "0xF95E66Dd3eEc8f545090C16398b78ceD0C0004af",
         }
       },
     },
