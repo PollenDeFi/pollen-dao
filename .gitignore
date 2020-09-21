@@ -5,3 +5,4 @@ abi
 # OpenZeppelin
 .openzeppelin/.session
 .openzeppelin/dev-*.json
+build
