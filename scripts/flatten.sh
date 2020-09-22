@@ -5,9 +5,8 @@ set -o errexit
 defaultScope="
 contracts/PollenDAO_v*.sol
 contracts/Pollen_v*.sol
-contracts/mocks/MockAddressSetWrapper.sol
-contracts/mocks/MockERC20.sol
 contracts/mocks/MockPriceOracle.sol
+contracts/mocks/MockAssetToken.sol
 "
 
 _scope="$1"
