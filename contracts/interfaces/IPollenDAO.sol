@@ -30,7 +30,7 @@ interface IPollenDAO {
     enum TokenType {ERC20, Last}
 
     /**
-    * @notice Returns the current version of the DAO (public)
+    * @notice Returns the current version of the DAO (external)
     * @return The current version of the Pollen DAO
     */
     function version() external pure returns (string memory);
@@ -40,6 +40,18 @@ interface IPollenDAO {
     * @return The Pollen contract address
     */
     function getPollenAddress() external view returns(address);
+
+    /**
+    * @notice Add asset to supported DAO assets (external)
+    * @param asset Address of asset to be added
+    */
+    function addAsset(address asset) external;
+
+    /**
+    * @notice Remove asset from supported DAO assets if DAO asset balance == 0 (external)
+    * @param asset Address of asset to be removed
+    */
+    function removeAsset(address asset) external;
 
     /**
     * @notice Get a proposal's data at index (external view)
