@@ -13,6 +13,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
 
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
+        await this.dao.addAsset(this.assetToken.address);
         await this.assetToken.mint(deployer, 999, { from: deployer });
 
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
@@ -173,8 +174,6 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         expect(newAssetTokenBalance).to.be.bignumber.equal(initialAssetTokenBalance.add(new BN('2')));
         const newPollenBalance = await this.pollen.balanceOf(bob);
         expect(newPollenBalance).to.be.bignumber.equal(initialPollenBalance.add(new BN('3')));
-        const assets = await this.dao.getAssets();
-        expect(assets).to.be.eql([this.assetToken.address]);
         expectEvent(
             receipt,
             'Executed'
@@ -212,7 +211,5 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         await time.increaseTo(proposal.executionOpen);
         await this.pollen.approve(this.dao.address, 2, { from: bob });
         await this.dao.execute(1, { from: bob });
-        const assets = await this.dao.getAssets();
-        expect(assets).to.be.eql([this.assetToken.address]);
     });
 });
