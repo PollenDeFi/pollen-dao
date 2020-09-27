@@ -3,7 +3,7 @@ pragma solidity >=0.6 <0.7.0;
 
 
 /**
- * @title Interface for the AdminUpgradeabilityProxy contract from the @openzeppelin/upgrades package
+ * @title Interface of the AdminUpgradeabilityProxy contract from the @openzeppelin/upgrades package
  */
 interface IAdminUpgradeabilityProxy {
 
@@ -57,4 +57,10 @@ interface IAdminUpgradeabilityProxy {
      * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
      */
     function upgradeToAndCall(address newImplementation, bytes calldata data) payable external;
+
+    /**
+     * @dev The following slots hold the admin and the logic contracts addresses (see the EIP-1967):
+     * ADMIN_SLOT: 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
+     * IMPLEMENTATION_SLOT: 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+     */
 }

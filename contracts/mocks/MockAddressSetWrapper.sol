@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-
 pragma solidity >=0.6 <0.7.0;
+
 
 import "../lib/AddressSet.sol";
 
@@ -49,7 +49,7 @@ contract MockAddressSetWrapper {
     /**
     * @notice Returns true if an element is in the set (external view)
     * @param value The element
-    * @return True if the element is in the set 
+    * @return True if the element is in the set
     */
     function contains(address value) external view returns (bool)
     {

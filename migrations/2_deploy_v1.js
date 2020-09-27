@@ -1,7 +1,9 @@
 /* global artifacts, config, web3 */
 const { scripts, ConfigManager, files: { NetworkFile }, network: { NetworkController }} = require("@openzeppelin/cli");
+const { bytecodeDigest } = require('@openzeppelin/upgrades');
 const { add, create, push } = scripts;
 const IPollen = artifacts.require("IPollen");
+const IProxyAdmin = artifacts.require("IProxyAdmin");
 
 /**
  * @dev The script:
@@ -88,6 +90,9 @@ async function migrate(options, expectedAddrs) {
           instances.implementations[alias].address, instances.proxies[alias].implementation, `${alias} proxy.impl`
         );
         throwUnmatchedAddr(expectedAddrs.proxyAdmin, instances.proxies[alias].admin, `${alias} admin`);
+
+        await checkDeploymentOnChain(alias, instances);
+        console.log(t`${alias} deployment checked: ${"OK"}`);
       }
     ),
     Promise.resolve(),
@@ -157,6 +162,19 @@ async function migrate(options, expectedAddrs) {
         e.contract === contract &&
         (address ? e.address.toLowerCase() === address.toLowerCase() : true)
     );
+  }
+
+  async function checkDeploymentOnChain(alias, instances) {
+    const { address: proxyAddr, admin: proxyAdminAddr } = instances.proxies[alias];
+    const { bodyBytecodeHash: implHash, address: implAddr } = instances.implementations[alias];
+    const proxyAdmin = await IProxyAdmin.at(proxyAdminAddr);
+    const hash = bytecodeDigest(await web3.eth.getCode(implAddr));
+
+    throwUnmatchedAddr(await proxyAdmin.getProxyAdmin(proxyAddr), proxyAdminAddr, `${alias} proxyAdmin`);
+    throwUnmatchedAddr(await proxyAdmin.getProxyImplementation(proxyAddr), implAddr, `${alias} impl`);
+    if ( implHash.toLowerCase().replace("0x") !== hash.toLowerCase().replace("0x") ) {
+      throw new Error(`Mismatching bytecode (${alias} impl): ${implHash} != ${hash}`);
+    }
   }
 
   function throwUnmatchedAddr(expected, actual, alias = '') {

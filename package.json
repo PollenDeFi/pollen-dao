@@ -20,6 +20,7 @@
     "lodash": "^4.17.20",
     "minimist": "^1.2.5",
     "truffle": "^5.1.10",
+    "truffle-flattener": "^1.5.0",
     "winston": "^3.3.3"
   },
   "scripts": {
@@ -33,6 +34,7 @@
     "console:ropsten": "truffle console --network ropsten",
     "migrate:mainnet": "truffle migrate --network mainnet",
     "console:mainnet": "truffle console --network mainnet",
+    "flatten": "./scripts/flatten.sh",
     "clean": "./scripts/clean.sh"
   }
 }
