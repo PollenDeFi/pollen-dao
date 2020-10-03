@@ -6,3 +6,6 @@ abi
 .openzeppelin/.session
 .openzeppelin/dev-*.json
 build
+
+# IDE
+.idea

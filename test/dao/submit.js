@@ -13,8 +13,9 @@ contract('proposal submission', function ([deployer, bob, alice]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
 
         this.assetToken = await Artifacts.AssetToken.new('Artifacts.AssetToken', 'AST');
-        this.assetToken.mint(deployer, 999, { from: deployer });
+        await this.assetToken.mint(deployer, 999, { from: deployer });
 
+        await this.dao.addAsset(this.assetToken.address, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
 
         const proposalId = 0;
@@ -37,14 +38,14 @@ contract('proposal submission', function ([deployer, bob, alice]) {
     it('should fail when submitting a proposal with token address 0x0', function () {
         expectRevert(
             this.dao.submit(ProposalType.Invest, TokenType.ERC20, address0, 0, 0, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),
-            'invalid asset token address'
+            'invalid token address'
         );
     });
 
     it('should fail when submitting a proposal with both token amount and Pollen amount 0', function () {
         expectRevert(
             this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 0, 0, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),
-            'both asset token amount and Pollen amount zero'
+            'both amounts are zero'
         );
     });
 
@@ -58,15 +59,18 @@ contract('proposal submission', function ([deployer, bob, alice]) {
     it('should fail when submitting a proposal with an invalid token type', function () {
         expectRevert(
             this.dao.submit(ProposalType.Invest, TokenType.Last, this.assetToken.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),
-            'invalid asset token type'
+            'invalid asset type'
         );
     });
 
-    it('should fail when submitting a proposal with Pollen as an asset token', function () {
-        expectRevert(
-            this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.pollen.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),
-            'invalid usage of Pollen as asset token'
-        );
+    describe('if Polen token was accidentally added to the list of asset tokens', function () {
+        it('should fail when submitting a proposal with Pollen as an asset token', async function () {
+            await this.dao.addAsset(this.pollen.address, { from: deployer });
+            await expectRevert(
+                this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.pollen.address, 2, 3, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob }),
+                'PLN can\'t be an asset'
+            )
+        });
     });
 
     it('should create a new proposal when submitting a proposal', async function () {

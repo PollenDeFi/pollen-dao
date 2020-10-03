@@ -41,18 +41,6 @@ interface IPollenDAO {
     function getPollenAddress() external view returns(address);
 
     /**
-    * @notice Add asset to supported DAO assets (external)
-    * @param asset Address of asset to be added
-    */
-    function addAsset(address asset) external;
-
-    /**
-    * @notice Remove asset from supported DAO assets if DAO asset balance == 0 (external)
-    * @param asset Address of asset to be removed
-    */
-    function removeAsset(address asset) external;
-
-    /**
     * @notice Get a proposal's data at index (external view)
     * @param proposalId The proposal ID
     * @return proposalType , assetTokenType , assetTokenAddress , assetTokenAmount
@@ -161,6 +149,37 @@ interface IPollenDAO {
     * @param pollenAmount The amount of Pollens to redeem
     */
     function redeem(uint256 pollenAmount) external;
+
+    /**
+    * @notice Add an asset to supported assets (external)
+    * (only the owner may call)
+    * @param asset The address of the asset to be added
+    */
+    function addAsset(address asset) external;
+
+    /**
+    * @notice Remove an asset from supported assets (external)
+    * (only the owner may call)
+    * @param asset The address of the asset to be removed
+    */
+    function removeAsset(address asset) external;
+
+    /**
+    * @notice Set a new address to be the owner (external)
+    * (only the owner may call)
+    * @param newOwner The address of the new owner
+    */
+    function setOwner(address newOwner) external;
+
+    /**
+     * @notice Event emitted when an asset gets added to supported assets
+     */
+    event assetAdded(address indexed asset);
+
+    /**
+     * @notice Event emitted when an asset gets removed from supported assets
+     */
+    event assetRemoved(address indexed asset);
 
     /**
      * @notice Event emitted when a proposal is submitted

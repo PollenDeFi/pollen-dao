@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { expectRevert, expectEvent, time, BN } from '@openzeppelin/test-helpers';
 import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
 import { getProxy } from '../helpers/oz-sdk';
-import { ProposalType, TokenType, address0, Artifacts } from './consts';
+import { ProposalType, TokenType, Artifacts } from './consts';
 
 contract('proposal execution', function ([deployer, , bob, alice, carol]) {
     before(async function () {
@@ -197,7 +197,7 @@ contract('proposal execution', function ([deployer, , bob, alice, carol]) {
         const newPollenSupply = await this.pollen.totalSupply();
         expect(newPollenSupply).to.be.bignumber.equal(initialPollenSupply.sub(new BN('3')));
         const assets = await this.dao.getAssets();
-        expect(assets).to.be.eql([address0]);
+        expect(assets).to.be.eql([this.assetToken.address]);
         expectEvent(
             receipt,
             'Executed'

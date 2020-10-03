@@ -14,8 +14,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/utils/ReentrancyGuard
 /**
 * @title PollenDAO Contract
 * @notice The main Pollen DAO contract
-* @author gtlewis
-* @author scorpion9979
+* @author gtlewis, scorpion9979, vkonst
 */
 contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     using AddressSet for AddressSet.Set;
@@ -61,17 +60,12 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     uint constant maxDelay = 60 * 60 * 24 * 365;
 
-    address private _deployer;
-
-    modifier onlyDeployer() {
-        require(_deployer == msg.sender, "PollenDAO: caller is not the contract deployer");
-        _;
-    }
-
     /**
      * @dev Reserved for possible storage structure changes
      */
     uint256[49] private __gap;
+
+    address private _owner;
 
     /**
     * @dev The Pollen token contract instance (private)
@@ -113,6 +107,11 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     */
     uint256 private _executionExpiryDelay;
 
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "PollenDAO: unauthorised call");
+        _;
+    }
+
     /**
     * @notice Initializer deploys a new Pollen instance and becomes owner of Pollen token (public)
     * @param pollen Address ot the Pollen token contract instance
@@ -127,25 +126,25 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         uint256 votingExpiryDelay,
         uint256 executionOpenDelay,
         uint256 executionExpiryDelay
-    ) public initializer {
+    ) external initializer {
         require(quorum <= 100, "PollenDAO: invalid quorum");
         // TODO: Define realistic min's and max's
         require(
             votingExpiryDelay > 60 && votingExpiryDelay < maxDelay,
-            "PollenDAO: invalid voting expiry delay"
+            "PollenDAO: invalid voting expiry"
         );
         require(
             executionOpenDelay > 60 && executionOpenDelay < maxDelay,
-            "PollenDAO: invalid execution open delay"
+            "PollenDAO: invalid exec open"
         );
         require(
             executionExpiryDelay > 60 && executionExpiryDelay < maxDelay,
-            "PollenDAO: invalid execution expiry delay"
+            "PollenDAO: invalid exec expiry"
         );
 
         __ReentrancyGuard_init_unchained();
-        
-        _deployer = msg.sender;
+
+        _owner = msg.sender;
         _pollen = IPollen(pollen);
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
@@ -163,21 +162,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         return address(_pollen);
     }
 
-    /// @inheritdoc IPollenDAO
-    function addAsset(address asset) external override onlyDeployer {
-        require(asset != address(0), 'PollenDAO: invalid asset address');
-        require(!_assets.contains(asset), 'PollenDAO: asset already exists in DAO assets');
-        _assets.add(asset);
-    }
-
-    /// @inheritdoc IPollenDAO
-    function removeAsset(address asset) external override onlyDeployer {
-        require(asset != address(0), 'PollenDAO: invalid asset address');
-        require(_assets.contains(asset), 'PollenDAO: asset does not exist in DAO assets');
-        _removeAssetFromAssetsIfNeeded(asset);
-    }
-
-    /// @inheritdoc IPollenDAO
+   /// @inheritdoc IPollenDAO
     function getProposalData(uint256 proposalId) external view override returns(
         ProposalType proposalType,
         TokenType assetTokenType,
@@ -270,15 +255,16 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     ) external override {
         // TODO: validate IPFS CID format for descriptionCid
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
-        require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset token type");
-        require(assetTokenAddress != address(0), "PollenDAO: invalid asset token address");
+        require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset type");
+        _revertZeroAddress(assetTokenAddress);
+        require(_assets.contains(assetTokenAddress), "PollenDAO: unsupported asset");
         require(
             assetTokenAddress != this.getPollenAddress(),
-            "PollenDAO: invalid usage of Pollen as asset token"
+            "PollenDAO: PLN can't be an asset"
         );
         require(
             assetTokenAmount != 0 || pollenAmount != 0,
-            "PollenDAO: both asset token amount and Pollen amount zero"
+            "PollenDAO: both amounts are zero"
         );
 
         uint256 proposalId = _proposalCount;
@@ -294,7 +280,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             descriptionCid,
             msg.sender,
             _pollen.snapshot(),
-            // voters (mapping) is omitted,
+            // voters omitted (as it's mapping)
             0, // yesVotes
             0, // noVotes,
             votingExpiry,
@@ -369,7 +355,6 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
             asset.safeTransfer(msg.sender, _proposals[proposalId].assetTokenAmount);
             _pollen.burnFrom(msg.sender, _proposals[proposalId].pollenAmount);
-            _removeAssetFromAssetsIfNeeded(address(asset));
         }
 
         _proposals[proposalId].status = ProposalStatus.Executed;
@@ -391,12 +376,14 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             IERC20 asset = IERC20(_assets.elements[i]);
             if (address(asset) != address(0)) {
                 uint256 assetBalance = asset.balanceOf(address(this));
+                if (assetBalance == 0) {
+                    continue;
+                }
                 uint256 assetTokenAmount = assetBalance.mul(pollenAmount).div(totalSupply);
                 asset.transfer(
                     msg.sender,
                     assetTokenAmount > assetBalance ? assetBalance : assetTokenAmount
                 );
-                _removeAssetFromAssetsIfNeeded(address(asset));
             }
         }
 
@@ -404,6 +391,29 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             msg.sender,
             pollenAmount
         );
+    }
+
+    /// @inheritdoc IPollenDAO
+    function addAsset(address asset) external override onlyOwner {
+        _revertZeroAddress(asset);
+        require(!_assets.contains(asset), "PollenDAO: already added");
+        require(_assets.add(asset));
+        emit assetAdded(asset);
+    }
+
+    /// @inheritdoc IPollenDAO
+    function removeAsset(address asset) external override onlyOwner {
+        _revertZeroAddress(asset);
+        require(_assets.contains(asset), "PollenDAO: unknown asset");
+        require(IERC20(asset).balanceOf(address(this)) == 0, "PollenDAO: asset has balance");
+        require(_assets.remove(asset));
+        emit assetRemoved(asset);
+    }
+
+    /// @inheritdoc IPollenDAO
+    function setOwner(address newOwner) external override onlyOwner {
+        require(newOwner != address(0), "PollenDAO: invalid owner address");
+        _owner = newOwner;
     }
 
     /**
@@ -435,9 +445,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         emit VotedOn(proposalId, voter, vote);
     }
 
-    function _removeAssetFromAssetsIfNeeded(address asset) internal {
-        if (IERC20(asset).balanceOf(address(this)) == 0) {
-            _assets.remove(asset);
-        }
+    function _revertZeroAddress(address _address) internal pure {
+        require(_address != address(0), "PollenDAO: invalid token address");
     }
 }

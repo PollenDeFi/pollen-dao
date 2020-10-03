@@ -15,6 +15,8 @@ contract('proposal voting', function ([deployer, , bob, alice, carol, dave]) {
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
         await this.assetToken.mint(deployer, 999, { from: deployer });
 
+        await this.dao.addAsset(this.assetToken.address, { from: deployer });
+
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 102, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
 
         const proposalId = 0;

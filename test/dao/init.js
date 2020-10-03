@@ -61,15 +61,15 @@ contract('DAO contract instantiation', function ([deployer]) {
             );
             await expectRevert(
                 this.tempDao.initialize(this.pollenAddress, 100, 60, 180, 240),
-                'invalid voting expiry delay'
+                'invalid voting expiry'
             );
             await expectRevert(
                 this.tempDao.initialize(this.pollenAddress, 100, 120, 60, 240),
-                'invalid execution open delay'
+                'invalid exec open'
             );
             await expectRevert(
                 this.tempDao.initialize(this.pollenAddress, 100, 120, 180, 60),
-                'invalid execution expiry delay'
+                'invalid exec expiry'
             );
         });
     });
