@@ -15,12 +15,14 @@
  */
 
 const Web3 = require("web3");
+const axios = require("axios");
 const {
     PriceFeed,
     priceFeeds: { getFeeds: getSrcFeeds },
     MockPriceFeed,
     mockPriceFeeds: { getFeeds: getDstFeeds }
 } = require("./lib/chainlink");
+const { toUint256 } = require("./lib/web3")
 
 const { log } = console;
 
@@ -94,8 +96,61 @@ async function continuouslyUpdateMockPriceFeeds(options, intervalSeconds) {
     }
 }
 
+async function getPrice(baseToken, quoteToken) {
+    const url =
+      "https://api.thegraph.com/subgraphs/name/pollendefi/uniswap-v2-ropsten";
+    const query = `
+    {
+      pairs(
+        where: {
+          token0: "${quoteToken.toLowerCase()}"
+          token1: "${baseToken.toLowerCase()}"
+        }
+      ) {
+        token0Price
+      }
+    }
+  `;
+    const queryInverse = `
+    {
+      pairs(
+        where: {
+          token0: "${baseToken.toLowerCase()}"
+          token1: "${quoteToken.toLowerCase()}"
+        }
+      ) {
+        token1Price
+      }
+    }
+  `;
+    const { data } = await axios({
+      url,
+      method: "post",
+      data: {
+        query,
+      },
+    });
+  
+    const { data: dataInverse } = await axios({
+      url,
+      method: "post",
+      data: {
+        query: queryInverse,
+      },
+    });
+  
+    return (
+      Number(data.data.pairs[0]?.token0Price) ||
+      Number(dataInverse.data.pairs[0]?.token1Price) ||
+      0
+    );
+  };
+
 async function updateMockPriceFeed(srcFeed, dstFeed) {
-    const { roundId, updatedAt, answer } = await srcFeed.readLatest();
+    const { roundId, updatedAt } = await srcFeed.readLatest();
+    const { base, quote } = srcFeed.getParams().uniswapPair;
+    const decimals = srcFeed.getParams().decimals;
+    const answer = toUint256(await getPrice(base, quote), decimals);
     log(`${srcFeed.params.name}: ${JSON.stringify({ roundId, updatedAt, answer })}`);
     return dstFeed.write({ roundId, updatedAt, answer })
         .then((r) => console.log(`${dstFeed.params.name}: ${typeof r === "string" ? r : "updated"}`));

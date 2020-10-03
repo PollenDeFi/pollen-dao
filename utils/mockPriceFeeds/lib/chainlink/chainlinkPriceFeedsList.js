@@ -21,6 +21,10 @@ const feeds = [
         description: 'ETH / USD',
         decimals: '8',
         version: '2',
+        uniswapPair: {
+            base: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+            quote: '0xBAdE0A1a1eF3a2B5F0EEdc61aB68DF820be91E04',
+        },
         sample: { roundId: '36893488147419108012', updatedAt: '1600239280', answer: '36476263531' }
     },
     {
@@ -30,6 +34,10 @@ const feeds = [
         description: 'COMP / USD',
         decimals: '8',
         version: '2',
+        uniswapPair: {
+            base: '0xA147fEE90e1A2D8C8C3Cd7F14Dd399E0f67A084e',
+            quote: '0xBAdE0A1a1eF3a2B5F0EEdc61aB68DF820be91E04',
+        },
         sample: { roundId: '18446744073709552971', updatedAt: '1600230458', answer: '15235076717' }
     },
     {
@@ -39,6 +47,10 @@ const feeds = [
         description: 'BAT / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '0x0c681619c589c0beaa01f693d018c817e11C5426',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419104436', updatedAt: '1600233046', answer: '684590468644475' }
     },
     {
@@ -48,6 +60,10 @@ const feeds = [
         description: 'DAI / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '0xBAdE0A1a1eF3a2B5F0EEdc61aB68DF820be91E04',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419106151', updatedAt: '1600239915', answer: '2787695793295230' }
     },
     {
@@ -57,6 +73,10 @@ const feeds = [
         description: 'LEND / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '0x7F8896f4CccC705fe68926DbCf6b41258E0b37EA',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419106510', updatedAt: '1600243685', answer: '1691000000000000' }
     },
     {
@@ -66,6 +86,10 @@ const feeds = [
         description: 'LINK / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '0x701FBb83C0cb7de531E86F04B6D1A4c03793fFc6',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419106989', updatedAt: '1600243790', answer: '30581123317059065' }
     },
     {
@@ -75,6 +99,10 @@ const feeds = [
         description: 'MKR / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419107327', updatedAt: '1600232734', answer: '1269041794549395500' }
     },
     {
@@ -84,6 +112,10 @@ const feeds = [
         description: 'SNX / ETH',
         decimals: '18',
         version: '2',
+        uniswapPair: {
+            base: '0x867a63140EE5Ce0958016130ecF4aD1e096fb1cc',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        },
         sample: { roundId: '36893488147419105925', updatedAt: '1600240718', answer: '12044730000000000' }
     },
 ];

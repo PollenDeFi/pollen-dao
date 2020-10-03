@@ -24,6 +24,10 @@ module.exports = class {
         this.instance = new web3.eth.Contract(abi, this.params.address);
     }
 
+    getParams() {
+        return this.params;
+    }
+
     async checkParams() {
         return Promise.all(
             [ "version", "decimals", "description" ].map(
