@@ -13,8 +13,10 @@ contract('redeeming Pollens', function ([deployer, bob]) {
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
 
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
+        await this.dao.addAsset(this.assetToken.address);
         await this.assetToken.mint(deployer, 999, { from: deployer });
         this.assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
+        await this.dao.addAsset(this.assetToken2.address);
         await this.assetToken2.mint(bob, 99, { from: bob });
 
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });

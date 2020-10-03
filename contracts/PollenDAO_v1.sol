@@ -61,10 +61,17 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     uint constant maxDelay = 60 * 60 * 24 * 365;
 
+    address private _deployer;
+
+    modifier onlyDeployer() {
+        require(_deployer == msg.sender, "PollenDAO: caller is not the contract deployer");
+        _;
+    }
+
     /**
      * @dev Reserved for possible storage structure changes
      */
-    uint256[50] private __gap;
+    uint256[49] private __gap;
 
     /**
     * @dev The Pollen token contract instance (private)
@@ -84,7 +91,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     /**
     * @dev The set of assets that the DAO holds (private)
     */
-    AddressSet.Set private assets;
+    AddressSet.Set private _assets;
 
     /**
     * @dev The quorum required to pass a proposal vote in % points (private)
@@ -137,7 +144,8 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         );
 
         __ReentrancyGuard_init_unchained();
-
+        
+        _deployer = msg.sender;
         _pollen = IPollen(pollen);
         _quorum = quorum;
         _votingExpiryDelay = votingExpiryDelay;
@@ -146,13 +154,27 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     }
 
     /// @inheritdoc IPollenDAO
-    function version() public pure override returns (string memory) {
+    function version() external pure override returns (string memory) {
         return "v1";
     }
 
     /// @inheritdoc IPollenDAO
     function getPollenAddress() external view override returns(address) {
         return address(_pollen);
+    }
+
+    /// @inheritdoc IPollenDAO
+    function addAsset(address asset) external override onlyDeployer {
+        require(asset != address(0), 'PollenDAO: invalid asset address');
+        require(!_assets.contains(asset), 'PollenDAO: asset already exists in DAO assets');
+        _assets.add(asset);
+    }
+
+    /// @inheritdoc IPollenDAO
+    function removeAsset(address asset) external override onlyDeployer {
+        require(asset != address(0), 'PollenDAO: invalid asset address');
+        require(_assets.contains(asset), 'PollenDAO: asset does not exist in DAO assets');
+        _removeAssetFromAssetsIfNeeded(asset);
     }
 
     /// @inheritdoc IPollenDAO
@@ -214,7 +236,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     /// @inheritdoc IPollenDAO
     function getAssets() external view override returns (address[] memory) {
-        return assets.elements;
+        return _assets.elements;
     }
 
     /// @inheritdoc IPollenDAO
@@ -344,7 +366,6 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             );
             _pollen.mint(_proposals[proposalId].pollenAmount);
             _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
-            assets.add(address(asset));
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
             asset.safeTransfer(msg.sender, _proposals[proposalId].assetTokenAmount);
             _pollen.burnFrom(msg.sender, _proposals[proposalId].pollenAmount);
@@ -366,8 +387,8 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         _pollen.burnFrom(msg.sender, pollenAmount);
 
         // TODO: cap the asset list to prevent unbounded loop
-        for (uint256 i=0; i < assets.elements.length; i++) {
-            IERC20 asset = IERC20(assets.elements[i]);
+        for (uint256 i=0; i < _assets.elements.length; i++) {
+            IERC20 asset = IERC20(_assets.elements[i]);
             if (address(asset) != address(0)) {
                 uint256 assetBalance = asset.balanceOf(address(this));
                 uint256 assetTokenAmount = assetBalance.mul(pollenAmount).div(totalSupply);
@@ -416,7 +437,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     function _removeAssetFromAssetsIfNeeded(address asset) internal {
         if (IERC20(asset).balanceOf(address(this)) == 0) {
-            assets.remove(asset);
+            _assets.remove(asset);
         }
     }
 }

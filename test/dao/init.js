@@ -15,6 +15,7 @@ contract('DAO contract instantiation', function ([deployer]) {
         this.tempDao = await Artifacts["PollenDAO-Implementation"].new();
 
         this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
+        await this.dao.addAsset(this.assetToken.address);
         await this.assetToken.mint(deployer, 999, { from: deployer });
 
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC');
