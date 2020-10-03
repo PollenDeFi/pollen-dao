@@ -27,8 +27,8 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     * @member proposalType The type of proposal (e.g., Invest, Divest)
     * @member assetTokenType The type of the asset token (e.g., ERC20)
     * @member assetTokenAddress The address of the asset token
-    * @member assetTokenAmount The amount of the asset token being proposed to invest/divest
-    * @member pollenAmount The amount of the Pollen being proposed to pay/receive
+    * @member assetTokenAmount The minimum (or exact) amount of the asset token being proposed to invest (or divest)
+    * @member pollenAmount The exact (or minimum) amount of the Pollen being proposed to pay (or receive)
     * @member descriptionCid The IPFS CID hash of the proposal description text
     * @member submitter The submitter of the proposal
     * @member snapshotId The id of the snapshot storing balances during proposal submission
@@ -40,6 +40,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     * @member executionExpiry The expiry timestamp for proposal execution
     * @member status The status of the proposal
     */
+    // TODO: optimize slot usage after the Proposal struct gets finalized
     struct Proposal {
         ProposalType proposalType;
         TokenType assetTokenType;
@@ -258,33 +259,39 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             "PollenDAO: both asset token amount and Pollen amount zero"
         );
 
-        Proposal memory proposal;
         uint256 proposalId = _proposalCount;
-        proposal.proposalType = proposalType;
-        proposal.assetTokenType = assetTokenType;
-        proposal.assetTokenAddress = assetTokenAddress;
-        proposal.assetTokenAmount = assetTokenAmount;
-        proposal.pollenAmount = pollenAmount;
-        proposal.descriptionCid = descriptionCid;
-        proposal.submitter = msg.sender;
-        proposal.snapshotId = _pollen.snapshot();
-        proposal.votingExpiry = proposalId == 0? now : now + _votingExpiryDelay;
-        proposal.executionOpen = proposal.votingExpiry + _executionOpenDelay;
-        proposal.executionExpiry = proposal.executionOpen + _executionExpiryDelay;
-        proposal.status = ProposalStatus.Submitted;
+        uint256 votingExpiry = proposalId == 0 ? now : now + _votingExpiryDelay;
+        uint256 executionOpen = votingExpiry + _executionOpenDelay;
 
-        _proposals[proposalId] = proposal;
-        _addVote(
-            proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId)
+        Proposal memory proposal = Proposal(
+            proposalType,
+            assetTokenType,
+            assetTokenAddress,
+            assetTokenAmount,
+            pollenAmount,
+            descriptionCid,
+            msg.sender,
+            _pollen.snapshot(),
+            // voters (mapping) is omitted,
+            0, // yesVotes
+            0, // noVotes,
+            votingExpiry,
+            executionOpen,
+            executionOpen + _executionExpiryDelay,
+            ProposalStatus.Submitted
         );
-        _proposalCount++;
-        // NOTE: this is the max stack size, can't add more event params
-        // TODO: find a way to insert initial yesVotes (submitter's own vote) into event params
+        _proposals[proposalId] = proposal;
+        _proposalCount = uint256(proposalId) + 1;
+
         emit Submitted(
             proposalId,
             proposalType,
             msg.sender,
             proposal.snapshotId
+        );
+
+        _addVote(
+            proposalId, msg.sender, true, _pollen.balanceOfAt(msg.sender, proposal.snapshotId)
         );
     }
 
@@ -301,12 +308,6 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         require(balance > 0, "PollenDAO: no voting tokens");
 
         _addVote(proposalId, msg.sender, vote, balance);
-
-        emit VotedOn(
-            proposalId,
-            msg.sender,
-            vote
-        );
     }
 
     /// @inheritdoc IPollenDAO
@@ -409,6 +410,8 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             _proposals[proposalId].noVotes = _proposals[proposalId].noVotes.add(amount);
             _proposals[proposalId].voters[voter] = VoterState.VotedNo;
         }
+
+        emit VotedOn(proposalId, voter, vote);
     }
 
     function _removeAssetFromAssetsIfNeeded(address asset) internal {
