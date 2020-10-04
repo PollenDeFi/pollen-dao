@@ -8,7 +8,8 @@ const toUint256 = function(num, decimals = 18) {
     ? s.split(".")[0] + s.split(".")[1]
     : s.split(".")[0];
   const exp = s.split(".")[1] ? s.split(".")[1].length : 0;
-  return Number(BN(base).mul(BN(10).pow(BN(decimals - exp)))).toString();
+  const bnResult = BN(base).mul(BN(10).pow(BN(decimals - exp)));
+  return bnResult.toString(10, bnResult.toString().replace(/[^0-9]/g,"").length);
 };
 
 module.exports = { toUint256 }
