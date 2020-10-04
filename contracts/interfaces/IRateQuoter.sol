@@ -1,11 +1,11 @@
 pragma solidity >=0.6 <0.7.0;
-
+pragma experimental ABIEncoderV2;
 
 /**
 * @title IRateQuoter Interface
 * @author vkonst
 */
-interface RateQuoter {
+interface IRateQuoter {
 
     /// @dev Only "Spot" for now
     enum RateTypes { Spot, Fixed }
@@ -29,26 +29,17 @@ interface RateQuoter {
         uint8 priority;
     }
 
-    uint internal constant RATE_DECIMALS = 18;
-    uint internal constant RATE_DELAY_MAX_SECS = 3600;
-    uint internal constant ONE_UNIT = 1e+18;
-
     /**
      * @notice Initializes the contract and sets the token name and symbol.
      * Registers the deployer as the contract `owner`. Can be called once only.
      */
-    function initialize(PriceFeed[] calldata priceFeeds) external;
+    function initialize(PriceFeed[] memory priceFeeds) external;
 
     /**
      * @dev Return latest price from the feed highest priority with default decimals
      * (it reverts if the rate is older then the RATE_DELAY_MAX_SECS)
      */
     function quotePrice(address asset) external returns (uint256 rate, uint256 timestamp);
-
-    /**
-     * @dev Emitted when the ownership is transferred from the `previousOwner` to the `newOwner`.
-     */
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
 // TODO: Extend the IRateQuoter to support the following specs
 //    function addPriceFeed(
