@@ -119,8 +119,8 @@ interface IPollenDAO {
     * @param proposalType The type of proposal (e.g., Invest, Divest)
     * @param assetTokenType The type of the asset token (e.g., ERC20)
     * @param assetTokenAddress The address of the asset token
-    * @param assetTokenAmount The amount of the asset token to invest/divest
-    * @param pollenAmount The amount of Pollen to be paid/received
+    * @param assetTokenAmount The minimum (on invest) or exact (on divest) amount of the asset token to receive/pay
+    * @param pollenAmount The exact (on invest) or minimum (on divest) amount of Pollen to be paid/received
     */
     function submit(
         ProposalType proposalType,

@@ -14,15 +14,15 @@ interface IRateQuoter {
     /**
      * @dev if a rate is expressed in a number of ...
      * the base currency units for one quoted currency unit (i.e. "Direct"),
-     * or quoted currency units per one base currency unit (i.e. "Indirect")
+     * or the quoted currency units per one base currency unit (i.e. "Indirect")
      */
-    enum RateSide { Direct, Indirect }
+    enum QuoteType { Direct, Indirect }
 
     struct PriceFeed {
         address feed;
         address asset;
         RateBase base;
-        RateSide side;
+        QuoteType side;
         uint8 decimals;
         uint16 maxDelaySecs;
         // 0 - highest; default for now, as only one feed for an asset supported
@@ -36,17 +36,23 @@ interface IRateQuoter {
     function initialize(PriceFeed[] memory priceFeeds) external;
 
     /**
-     * @dev Return latest price from the feed highest priority with default decimals
+     * @dev Return the latest price of the given asset against ETH
+     * from a highest priority possible feed, direct quote (ETH/asset), default decimals
      * (it reverts if the rate is older then the RATE_DELAY_MAX_SECS)
      */
     function quotePrice(address asset) external returns (uint256 rate, uint256 timestamp);
 
-// TODO: Extend the IRateQuoter to support the following specs
+    /**
+    * @dev
+    */
+    event PriceFeedAdded(address indexed asset, uint256 feedId);
+
+    // TODO: Extend the IRateQuoter to support the following specs
 //    function addPriceFeed(
 //        address asset,
 //        address feed,
 //        RateBase base,
-//        RateSide side,
+//        QuoteType side,
 //        uint256 decimals,
 //        uint256 maxDelay
 //    ) external ;
@@ -55,7 +61,7 @@ interface IRateQuoter {
 //        address asset,
 //        address feed,
 //        RateBase base,
-//        RateSide side,
+//        QuoteType side,
 //        uint256 decimals,
 //        uint256 maxDelay,
 //        bool forceUpdate
@@ -65,17 +71,13 @@ interface IRateQuoter {
 //        address asset,
 //        address feed,
 //        RateBase base,
-//        RateSide side,
+//        QuoteType side,
 //        uint256 decimals,
 //        uint256 maxDelay
 //    );
 //
 //    function removePriceFeed(uint256 feedId) external;
 //
-//    /**
-//     * @dev
-//     */
-//    event PriceFeedAdded(uint256 feedId);
 //
 //    /**
 //     * @dev

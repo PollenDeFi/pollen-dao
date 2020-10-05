@@ -18,7 +18,7 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
     using SafeMath for uint64;
     using SafeMath for uint128;
     using SafeMath for uint256;
-    
+
     uint64 internal constant RATE_DECIMALS = 18;
     uint64 internal constant ONE_UNIT = 1e18;
     uint128 internal constant RATE_DELAY_MAX_SECS = 3600;
@@ -36,6 +36,7 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
         __Ownable_init();
         for(uint256 i=0; i<priceFeeds.length; i.add(1)) {
             _feeds[priceFeeds[i].asset] = priceFeeds[i];
+            emit PriceFeedAdded(priceFeeds[i].asset, i);
         }
     }
 

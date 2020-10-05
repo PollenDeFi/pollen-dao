@@ -107,6 +107,8 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     */
     uint256 private _executionExpiryDelay;
 
+    IRateQuoter private _rateQuoter;
+
     modifier onlyOwner() {
         require(_owner == msg.sender, "PollenDAO: unauthorised call");
         _;
@@ -346,13 +348,21 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
         IERC20 asset = IERC20(_proposals[proposalId].assetTokenAddress);
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {
+            // TODO: calculate the amount of the asset (for exact pollenAmount) quoting the quoteRater
+            // TODO: revert if the quoted asset amount is less then assetTokenAmount
+
+            // Send Pollen first: "flash" txs allowed as long as the asset is received in the end
+            _pollen.mint(_proposals[proposalId].pollenAmount);
+            _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
             asset.safeTransferFrom(
                 msg.sender,
                 address(this), _proposals[proposalId].assetTokenAmount
             );
-            _pollen.mint(_proposals[proposalId].pollenAmount);
-            _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
+            // TODO: calculate the amount of Pollen (for exact assetTokenAmount) quoting the quoteRater
+            // TODO: revert if the quoted Pollen amount is less then pollenAmount
+
+            // Send the asset first: "flash" txs allowed as long as Pollen is received in the end
             asset.safeTransfer(msg.sender, _proposals[proposalId].assetTokenAmount);
             _pollen.burnFrom(msg.sender, _proposals[proposalId].pollenAmount);
         }
@@ -412,7 +422,15 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     /// @inheritdoc IPollenDAO
     function setOwner(address newOwner) external override onlyOwner {
+        // TODO: emit newOwner(address newOwner, address oldOwner) event
         require(newOwner != address(0), "PollenDAO: invalid owner address");
+        _owner = newOwner;
+    }
+
+    /// @inheritdoc IPollenDAO
+    function setPriceQuoter(address newQuoter) external override onlyOwner {
+        // TODO: emit NewPriceQuoter(address newQuoter, address oldQuoter)
+        require(newQuoter != address(0), "PollenDAO: quoter  address");
         _owner = newOwner;
     }
 
