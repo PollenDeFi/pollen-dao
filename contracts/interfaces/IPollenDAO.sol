@@ -172,6 +172,12 @@ interface IPollenDAO {
     function setOwner(address newOwner) external;
 
     /**
+    * @notice Set a new address to be the price quoter (external)
+    * @param newQuoter The address of the new price quoter
+    */
+    function setPriceQuoter(address newQuoter) external;
+
+    /**
      * @notice Event emitted when an asset gets added to supported assets
      */
     event assetAdded(address indexed asset);
@@ -213,5 +219,21 @@ interface IPollenDAO {
     event Redeemed(
         address sender,
         uint256 pollenAmount
+    );
+
+    /**
+     * @notice Event emitted when new owner is set
+     */
+    event NewOwner(
+        address newOwner,
+        address oldOwner
+    );
+
+    /**
+     * @notice Event emitted when new price quoter is set
+     */
+    event NewPriceQuoter(
+        address newQuoter,
+        address oldQuoter
     );
 }

@@ -3,6 +3,7 @@ pragma solidity >=0.6 <0.7.0;
 
 import "./interfaces/IPollenDAO.sol";
 import "./interfaces/IPollen.sol";
+import "./interfaces/IRateQuoter.sol";
 import "./lib/AddressSet.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
@@ -347,24 +348,31 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         );
 
         IERC20 asset = IERC20(_proposals[proposalId].assetTokenAddress);
+        (uint256 assetRate, ) = _rateQuoter.quotePrice(_proposals[proposalId].assetTokenAddress);
+        (uint256 plnRate, ) = _rateQuoter.quotePrice(this.getPollenAddress());
         if (_proposals[proposalId].proposalType == ProposalType.Invest) {
-            // TODO: calculate the amount of the asset (for exact pollenAmount) quoting the quoteRater
-            // TODO: revert if the quoted asset amount is less then assetTokenAmount
-
+            // Rate = ASSET/ETH / PLN/ETH = ASSET/PLN
+            // TODO: handle USD rates for some assets
+            uint256 rate = assetRate.div(plnRate);
+            uint256 assetTokenAmount = _proposals[proposalId].pollenAmount.mul(rate);
+            require(assetTokenAmount >= _proposals[proposalId].assetTokenAmount, "PollenDAO: market price asset amount is less than min limit in proposal");
             // Send Pollen first: "flash" txs allowed as long as the asset is received in the end
             _pollen.mint(_proposals[proposalId].pollenAmount);
             _pollen.transfer(msg.sender, _proposals[proposalId].pollenAmount);
             asset.safeTransferFrom(
                 msg.sender,
-                address(this), _proposals[proposalId].assetTokenAmount
+                address(this), assetTokenAmount
             );
         } else if (_proposals[proposalId].proposalType == ProposalType.Divest) {
-            // TODO: calculate the amount of Pollen (for exact assetTokenAmount) quoting the quoteRater
-            // TODO: revert if the quoted Pollen amount is less then pollenAmount
+            // Rate = PLN/ETH / ASSET/ETH = PLN/ASSET
+            // TODO: handle USD rates for some assets
+            uint256 rate = plnRate.div(assetRate);
+            uint256 pollenAmount = _proposals[proposalId].assetTokenAmount.mul(rate);
+            require(pollenAmount >= _proposals[proposalId].pollenAmount, "PollenDAO: market price Pollen amount is less than min limit in proposal");
 
             // Send the asset first: "flash" txs allowed as long as Pollen is received in the end
             asset.safeTransfer(msg.sender, _proposals[proposalId].assetTokenAmount);
-            _pollen.burnFrom(msg.sender, _proposals[proposalId].pollenAmount);
+            _pollen.burnFrom(msg.sender, pollenAmount);
         }
 
         _proposals[proposalId].status = ProposalStatus.Executed;
@@ -422,16 +430,18 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
     /// @inheritdoc IPollenDAO
     function setOwner(address newOwner) external override onlyOwner {
-        // TODO: emit newOwner(address newOwner, address oldOwner) event
         require(newOwner != address(0), "PollenDAO: invalid owner address");
+        address oldOwner = _owner;
         _owner = newOwner;
+        emit NewOwner(newOwner, oldOwner);
     }
 
     /// @inheritdoc IPollenDAO
     function setPriceQuoter(address newQuoter) external override onlyOwner {
-        // TODO: emit NewPriceQuoter(address newQuoter, address oldQuoter)
         require(newQuoter != address(0), "PollenDAO: quoter  address");
-        _owner = newOwner;
+        address oldQuoter = address(_rateQuoter);
+        _rateQuoter= IRateQuoter(newQuoter);
+        emit NewPriceQuoter(newQuoter, oldQuoter);
     }
 
     /**
