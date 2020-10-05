@@ -22,7 +22,7 @@ const {
     MockPriceFeed,
     mockPriceFeeds: { getFeeds: getDstFeeds }
 } = require("./lib/chainlink");
-const { toUint256 } = require("./lib/web3")
+const { toStringifiedBN } = require("./lib/web3")
 
 const { log } = console;
 
@@ -150,7 +150,7 @@ async function updateMockPriceFeed(srcFeed, dstFeed) {
     const { roundId, updatedAt } = await srcFeed.readLatest();
     const { base, quote } = srcFeed.getParams().uniswapPair;
     const decimals = srcFeed.getParams().decimals;
-    const answer = toUint256(await getPrice(base, quote), decimals);
+    const answer = toStringifiedBN(await getPrice(base, quote), decimals);
     log(`${srcFeed.params.name}: ${JSON.stringify({ roundId, updatedAt, answer })}`);
     return dstFeed.write({ roundId, updatedAt, answer })
         .then((r) => console.log(`${dstFeed.params.name}: ${typeof r === "string" ? r : "updated"}`));

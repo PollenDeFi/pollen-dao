@@ -1,3 +1,4 @@
+const { toStringifiedBN, toBN } = require('../web3/index.js');
 /**
  * __MOCK__ price feeds contract (emulating Chainlink `AggregatorV3Interface`)
  *
@@ -63,7 +64,7 @@ module.exports = class {
             roundId: latestRoundId
         } = await this.readLatest().catch(()=>({}));
 
-        let roundId = latestRoundId + 1;
+        let roundId = toStringifiedBN(toBN(latestRoundId).add(toBN(1)), 0);
 
         return this.instance.methods.setRoundData(roundId, answer, updatedAt).send(opts);
     }
