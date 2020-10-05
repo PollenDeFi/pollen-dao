@@ -172,7 +172,23 @@ interface IPollenDAO {
     function setOwner(address newOwner) external;
 
     /**
+    * @notice Update DAO params (external)
+    * (only the owner may call)
+    * @param quorum The quorum required to pass a proposal vote in % points
+    * @param votingExpiryDelay The number of seconds until voting expires after proposal submission
+    * @param executionOpenDelay The number of seconds until execution opens after voting expires
+    * @param executionExpiryDelay The number of seconds until execution expires after it opens
+    */
+    function setParams(
+        uint256 quorum,
+        uint256 votingExpiryDelay,
+        uint256 executionOpenDelay,
+        uint256 executionExpiryDelay
+    ) external;
+
+    /**
     * @notice Set a new address to be the price quoter (external)
+    * (only the owner may call)
     * @param newQuoter The address of the new price quoter
     */
     function setPriceQuoter(address newQuoter) external;
@@ -208,9 +224,12 @@ interface IPollenDAO {
 
     /**
      * @notice Event emitted when a proposal is executed
+     * @param proposalId The proposal
+     * @param amount The amount of Pollen (on invest) or asset token (on divest)
      */
     event Executed(
-        uint256 proposalId
+        uint256 proposalId,
+        uint256 amount
     );
 
     /**

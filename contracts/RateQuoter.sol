@@ -42,6 +42,9 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
 
     /// @inheritdoc IRateQuoter
     function quotePrice(address asset) external override returns (uint256 rate, uint256 timestamp) {
+        // TODO: handle decimals, quote type (direct/indirect)
+        // TODO: make it revert if the rate is older then the RATE_DELAY_MAX_SECS)
+        // TODO: handle USD rates for some assets
         PriceFeed memory priceFeed = _feeds[asset];
         uint8 feedDecimals = IAggregatorV3(priceFeed.feed).decimals();
         (, int256 answer, , uint256 updatedAt, ) = IAggregatorV3(priceFeed.feed).latestRoundData();
