@@ -52,6 +52,7 @@ module.exports = {
         proxies: {
           Pollen: "0xe88B849FD0109e5d9A943A42EED98c5507c32E01",
           PollenDAO: "0x58cdDaaCae33f2df3DE8ffe20B07C67ed310aAc6",
+          RateQuoter: "0xE7cc4E3Ea9AB8A82ff8b8c132034456A2A058E02",
           MockPriceOracle: {
             "r:ethUsd": "0x71271d853A665758b8E81bE8cd54B9a54877321e",
             "r:batEth": "0x06a3dD64A3dF8FF45a29cE17BAC8ddD5B74b834c",
@@ -75,7 +76,8 @@ module.exports = {
         },
         implementations: {
           Pollen: "0xbef545Ec09386B1aB34e84C48e7CD431678190Dd",
-          PollenDAO: "0x74Ebe39599a26C2B9410607E2F6e4f71FFC3bFFE",
+          PollenDAO: "0x7E24c571F77B3332Bc016B241d3B9bF1FF2C02f7",
+          RateQuoter: "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
           MockPriceOracle: "0xF95E66Dd3eEc8f545090C16398b78ceD0C0004af",
           MockAssetToken: "0x4C675e60fC345bAe480BDD2bfA276D9fF1bC05AB",
         }
