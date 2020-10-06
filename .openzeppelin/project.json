@@ -2,7 +2,8 @@
   "manifestVersion": "2.2",
   "contracts": {
     "Pollen": "Pollen_v1",
-    "PollenDAO": "PollenDAO_v1"
+    "PollenDAO": "PollenDAO_v1",
+    "RateQuoter": "RateQuoter"
   },
   "_comments_": "!!! please leave 'contracts' property empty (to let migration scripts set it on runtime)",
   "_contracts_": {

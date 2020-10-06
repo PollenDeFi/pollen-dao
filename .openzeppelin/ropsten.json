@@ -726,12 +726,12 @@
         ]
       }
     },
-    "MockPriceOracle": {
-      "address": "0xF95E66Dd3eEc8f545090C16398b78ceD0C0004af",
-      "constructorCode": "608060405234801561001057600080fd5b50610b3d806100206000396000f3fe",
-      "bodyBytecodeHash": "a9692e3b1124e669e409856a2997cdb60fffe8ea8848868acda6d4e1ce1d1bc4",
-      "localBytecodeHash": "ef4d505e3797dae694dacd9014ac759463d52d2d05fe2807af3c146d6fd84673",
-      "deployedBytecodeHash": "ef4d505e3797dae694dacd9014ac759463d52d2d05fe2807af3c146d6fd84673",
+    "RateQuoter": {
+      "address": "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
+      "constructorCode": "608060405234801561001057600080fd5b50610dae806100206000396000f3fe",
+      "bodyBytecodeHash": "c0cefff599797840d39dc4c1b99d0700bbd25d5f7d7246c828fc63cb46b1525e",
+      "localBytecodeHash": "ec53d668e0cc0ccb56f5cc87e0d853025d5963ab30938844fab8936bb369e529",
+      "deployedBytecodeHash": "ec53d668e0cc0ccb56f5cc87e0d853025d5963ab30938844fab8936bb369e529",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -749,227 +749,11 @@
           "length": "50",
           "kind": "array",
           "label": "uint256[50]"
-        },
-        "t_string": {
-          "id": "t_string",
-          "kind": "elementary",
-          "label": "string"
-        },
-        "t_uint32": {
-          "id": "t_uint32",
-          "kind": "elementary",
-          "label": "uint32"
-        },
-        "t_uint8": {
-          "id": "t_uint8",
-          "kind": "elementary",
-          "label": "uint8"
         },
         "t_address": {
           "id": "t_address",
           "kind": "elementary",
           "label": "address"
-        },
-        "t_uint80": {
-          "id": "t_uint80",
-          "kind": "elementary",
-          "label": "uint80"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
-          "label": "initialized",
-          "astId": 2525,
-          "type": "t_bool",
-          "src": "757:24:17"
-        },
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
-          "label": "initializing",
-          "astId": 2528,
-          "type": "t_bool",
-          "src": "876:25:17"
-        },
-        {
-          "contract": "Initializable",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
-          "label": "______gap",
-          "astId": 2593,
-          "type": "t_array:50<t_uint256>",
-          "src": "1982:29:17"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_description",
-          "astId": 2106,
-          "type": "t_string",
-          "src": "1637:27:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_version",
-          "astId": 2108,
-          "type": "t_uint32",
-          "src": "1670:23:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_decimals",
-          "astId": 2110,
-          "type": "t_uint8",
-          "src": "1699:23:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_owner",
-          "astId": 2112,
-          "type": "t_address",
-          "src": "1729:22:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_updater",
-          "astId": 2114,
-          "type": "t_address",
-          "src": "1757:24:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_currentRound",
-          "astId": 2116,
-          "type": "t_uint80",
-          "src": "1787:29:15"
-        },
-        {
-          "contract": "MockPriceOracle",
-          "path": "contracts/mocks/MockPriceOracle.sol",
-          "label": "_rounds",
-          "astId": 2120,
-          "type": "t_mapping<t_uint256>",
-          "src": "1882:43:15"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
-      }
-    },
-    "MockAssetToken": {
-      "address": "0x4C675e60fC345bAe480BDD2bfA276D9fF1bC05AB",
-      "constructorCode": "608060405234801561001057600080fd5b50611fd0806100206000396000f3fe",
-      "bodyBytecodeHash": "17592620b96a69d8d4e873d27fd94e66abd36e66ad66601585358eede55f032e",
-      "localBytecodeHash": "91601cf21c2a55c13bd0f1be7312f8a2796a517fe54a90c08bf75bf9864ed6f9",
-      "deployedBytecodeHash": "91601cf21c2a55c13bd0f1be7312f8a2796a517fe54a90c08bf75bf9864ed6f9",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_struct<AccessControlUpgradeSafe.RoleData>": {
-          "id": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "kind": "struct",
-          "label": "AccessControlUpgradeSafe.RoleData",
-          "members": [
-            {
-              "label": "members",
-              "astId": 2661,
-              "type": "t_struct<EnumerableSet.AddressSet>",
-              "src": "1655:32:19"
-            },
-            {
-              "label": "adminRole",
-              "astId": 2663,
-              "type": "t_bytes32",
-              "src": "1697:17:19"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.AddressSet>": {
-          "id": "t_struct<EnumerableSet.AddressSet>",
-          "kind": "struct",
-          "label": "EnumerableSet.AddressSet",
-          "members": [
-            {
-              "label": "_inner",
-              "astId": 5235,
-              "type": "t_struct<EnumerableSet.Set>",
-              "src": "4644:10:33"
-            }
-          ]
-        },
-        "t_struct<EnumerableSet.Set>": {
-          "id": "t_struct<EnumerableSet.Set>",
-          "kind": "struct",
-          "label": "EnumerableSet.Set",
-          "members": [
-            {
-              "label": "_values",
-              "astId": 5051,
-              "type": "t_array:dyn<t_bytes32>",
-              "src": "1213:17:33"
-            },
-            {
-              "label": "_indexes",
-              "astId": 5055,
-              "type": "t_mapping<t_uint256>",
-              "src": "1364:37:33"
-            }
-          ]
-        },
-        "t_bytes32": {
-          "id": "t_bytes32",
-          "kind": "elementary",
-          "label": "bytes32"
-        },
-        "t_array:dyn<t_bytes32>": {
-          "id": "t_array:dyn<t_bytes32>",
-          "valueType": "t_bytes32",
-          "length": "dyn",
-          "kind": "array",
-          "label": "bytes32[]"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>": {
-          "id": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "valueType": "t_struct<AccessControlUpgradeSafe.RoleData>",
-          "label": "mapping(key => AccessControlUpgradeSafe.RoleData)",
-          "kind": "mapping"
         },
         "t_array:49<t_uint256>": {
           "id": "t_array:49<t_uint256>",
@@ -978,22 +762,88 @@
           "kind": "array",
           "label": "uint256[49]"
         },
-        "t_string": {
-          "id": "t_string",
-          "kind": "elementary",
-          "label": "string"
+        "t_struct<IRateQuoter.PriceFeed>": {
+          "id": "t_struct<IRateQuoter.PriceFeed>",
+          "kind": "struct",
+          "label": "IRateQuoter.PriceFeed",
+          "members": [
+            {
+              "label": "feed",
+              "astId": 2000,
+              "type": "t_address",
+              "src": "596:12:8"
+            },
+            {
+              "label": "asset",
+              "astId": 2002,
+              "type": "t_address",
+              "src": "618:13:8"
+            },
+            {
+              "label": "base",
+              "astId": 2004,
+              "type": "t_enum<IRateQuoter.RateBase>",
+              "src": "641:13:8"
+            },
+            {
+              "label": "side",
+              "astId": 2006,
+              "type": "t_enum<IRateQuoter.QuoteType>",
+              "src": "664:14:8"
+            },
+            {
+              "label": "decimals",
+              "astId": 2008,
+              "type": "t_uint8",
+              "src": "688:14:8"
+            },
+            {
+              "label": "maxDelaySecs",
+              "astId": 2010,
+              "type": "t_uint16",
+              "src": "712:19:8"
+            },
+            {
+              "label": "priority",
+              "astId": 2012,
+              "type": "t_uint8",
+              "src": "822:14:8"
+            }
+          ]
+        },
+        "t_enum<IRateQuoter.RateBase>": {
+          "id": "t_enum<IRateQuoter.RateBase>",
+          "kind": "enum",
+          "label": "IRateQuoter.RateBase",
+          "members": [
+            "Usd",
+            "Eth"
+          ]
+        },
+        "t_enum<IRateQuoter.QuoteType>": {
+          "id": "t_enum<IRateQuoter.QuoteType>",
+          "kind": "enum",
+          "label": "IRateQuoter.QuoteType",
+          "members": [
+            "Direct",
+            "Indirect"
+          ]
         },
         "t_uint8": {
           "id": "t_uint8",
           "kind": "elementary",
           "label": "uint8"
         },
-        "t_array:44<t_uint256>": {
-          "id": "t_array:44<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "44",
-          "kind": "array",
-          "label": "uint256[44]"
+        "t_uint16": {
+          "id": "t_uint16",
+          "kind": "elementary",
+          "label": "uint16"
+        },
+        "t_mapping<t_struct<IRateQuoter.PriceFeed>>": {
+          "id": "t_mapping<t_struct<IRateQuoter.PriceFeed>>",
+          "valueType": "t_struct<IRateQuoter.PriceFeed>",
+          "label": "mapping(key => IRateQuoter.PriceFeed)",
+          "kind": "mapping"
         }
       },
       "storage": [
@@ -1001,145 +851,65 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 2555,
+          "astId": 3010,
           "type": "t_bool",
-          "src": "757:24:18"
+          "src": "757:24:20"
         },
         {
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 2558,
+          "astId": 3013,
           "type": "t_bool",
-          "src": "876:25:18"
+          "src": "876:25:20"
         },
         {
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 2623,
+          "astId": 3078,
           "type": "t_array:50<t_uint256>",
-          "src": "1982:29:18"
+          "src": "1982:29:20"
         },
         {
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 2548,
+          "astId": 3003,
           "type": "t_array:50<t_uint256>",
-          "src": "1277:25:17"
+          "src": "1277:25:19"
         },
         {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
-          "label": "_roles",
-          "astId": 2668,
-          "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
-          "src": "1727:44:19"
+          "contract": "OwnableUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
+          "label": "_owner",
+          "astId": 3380,
+          "type": "t_address",
+          "src": "651:22:22"
         },
         {
-          "contract": "AccessControlUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+          "contract": "OwnableUpgradeSafe",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
           "label": "__gap",
-          "astId": 2913,
+          "astId": 3498,
           "type": "t_array:49<t_uint256>",
-          "src": "6927:25:19"
+          "src": "2434:25:22"
         },
         {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_balances",
-          "astId": 3526,
-          "type": "t_mapping<t_uint256>",
-          "src": "1481:46:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_allowances",
-          "astId": 3532,
-          "type": "t_mapping<t_uint256>",
-          "src": "1534:69:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_totalSupply",
-          "astId": 3534,
-          "type": "t_uint256",
-          "src": "1610:28:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_name",
-          "astId": 3536,
-          "type": "t_string",
-          "src": "1645:20:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_symbol",
-          "astId": 3538,
-          "type": "t_string",
-          "src": "1671:22:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
-          "label": "_decimals",
-          "astId": 3540,
-          "type": "t_uint8",
-          "src": "1699:23:24"
-        },
-        {
-          "contract": "ERC20UpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol",
+          "contract": "RateQuoter",
+          "path": "contracts/RateQuoter.sol",
           "label": "__gap",
-          "astId": 4035,
-          "type": "t_array:44<t_uint256>",
-          "src": "11045:25:24"
-        },
-        {
-          "contract": "ERC20BurnableUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Burnable.sol",
-          "label": "__gap",
-          "astId": 4116,
-          "type": "t_array:50<t_uint256>",
-          "src": "1443:25:25"
-        },
-        {
-          "contract": "PausableUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/utils/Pausable.sol",
-          "label": "_paused",
-          "astId": 5461,
-          "type": "t_bool",
-          "src": "825:20:34"
-        },
-        {
-          "contract": "PausableUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/utils/Pausable.sol",
-          "label": "__gap",
-          "astId": 5550,
+          "astId": 1524,
           "type": "t_array:49<t_uint256>",
-          "src": "2073:25:34"
+          "src": "995:25:3"
         },
         {
-          "contract": "ERC20PausableUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Pausable.sol",
-          "label": "__gap",
-          "astId": 4181,
-          "type": "t_array:50<t_uint256>",
-          "src": "1130:25:26"
-        },
-        {
-          "contract": "ERC20PresetMinterPauserUpgradeSafe",
-          "path": "@openzeppelin/contracts-ethereum-package/contracts/presets/ERC20PresetMinterPauser.sol",
-          "label": "__gap",
-          "astId": 3501,
-          "type": "t_array:50<t_uint256>",
-          "src": "3454:25:23"
+          "contract": "RateQuoter",
+          "path": "contracts/RateQuoter.sol",
+          "label": "_feeds",
+          "astId": 1529,
+          "type": "t_mapping<t_struct<IRateQuoter.PriceFeed>>",
+          "src": "1066:45:3"
         }
       ],
       "warnings": {
@@ -1276,6 +1046,15 @@
         "address": "0x867a63140EE5Ce0958016130ecF4aD1e096fb1cc",
         "version": "1.0.0",
         "implementation": "0x4C675e60fC345bAe480BDD2bfA276D9fF1bC05AB",
+        "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
+        "kind": "Upgradeable"
+      }
+    ],
+    "pollen-dao/RateQuoter": [
+      {
+        "address": "0xE7cc4E3Ea9AB8A82ff8b8c132034456A2A058E02",
+        "version": "1.0.0",
+        "implementation": "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
         "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
         "kind": "Upgradeable"
       }
