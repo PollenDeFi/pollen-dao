@@ -5,6 +5,7 @@ set -o errexit
 defaultScope="
 contracts/PollenDAO_v*.sol
 contracts/Pollen_v*.sol
+contracts/RateQuoter.sol
 contracts/mocks/MockPriceOracle.sol
 contracts/mocks/MockAssetToken.sol
 "

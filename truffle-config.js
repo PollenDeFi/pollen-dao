@@ -77,7 +77,7 @@ module.exports = {
         implementations: {
           Pollen: "0xbef545Ec09386B1aB34e84C48e7CD431678190Dd",
           PollenDAO: "0x7E24c571F77B3332Bc016B241d3B9bF1FF2C02f7",
-          RateQuoter: "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
+          RateQuoter: "0x7e379c463fc08d2c6ed39a260a14312db9a49503",
           MockPriceOracle: "0xF95E66Dd3eEc8f545090C16398b78ceD0C0004af",
           MockAssetToken: "0x4C675e60fC345bAe480BDD2bfA276D9fF1bC05AB",
         }

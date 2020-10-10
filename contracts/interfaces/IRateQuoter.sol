@@ -45,28 +45,34 @@ interface IRateQuoter {
     /**
     * @dev
     */
+    function getPriceFeedData(address asset) external view returns (PriceFeed memory);
+
+    /**
+    * @dev
+    */
     function addPriceFeed(PriceFeed memory priceFeed) external;
 
-    function getPriceFeedData(address asset) external returns (PriceFeed memory);
+    /**
+    * @dev
+    */
+    function addPriceFeeds(PriceFeed[] memory priceFeeds) external;
+
+    /**
+    * @dev
+    */
+    function removePriceFeed(address feed) external;
 
     event PriceFeedAdded(address indexed asset, address feed);
+    event PriceFeedRemoved(address asset);
 
     // TODO: Extend the IRateQuoter to support the following specs
-//    function quotePriceExtended(
-//        address asset,
-//        address feed,
-//        RateBase base,
-//        QuoteType side,
-//        uint256 decimals,
-//        uint256 maxDelay,
-//        bool forceUpdate
-//    ) external returns (uint256 rate, uint256 timestamp);
-//
-//    function removePriceFeed(address feed) external;
-//
-//
-//    /**
-//     * @dev
-//     */
-//    event PriceFeedRemoved(address feed);
+    // function quotePriceExtended(
+    //    address asset,
+    //    address feed,
+    //    RateBase base,
+    //    QuoteType side,
+    //    uint256 decimals,
+    //    uint256 maxDelay,
+    //    bool forceUpdate
+    // ) external returns (uint256 rate, uint256 timestamp);
 }

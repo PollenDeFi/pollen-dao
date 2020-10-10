@@ -754,11 +754,11 @@
       }
     },
     "RateQuoter": {
-      "address": "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
-      "constructorCode": "608060405234801561001057600080fd5b50610dae806100206000396000f3fe",
-      "bodyBytecodeHash": "c0cefff599797840d39dc4c1b99d0700bbd25d5f7d7246c828fc63cb46b1525e",
-      "localBytecodeHash": "ec53d668e0cc0ccb56f5cc87e0d853025d5963ab30938844fab8936bb369e529",
-      "deployedBytecodeHash": "ec53d668e0cc0ccb56f5cc87e0d853025d5963ab30938844fab8936bb369e529",
+      "address": "0x7e379c463fc08d2c6ed39A260A14312DB9A49503",
+      "constructorCode": "608060405234801561001057600080fd5b50611347806100206000396000f3fe",
+      "bodyBytecodeHash": "cd83e69da5472eeab739210284d9b028b3db995770c1a6ae21fe8d02817fe316",
+      "localBytecodeHash": "fa85c3313755c1948449fbffc68addec1b66e9284993ac2b00fcebb44df6e63c",
+      "deployedBytecodeHash": "fa85c3313755c1948449fbffc68addec1b66e9284993ac2b00fcebb44df6e63c",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -796,43 +796,43 @@
           "members": [
             {
               "label": "feed",
-              "astId": 2000,
+              "astId": 2167,
               "type": "t_address",
               "src": "596:12:8"
             },
             {
               "label": "asset",
-              "astId": 2002,
+              "astId": 2169,
               "type": "t_address",
               "src": "618:13:8"
             },
             {
               "label": "base",
-              "astId": 2004,
+              "astId": 2171,
               "type": "t_enum<IRateQuoter.RateBase>",
               "src": "641:13:8"
             },
             {
               "label": "side",
-              "astId": 2006,
+              "astId": 2173,
               "type": "t_enum<IRateQuoter.QuoteType>",
               "src": "664:14:8"
             },
             {
               "label": "decimals",
-              "astId": 2008,
+              "astId": 2175,
               "type": "t_uint8",
               "src": "688:14:8"
             },
             {
               "label": "maxDelaySecs",
-              "astId": 2010,
+              "astId": 2177,
               "type": "t_uint16",
               "src": "712:19:8"
             },
             {
               "label": "priority",
-              "astId": 2012,
+              "astId": 2179,
               "type": "t_uint8",
               "src": "822:14:8"
             }
@@ -878,7 +878,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 3010,
+          "astId": 3207,
           "type": "t_bool",
           "src": "757:24:20"
         },
@@ -886,7 +886,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 3013,
+          "astId": 3210,
           "type": "t_bool",
           "src": "876:25:20"
         },
@@ -894,7 +894,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 3078,
+          "astId": 3275,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:20"
         },
@@ -902,7 +902,7 @@
           "contract": "ContextUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol",
           "label": "__gap",
-          "astId": 3003,
+          "astId": 3200,
           "type": "t_array:50<t_uint256>",
           "src": "1277:25:19"
         },
@@ -910,7 +910,7 @@
           "contract": "OwnableUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
           "label": "_owner",
-          "astId": 3380,
+          "astId": 3577,
           "type": "t_address",
           "src": "651:22:22"
         },
@@ -918,7 +918,7 @@
           "contract": "OwnableUpgradeSafe",
           "path": "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol",
           "label": "__gap",
-          "astId": 3498,
+          "astId": 3695,
           "type": "t_array:49<t_uint256>",
           "src": "2434:25:22"
         },
@@ -926,17 +926,17 @@
           "contract": "RateQuoter",
           "path": "contracts/RateQuoter.sol",
           "label": "__gap",
-          "astId": 1524,
+          "astId": 1512,
           "type": "t_array:49<t_uint256>",
-          "src": "995:25:3"
+          "src": "855:25:3"
         },
         {
           "contract": "RateQuoter",
           "path": "contracts/RateQuoter.sol",
           "label": "_feeds",
-          "astId": 1529,
+          "astId": 1517,
           "type": "t_mapping<t_struct<IRateQuoter.PriceFeed>>",
-          "src": "1066:45:3"
+          "src": "926:45:3"
         }
       ],
       "warnings": {
@@ -944,7 +944,18 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "RateQuoter",
+            "path": "contracts/RateQuoter.sol",
+            "label": "_feeds",
+            "astId": 1517,
+            "type": "t_mapping<t_struct<IRateQuoter.PriceFeed>>",
+            "src": "926:45:3"
+          }
+        ],
+        "storageDiff": []
       }
     }
   },
@@ -1081,7 +1092,7 @@
       {
         "address": "0xE7cc4E3Ea9AB8A82ff8b8c132034456A2A058E02",
         "version": "1.0.0",
-        "implementation": "0x4a76ee46aE0080b6490185BA2b5BAF96F556b006",
+        "implementation": "0x7e379c463fc08d2c6ed39a260a14312db9a49503",
         "admin": "0xd4A171fe0B39d0120BeEc0ea81b3c06896735Bc4",
         "kind": "Upgradeable"
       }
