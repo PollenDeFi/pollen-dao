@@ -36,7 +36,7 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
         __Ownable_init();
         for(uint256 i=0; i<priceFeeds.length; i.add(1)) {
             _feeds[priceFeeds[i].asset] = priceFeeds[i];
-            emit PriceFeedAdded(priceFeeds[i].asset, i);
+            emit PriceFeedAdded(priceFeeds[i].asset, priceFeeds[i].feed);
         }
     }
 
@@ -51,4 +51,17 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
         uint256 standardizedRate = uint256(answer).mul(10 ** RATE_DECIMALS.sub(feedDecimals));
         return (standardizedRate, updatedAt);
     }
+
+        function addPriceFeed(PriceFeed memory priceFeed) external override onlyOwner {
+            address asset = priceFeed.asset;
+            address feed = priceFeed.feed;
+            require(asset != address(0), "RateQuoter: invalid asset address");
+            require(asset != address(0), "RateQuoter: invalid feed address");
+            _feeds[asset] = priceFeed;
+            emit PriceFeedAdded(asset, feed);
+        }
+
+        function getPriceFeedData(address asset) external override returns (PriceFeed memory) {
+            return _feeds[asset];
+        }
 }

@@ -45,18 +45,13 @@ interface IRateQuoter {
     /**
     * @dev
     */
-    event PriceFeedAdded(address indexed asset, uint256 feedId);
+    function addPriceFeed(PriceFeed memory priceFeed) external;
+
+    function getPriceFeedData(address asset) external returns (PriceFeed memory);
+
+    event PriceFeedAdded(address indexed asset, address feed);
 
     // TODO: Extend the IRateQuoter to support the following specs
-//    function addPriceFeed(
-//        address asset,
-//        address feed,
-//        RateBase base,
-//        QuoteType side,
-//        uint256 decimals,
-//        uint256 maxDelay
-//    ) external ;
-//
 //    function quotePriceExtended(
 //        address asset,
 //        address feed,
@@ -67,20 +62,11 @@ interface IRateQuoter {
 //        bool forceUpdate
 //    ) external returns (uint256 rate, uint256 timestamp);
 //
-//    function getPriceFeedData(uint256 feedId) external returns (
-//        address asset,
-//        address feed,
-//        RateBase base,
-//        QuoteType side,
-//        uint256 decimals,
-//        uint256 maxDelay
-//    );
-//
-//    function removePriceFeed(uint256 feedId) external;
+//    function removePriceFeed(address feed) external;
 //
 //
 //    /**
 //     * @dev
 //     */
-//    event PriceFeedRemoved(uint256 feedId);
+//    event PriceFeedRemoved(address feed);
 }
