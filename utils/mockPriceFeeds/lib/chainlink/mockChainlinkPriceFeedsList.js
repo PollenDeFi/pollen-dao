@@ -11,15 +11,7 @@ const { getFeeds: getSrc } = require("./chainlinkPriceFeedsList");
 
 /** @type {AggregatorsParams} */
 const feeds = [
-    { name: "r:plnEth",  network: "ropsten", address: "0x382975824786BF53e5Ad4726b51F89959218d0Ec", source: {
-            name: "r:uniswap:plnEth",
-            network: "ropsten",
-            address: "",
-            description: 'PLN / ETH',
-            decimals: '18',
-            version: '2'
-        }
-     },
+    { name: "r:plnEth",  network: "ropsten", address: "0x382975824786BF53e5Ad4726b51F89959218d0Ec", source: getSrc("plnEth",  "mainnet")[0] },
     { name: "r:ethUsd",  network: "ropsten", address: "0x71271d853A665758b8E81bE8cd54B9a54877321e", source: getSrc("ethUsd",  "mainnet")[0] },
     { name: "r:compUsd", network: "ropsten", address: "0xC9e417fbF07019b7cCDA6f83D0bc6073F5B4819E", source: getSrc("compUsd", "mainnet")[0] },
     { name: "r:batEth",  network: "ropsten", address: "0x06a3dD64A3dF8FF45a29cE17BAC8ddD5B74b834c", source: getSrc("batEth",  "mainnet")[0] },

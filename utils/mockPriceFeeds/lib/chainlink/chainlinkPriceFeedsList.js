@@ -15,6 +15,18 @@
 /** @type {AggregatorParams[]} */
 const feeds = [
     {
+        name: "plnEth",
+        network: "mainnet",
+        address: "",
+        description: 'PLN / ETH',
+        decimals: '18',
+        version: '2',
+        uniswapPair: {
+            base: '0xe88B849FD0109e5d9A943A42EED98c5507c32E01',
+            quote: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        }
+    },
+    {
         name: "ethUsd",
         network: "mainnet",
         address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
