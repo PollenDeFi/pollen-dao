@@ -8,6 +8,7 @@ const { toStringifiedBN, toBN } = require('../web3/index.js');
  */
 
 const abi = require("./mockAggregatorV3InterfaceABI");
+const MIN_UPDATE_INTERVAL_SECS = 120;
 
 module.exports = class {
 
@@ -59,7 +60,11 @@ module.exports = class {
      */
     async write(reading, opts = {gas: "100000"}) {
         if (!opts.from) { opts.from = this.web3.eth.defaultAccount; }
-        const { answer, updatedAt } = this.sanitizeReading(reading)
+        const { answer, updatedAt } = this.sanitizeReading(reading);
+        const isTooSoon = Date.now() / 1000 < (1 * updatedAt + MIN_UPDATE_INTERVAL_SECS);
+        if (!opts.force && isTooSoon) {
+            return Promise.resolve("update skipped (too less time left)");
+        }
         const {
             roundId: latestRoundId
         } = await this.readLatest().catch(()=>({}));
