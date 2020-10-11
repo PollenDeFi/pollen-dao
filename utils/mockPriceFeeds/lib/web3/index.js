@@ -4,10 +4,11 @@ const toBN = Web3.utils.toBN;
 
 const toStringifiedBN = function(num, decimals = 18) {
   const s = "" + num;
-  const base = s.split(".")[1]
-    ? s.split(".")[0] + s.split(".")[1]
+  const f = s.split(".")[1].replace(/0+$/, "");
+  const base = f
+    ? s.split(".")[0] + f
     : s.split(".")[0];
-  const exp = s.split(".")[1] ? s.split(".")[1].length : 0;
+  const exp = f ? f.length : 0;
   const bnResult = toBN(base).mul(toBN(10).pow(toBN(decimals - exp)));
   return bnResult.toString(10, bnResult.toString().replace(/[^0-9]/g,"").length);
 };
