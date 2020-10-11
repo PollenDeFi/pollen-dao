@@ -4,7 +4,7 @@ const toBN = Web3.utils.toBN;
 
 const toStringifiedBN = function(num, decimals = 18) {
   const s = "" + num;
-  const f = s.split(".")[1]?.replace(/0+$/, "");
+  const f = s.split(".")[1]?.slice(0,18)?.replace(/0+$/, "");
   const base = f
     ? s.split(".")[0] + f
     : s.split(".")[0];
