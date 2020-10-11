@@ -45,14 +45,40 @@ module.exports = function(deployer, networkName) {
  * @param {ExpectedAddresses} expectedAddrs
  */
 async function migrate(options, expectedAddrs) {
-  const packageContracts = [
-    { name: "Pollen_v1", alias: "Pollen" },
-    { name: "PollenDAO_v1", alias: "PollenDAO" },
-  ];
+  const isDevNet = options.network.startsWith("dev");
+  const isMainnet = options.network === "mainnet";
+
+  const packageContracts = isMainnet
+      ? [
+          { name: "Pollen_v1", alias: "Pollen" },
+          { name: "PollenDAO_v1", alias: "PollenDAO" }
+      ]
+      : [
+          { name: "Pollen_v1", alias: "Pollen" },
+          { name: "PollenDAO_v1", alias: "PollenDAO" },
+          { name: "MockPriceOracle", alias: "MockPriceOracle" },
+          { name: "MockAssetToken", alias: "MockAssetToken" },
+          { name: "RateQuoter", alias: "RateQuoter" },
+      ];
   const getContractCreateParams = (alias, instances) => ({
     contractAlias: packageContracts.find(e => e.alias === alias).alias,
     methodName: "initialize",
-    methodArgs: alias !== "PollenDAO" ? [] : [ instances.proxies.Pollen.address, 30, 180, 180, 180 ],
+    methodArgs: (() => {
+      switch (alias) {
+        case "Pollen":
+        case "RateQuoter":
+          return [];
+        case "PollenDAO":
+          return isDevNet
+              ? [ instances.proxies.Pollen.address, 30, 180, 180, 180 ]
+              : [ instances.proxies.Pollen.address, 30, 180, 180, 180 ];
+        case "MockPriceOracle":
+        case "MockAssetToken":
+            return null; // don't deploy the proxy
+        default:
+          throw new Error(`Unexpected contract alias ${alias}`);
+      }
+      })()
   });
 
   // Register contracts in the Openzeppelin-SDK project
@@ -65,6 +91,7 @@ async function migrate(options, expectedAddrs) {
   const packageName = controller.projectFile.data.name;
   const version = controller.projectVersion;
   const instances = {
+    addresses: {},
     proxies: { all: readProxiesFromOzNetworkFile(options) },
     implementations: readImplementationsFromOzNetworkFile(options),
   };
@@ -82,8 +109,14 @@ async function migrate(options, expectedAddrs) {
         if ( !options.reupload && instances.proxies[alias] ) {
           console.log(t`${alias} proxy re-used: ${instances.proxies[alias].address}`);
         } else {
-          const proxy = await create(Object.assign(getContractCreateParams(alias, instances), options));
+          const proxyParams = getContractCreateParams(alias, instances);
+          if (proxyParams.methodArgs === null) {
+            return; // don't deploy the proxy
+          }
+
+          const proxy = await create(Object.assign(proxyParams, options));
           [ instances.proxies[alias] ] = findProxy(readProxiesFromOzNetworkFile(options), alias, proxy.options.address);
+          instances.addresses[alias] = instances.proxies[alias].address;
           console.log(t`${alias} proxy deployed: ${instances.proxies[alias].address}`);
         }
         throwUnmatchedAddr(
@@ -119,7 +152,7 @@ async function migrate(options, expectedAddrs) {
     );
   }
 
-  if (process.env.DEBUG === "NAMESPACE") process.__userNamespace__ = Object.assign(
+  if (isDevNet || process.env.DEBUG === "NAMESPACE") process.__userNamespace__ = Object.assign(
     process.__userNamespace__ || {}, {
       artifacts,
       instances,

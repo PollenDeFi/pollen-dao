@@ -254,7 +254,7 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
 
         uint256 proposalId = _proposalCount;
         uint256 votingExpiry = proposalId == 0 ? now : now + _votingExpiryDelay;
-        uint256 executionOpen = votingExpiry + _executionOpenDelay;
+        uint256 executionOpen = proposalId == 0 ? votingExpiry : votingExpiry + _executionOpenDelay;
 
         Proposal memory proposal = Proposal(
             proposalType,
@@ -325,20 +325,25 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             "PollenDAO: vote failed"
         );
         require(now >= proposal.executionOpen, "PollenDAO: execution not open");
-        require(now < proposal.executionExpiry, "PollenDAO: execution expired");
+        require(
+            now < proposal.executionExpiry || proposalId == 0,
+            "PollenDAO: execution expired"
+        );
         require(
             proposal.submitter == msg.sender,
             "PollenDAO: only submitter can execute"
         );
 
         IERC20 asset = IERC20(proposal.assetTokenAddress);
+
         (uint256 assetRate, ) = _rateQuoter.quotePrice(proposal.assetTokenAddress);
         (uint256 plnRate, ) = _rateQuoter.quotePrice(_getPollenAddress());
+        // [ETH/PLN] / [ETH/ASSET] = [ASSET/PLN]
+        uint256 rate = plnRate.mul(1e4).div(assetRate);
 
         if (proposal.proposalType == ProposalType.Invest) {
-            // Rate = ASSET/ETH / PLN/ETH = ASSET/PLN
-            uint256 rate = assetRate.div(plnRate);
-            uint256 assetTokenAmount = proposal.pollenAmount.mul(rate);
+            // [PLN] * [ASSET/PLN] = [ASSET]
+            uint256 assetTokenAmount = proposal.pollenAmount.mul(rate).div(1e4);
             if (proposal.assetTokenAmount > assetTokenAmount) {
                 assetTokenAmount = proposal.assetTokenAmount;
             }
@@ -353,9 +358,9 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
             emit Executed(proposalId, assetTokenAmount);
         }
         else if (proposal.proposalType == ProposalType.Divest) {
-            // Rate = PLN/ETH / ASSET/ETH = PLN/ASSET
-            uint256 rate = plnRate.div(assetRate);
-            uint256 pollenAmount = proposal.assetTokenAmount.mul(rate);
+            // [ASSET] / [ASSET/PLN] = PLN
+            uint256 pollenAmount = proposal.assetTokenAmount.mul(1e4).div(rate);
+
             if (proposal.pollenAmount > pollenAmount) {
                 pollenAmount = proposal.pollenAmount;
             }

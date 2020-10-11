@@ -33,14 +33,14 @@ interface IRateQuoter {
      * @notice Initializes the contract and sets the token name and symbol.
      * Registers the deployer as the contract `owner`. Can be called once only.
      */
-    function initialize(PriceFeed[] memory priceFeeds) external;
+    function initialize() external;
 
     /**
      * @dev Return the latest price of the given asset against ETH
      * from a highest priority possible feed, direct quote (ETH/asset), default decimals
      * (it reverts if the rate is older then the RATE_DELAY_MAX_SECS)
      */
-    function quotePrice(address asset) external returns (uint256 rate, uint256 timestamp);
+    function quotePrice(address asset) external returns (uint256 rate, uint256 updatedAt);
 
     /**
     * @dev

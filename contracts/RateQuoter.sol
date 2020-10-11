@@ -28,28 +28,25 @@ contract RateQuoter is Initializable, OwnableUpgradeSafe, IRateQuoter {
     mapping (address => PriceFeed) private _feeds;
 
     /// @inheritdoc IRateQuoter
-    function initialize(PriceFeed[] memory priceFeeds) external override initializer {
+    function initialize() external override initializer {
         __Ownable_init();
-        for(uint256 i=0; i<priceFeeds.length; i++) {
-            _addPriceFeed(priceFeeds[i]);
-        }
     }
 
     /// @inheritdoc IRateQuoter
-    function quotePrice(address asset) external override returns (uint256 rate, uint256 timestamp) {
+    function quotePrice(address asset) external override returns (uint256 rate, uint256 updatedAt) {
         // TODO: handle decimals, quote type (direct/indirect)
         // TODO: make it revert if the rate is older then the RATE_DELAY_MAX_SECS)
         // TODO: handle USD rates for some assets
         PriceFeed memory priceFeed = _feeds[asset];
-        (, int256 answer, , uint256 updatedAt, ) = IAggregatorV3(priceFeed.feed).latestRoundData();
-        uint256 standardizedRate = priceFeed.decimals == RATE_DECIMALS
+        ( , int256 answer, , uint256 _updatedAt, ) = IAggregatorV3(priceFeed.feed).latestRoundData();
+        updatedAt = _updatedAt;
+        rate = priceFeed.decimals == RATE_DECIMALS
             ? uint256(answer)
             : (
                 RATE_DECIMALS > priceFeed.decimals
                     ? uint256(answer).mul(10 ** uint256(RATE_DECIMALS - priceFeed.decimals))
                     : uint256(answer).div(10 ** uint256(priceFeed.decimals - RATE_DECIMALS))
             );
-        return (standardizedRate, updatedAt);
     }
 
     /// @inheritdoc IRateQuoter
