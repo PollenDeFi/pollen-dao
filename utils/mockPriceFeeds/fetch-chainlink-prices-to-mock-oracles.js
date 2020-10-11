@@ -15,13 +15,13 @@
  */
 
 const Web3 = require("web3");
-const axios = require("axios");
 const {
     PriceFeed,
     priceFeeds: { getFeeds: getSrcFeeds },
     MockPriceFeed,
     mockPriceFeeds: { getFeeds: getDstFeeds }
 } = require("./lib/chainlink");
+const getPrice = require("./lib/uniswap/getPrice");
 const { toStringifiedBN } = require("./lib/web3")
 
 const { log } = console;
@@ -83,7 +83,7 @@ async function updateMockPriceFeeds({ srcNames, srcNetwork, srcWeb3, dstNetwork,
         (promiseChain, srcName) => promiseChain.then(async () => {
             const srcFeed = new PriceFeed(getSrcFeeds(srcName, srcNetwork)[0], srcWeb3);
             const dstFeed = new MockPriceFeed(getDstFeeds(srcName, srcNetwork, dstNetwork)[0], dstWeb3);
-            return updateMockPriceFeed(srcFeed, dstFeed)
+            return updateMockPriceFeed(srcFeed, dstFeed);
         }),
         Promise.resolve(),
     );
@@ -95,56 +95,6 @@ async function continuouslyUpdateMockPriceFeeds(options, intervalSeconds) {
         await (new Promise((res) => setTimeout(() => res(), 1000 * intervalSeconds)));
     }
 }
-
-async function getPrice(baseToken, quoteToken) {
-    const url =
-      "https://api.thegraph.com/subgraphs/name/pollendefi/uniswap-v2-ropsten";
-    const query = `
-    {
-      pairs(
-        where: {
-          token0: "${quoteToken.toLowerCase()}"
-          token1: "${baseToken.toLowerCase()}"
-        }
-      ) {
-        token0Price
-      }
-    }
-  `;
-    const queryInverse = `
-    {
-      pairs(
-        where: {
-          token0: "${baseToken.toLowerCase()}"
-          token1: "${quoteToken.toLowerCase()}"
-        }
-      ) {
-        token1Price
-      }
-    }
-  `;
-    const { data } = await axios({
-      url,
-      method: "post",
-      data: {
-        query,
-      },
-    });
-  
-    const { data: dataInverse } = await axios({
-      url,
-      method: "post",
-      data: {
-        query: queryInverse,
-      },
-    });
-  
-    return (
-      Number(data.data.pairs[0]?.token0Price) ||
-      Number(dataInverse.data.pairs[0]?.token1Price) ||
-      0
-    );
-  };
 
 async function updateMockPriceFeed(srcFeed, dstFeed) {
     const { roundId, updatedAt } = await srcFeed.readLatest();
