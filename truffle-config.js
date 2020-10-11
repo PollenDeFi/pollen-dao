@@ -14,21 +14,19 @@ module.exports = {
       network_id: "2020",
       gas: 5500000,
       contracts: {           // expected addresses (for migration/test scripts)
-        // proxyAdmin: "0xD4972b38764069257C0c5bD2832C15cE8Db7a601",
-        // proxies: {
-        //   Pollen: "0xaE3f84D4111c7A456f267BbF2d304f24E8fb0435",
-        //   PollenDAO: "0xB308a174c87B83f03763106C4d6cF4D37FA70D34",
-        //   RateQuoter: "",
-        //   MockPriceOracle: { },
-        //   MockAssetToken: {},
-        // },
-        // implementations: {
-        //   Pollen: "0x00D9ddc02A52C5FbFb2fb9615CD4C4Cd8940E5Ad",
-        //   PollenDAO: "0xE36f5cF652a91048F903E4F074afeAedBd8287f4",
-        //   RateQuoter: "",
-        //   MockPriceOracle: "",
-        //   MockAssetToken: "",
-        // }
+        proxyAdmin: "0xD4972b38764069257C0c5bD2832C15cE8Db7a601",
+        proxies: {
+          Pollen: "0xaE3f84D4111c7A456f267BbF2d304f24E8fb0435",
+          PollenDAO: "0xB308a174c87B83f03763106C4d6cF4D37FA70D34",
+          RateQuoter: "0x98A9Ccb26096728a2a0161C6AF54ce4B2Ea1c5F4",
+        },
+        implementations: {
+          Pollen: "0x00D9ddc02A52C5FbFb2fb9615CD4C4Cd8940E5Ad",
+          PollenDAO: "0xE36f5cF652a91048F903E4F074afeAedBd8287f4",
+          RateQuoter: "0x4fc3D94c0B52723610864Fd21AE121403975E8A5",
+          MockPriceOracle: "0xcCD9C9c3BBf5939423909e9F8EC86a5d3F5f1198",
+          MockAssetToken: "0xd6855115e271e03cc99Ed2F33a6707C8775279a0",
+        }
       },
     },
 
@@ -82,8 +80,8 @@ module.exports = {
         },
         implementations: {
           Pollen: "0xbef545Ec09386B1aB34e84C48e7CD431678190Dd",
-          PollenDAO: "0x7E24c571F77B3332Bc016B241d3B9bF1FF2C02f7",
-          RateQuoter: "0x7e379c463fc08d2c6ed39a260a14312db9a49503",
+          PollenDAO: "0x42244Dc2de066Fe68cbc4dddE419fC6742021c62",
+          RateQuoter: "0xf14Be41Db357f7a60FeDd6e06200342a2b8bD1C3",
           MockPriceOracle: "0xF95E66Dd3eEc8f545090C16398b78ceD0C0004af",
           MockAssetToken: "0x4C675e60fC345bAe480BDD2bfA276D9fF1bC05AB",
         }
