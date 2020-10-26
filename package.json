@@ -2,7 +2,7 @@
   "name": "pollen-dao",
   "version": "1.0.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "All Contributors (see AUTHORS.md)",
   "main": "truffle-config.js",
   "repository": "git@gitlab.com:audacity-dao/investment-fund-dao.git",
