@@ -7,5 +7,6 @@ export const Artifacts = {
     PollenDAO: artifacts.require('IPollenDAO'),
     "PollenDAO-Implementation": artifacts.require('PollenDAO_v1'),
     Pollen: artifacts.require("IPollen"),
-    AssetToken: artifacts.require("MockERC20")
+    AssetToken: artifacts.require("MockERC20"),
+    RateQuoter: artifacts.require("RateQuoter"),
 };

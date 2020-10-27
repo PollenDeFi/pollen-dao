@@ -115,6 +115,11 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         _;
     }
 
+    modifier revertZeroAddress(address _address) {
+        require(_address != address(0), "PollenDAO: invalid token address");
+        _;
+    }
+
     /**
     * @notice Initializer deploys a new Pollen instance and becomes owner of Pollen token (public)
     * @param pollen Address ot the Pollen token contract instance
@@ -237,11 +242,10 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         uint256 assetTokenAmount,
         uint256 pollenAmount,
         string memory descriptionCid
-    ) external override {
+    ) external override revertZeroAddress(assetTokenAddress) {
         // TODO: validate IPFS CID format for descriptionCid
         require(proposalType < ProposalType.Last, "PollenDAO: invalid proposal type");
         require(assetTokenType < TokenType.Last, "PollenDAO: invalid asset type");
-        _revertZeroAddress(assetTokenAddress);
         require(_assets.contains(assetTokenAddress), "PollenDAO: unsupported asset");
         require(
             assetTokenAddress != _getPollenAddress(),
@@ -407,16 +411,14 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
     }
 
     /// @inheritdoc IPollenDAO
-    function addAsset(address asset) external override onlyOwner {
-        _revertZeroAddress(asset);
+    function addAsset(address asset) external override onlyOwner revertZeroAddress(asset) {
         require(!_assets.contains(asset), "PollenDAO: already added");
         require(_assets.add(asset));
         emit assetAdded(asset);
     }
 
     /// @inheritdoc IPollenDAO
-    function removeAsset(address asset) external override onlyOwner {
-        _revertZeroAddress(asset);
+    function removeAsset(address asset) external override onlyOwner revertZeroAddress(asset) {
         require(_assets.contains(asset), "PollenDAO: unknown asset");
         require(IERC20(asset).balanceOf(address(this)) == 0, "PollenDAO: asset has balance");
         require(_assets.remove(asset));
@@ -507,9 +509,5 @@ contract PollenDAO_v1 is Initializable, ReentrancyGuardUpgradeSafe, IPollenDAO {
         }
 
         emit VotedOn(proposalId, voter, vote);
-    }
-
-    function _revertZeroAddress(address _address) private pure {
-        require(_address != address(0), "PollenDAO: invalid token address");
     }
 }

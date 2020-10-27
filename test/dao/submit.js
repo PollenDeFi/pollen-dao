@@ -5,26 +5,31 @@ import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
 import { getProxy } from '../helpers/oz-sdk';
 import { ProposalType, TokenType, ProposalStatus, address0, Artifacts } from './consts';
 
+const { addresses } = process.__userNamespace__.instances;
+
 contract('proposal submission', function ([deployer, bob, alice]) {
     before(async function () {
         const [{ address: daoAddress }]= await getProxy("PollenDAO");
         this.dao = await Artifacts.PollenDAO.at(daoAddress);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
+        this.assetToken = await Artifacts.AssetToken.at(addresses.MockAssetToken);
+        this.rateQuoter = await Artifacts.RateQuoter.at(addresses.RateQuoter);
 
-        this.assetToken = await Artifacts.AssetToken.new('Artifacts.AssetToken', 'AST');
-        await this.assetToken.mint(deployer, 999, { from: deployer });
-
-        await this.dao.addAsset(this.assetToken.address, { from: deployer });
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
-
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         await time.increaseTo(proposal.executionOpen);
 
-        await this.assetToken.approve(this.dao.address, 2, { from: deployer });
+        const {rate: pollenRate} = await this.rateQuoter.quotePrice.call(this.pollen.address);
+        const {rate: assetTokenRate} = await this.rateQuoter.quotePrice.call(this.assetToken.address);
+        const assetTokenAmount = (pollenRate.mul(new BN('1000000')).div(assetTokenRate)).mul(new BN('100')).div(new BN('1000000'));
+
+        await this.assetToken.approve(this.dao.address, assetTokenAmount, { from: deployer });
+        
         await this.dao.execute(0, { from: deployer });
+        expect(await this.assetToken.balanceOf(this.dao.address)).to.be.bignumber.equal(assetTokenAmount);
         await this.pollen.transfer(bob, 100, { from: deployer });
     });
 
