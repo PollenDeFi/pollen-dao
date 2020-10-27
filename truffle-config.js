@@ -24,8 +24,6 @@ module.exports = {
           Pollen: "0x00D9ddc02A52C5FbFb2fb9615CD4C4Cd8940E5Ad",
           PollenDAO: "0xE36f5cF652a91048F903E4F074afeAedBd8287f4",
           RateQuoter: "0x4fc3D94c0B52723610864Fd21AE121403975E8A5",
-          MockPriceOracle: "0xcCD9C9c3BBf5939423909e9F8EC86a5d3F5f1198",
-          MockAssetToken: "0xd6855115e271e03cc99Ed2F33a6707C8775279a0",
         }
       },
     },

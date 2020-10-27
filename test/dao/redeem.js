@@ -5,19 +5,17 @@ import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
 import { getProxy } from '../helpers/oz-sdk';
 import { ProposalType, TokenType, Artifacts } from './consts';
 
+const { addresses } = process.__userNamespace__.instances;
+
 contract('redeeming Pollens', function ([deployer, bob]) {
     before(async function () {
         const [{ address: daoAddress }]= await getProxy("PollenDAO");
         this.dao = await Artifacts.PollenDAO.at(daoAddress);
         const pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(pollenAddress);
-
-        this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
-        await this.dao.addAsset(this.assetToken.address);
-        await this.assetToken.mint(deployer, 999, { from: deployer });
-        this.assetToken2 = await Artifacts.AssetToken.new('AssetToken2', 'AST2', { from: bob });
-        await this.dao.addAsset(this.assetToken2.address);
-        await this.assetToken2.mint(bob, 99, { from: bob });
+        this.assetToken = await Artifacts.AssetToken.at(addresses.MockAssetToken);
+        this.assetToken2 = await Artifacts.AssetToken.at(addresses.MockAssetToken2);
+        this.rateQuoter = await Artifacts.RateQuoter.at(addresses.RateQuoter);
 
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
 
@@ -27,9 +25,15 @@ contract('redeeming Pollens', function ([deployer, bob]) {
 
         await time.increaseTo(proposal.executionOpen);
 
-        await this.assetToken.approve(this.dao.address, 2, { from: deployer });
+        const {rate: pollenRate} = await this.rateQuoter.quotePrice.call(this.pollen.address);
+        const {rate: assetTokenRate} = await this.rateQuoter.quotePrice.call(this.assetToken.address);
+        const assetTokenAmount = (pollenRate.mul(new BN('1000000')).div(assetTokenRate)).mul(new BN('100')).div(new BN('1000000'));
+
+        await this.assetToken.approve(this.dao.address, assetTokenAmount, { from: deployer });
         await this.dao.execute(0, { from: deployer });
+        
         await this.pollen.transfer(bob, 100, { from: deployer });
+        await this.assetToken2.transfer(bob, 10, { from: deployer});
 
         await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken2.address, 10, 2, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: bob });
         proposalId = 1;
@@ -40,7 +44,8 @@ contract('redeeming Pollens', function ([deployer, bob]) {
         expect(await this.pollen.totalSupply()).to.be.bignumber.equal(new BN(100));
         expect(await this.pollen.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
         expect(await this.pollen.balanceOf(bob)).to.be.bignumber.equal(new BN(100));
-        expect(await this.assetToken.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(2));
+        expect(await this.assetToken.balanceOf(this.dao.address)).to.be.bignumber.equal(assetTokenAmount);
+        expect(await this.assetToken2.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
     });
 
     beforeEach(async function () {
@@ -114,11 +119,15 @@ contract('redeeming Pollens', function ([deployer, bob]) {
 
     describe('when holding multiple assets', function () {
         before(async function () {
-            await this.assetToken2.approve(this.dao.address, 10, { from: bob });
+            const {rate: pollenRate} = await this.rateQuoter.quotePrice.call(this.pollen.address);
+            const {rate: assetTokenRate} = await this.rateQuoter.quotePrice.call(this.assetToken2.address);
+            const assetTokenAmount = (pollenRate.mul(new BN('1000000')).div(assetTokenRate)).mul(new BN('2')).div(new BN('1000000'));
+
+            await this.assetToken2.approve(this.dao.address, assetTokenAmount, { from: bob });
             await this.dao.execute(1, { from: bob });
             expect(await this.pollen.totalSupply()).to.be.bignumber.equal(new BN(102));
             expect(await this.pollen.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
-            expect(await this.assetToken2.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(10));
+            expect(await this.assetToken2.balanceOf(this.dao.address)).to.be.bignumber.equal(assetTokenAmount);
         });
 
         beforeEach(async function () {

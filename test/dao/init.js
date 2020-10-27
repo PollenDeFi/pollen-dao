@@ -1,9 +1,11 @@
 /* global after, afterEach, artifacts, before, beforeEach, contract, describe, it, web3 */
 import { expect } from 'chai';
-import { expectEvent, expectRevert, time } from '@openzeppelin/test-helpers';
+import { expectEvent, expectRevert, time, BN } from '@openzeppelin/test-helpers';
 import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
 import { getProxy } from '../helpers/oz-sdk';
 import { Artifacts, ProposalType, TokenType, ProposalStatus } from './consts';
+
+const { addresses } = process.__userNamespace__.instances;
 
 contract('DAO contract instantiation', function ([deployer]) {
     before(async function () {
@@ -11,21 +13,23 @@ contract('DAO contract instantiation', function ([deployer]) {
         this.dao = await Artifacts.PollenDAO.at(daoAddress);
         this.pollenAddress = await this.dao.getPollenAddress();
         this.pollen = await Artifacts.Pollen.at(this.pollenAddress);
-
+        this.assetToken = await Artifacts.AssetToken.at(addresses.MockAssetToken);
+        this.assetToken2 = await Artifacts.AssetToken.at(addresses.MockAssetToken2);
+        this.rateQuoter = await Artifacts.RateQuoter.at(addresses.RateQuoter);
         this.tempDao = await Artifacts["PollenDAO-Implementation"].new();
 
-        this.assetToken = await Artifacts.AssetToken.new('AssetToken', 'AST');
-        await this.dao.addAsset(this.assetToken.address);
-        await this.assetToken.mint(deployer, 999, { from: deployer });
-
-        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC');
+        await this.dao.submit(ProposalType.Invest, TokenType.ERC20, this.assetToken.address, 2, 100, 'QmUpbbXcmpcXvfnKGSLocCZGTh3Qr8vnHxW5o8heRG6wDC', { from: deployer });
 
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
 
         await time.increaseTo(proposal.executionOpen);
 
-        await this.assetToken.approve(this.dao.address, 2);
+        const {rate: pollenRate} = await this.rateQuoter.quotePrice.call(this.pollen.address);
+        const {rate: assetTokenRate} = await this.rateQuoter.quotePrice.call(this.assetToken.address);
+        const assetTokenAmount = (pollenRate.mul(new BN('1000000')).div(assetTokenRate)).mul(new BN('100')).div(new BN('1000000'));
+
+        await this.assetToken.approve(this.dao.address, assetTokenAmount);
         const receipt = await this.dao.execute(0);
         expectEvent(
             receipt,
@@ -84,18 +88,18 @@ contract('DAO contract instantiation', function ([deployer]) {
         expect(version).to.be.equal("v1");
     });
 
-    it('should have executed proposal 0 and received 2 asset tokens and minted and sent 100 Pollens', async function () {
+    it('should have executed proposal 0 and received 400 asset tokens and minted and sent 100 Pollens', async function () {
         const proposalId = 0;
         const proposal = _.merge(await this.dao.getProposalData(proposalId), await this.dao.getProposalTimestamps(proposalId));
         expect(proposal.status).to.be.bignumber.equal(ProposalStatus.Executed);
         const assetTokenBalance = await this.assetToken.balanceOf(this.dao.address);
-        expect(assetTokenBalance).to.be.bignumber.equal('2');
+        expect(assetTokenBalance).to.be.bignumber.equal('400');
         let pollenBalance;
         pollenBalance = await this.pollen.balanceOf(this.dao.address);
         expect(pollenBalance).to.be.bignumber.equal('0');
         pollenBalance = await this.pollen.balanceOf(deployer);
         expect(pollenBalance).to.be.bignumber.equal('100');
         const assets = await this.dao.getAssets();
-        expect(assets).to.be.eql([this.assetToken.address]);
+        expect(assets).to.be.eql([this.assetToken.address, this.assetToken2.address]);
     });
 });

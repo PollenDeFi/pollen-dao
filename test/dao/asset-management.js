@@ -5,6 +5,8 @@ import { createSnapshot, revertToSnapshot } from '../helpers/blockchain';
 import { getProxy } from '../helpers/oz-sdk';
 import { address0, Artifacts } from './consts';
 
+const { addresses } = process.__userNamespace__.instances;
+
 contract('asset management', function ([deployer, bob]) {
     before(async function () {
         const [{ address: daoAddress }]= await getProxy("PollenDAO");
@@ -25,13 +27,13 @@ contract('asset management', function ([deployer, bob]) {
     it('deployer should be able to add assets', async function () {
         let assets;
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2]);
         await this.dao.addAsset(this.assetToken0.address, { from: deployer });
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([this.assetToken0.address]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, this.assetToken0.address]);
         await this.dao.addAsset(this.assetToken1.address, { from: deployer });
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([this.assetToken0.address, this.assetToken1.address]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, this.assetToken0.address, this.assetToken1.address]);
     });
 
     it('deployer should not be able to add invalid assets', async function () {
@@ -59,20 +61,26 @@ contract('asset management', function ([deployer, bob]) {
     it('deployer should be able to remove existing assets', async function () {
         let assets;
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2]);
         await this.dao.addAsset(this.assetToken0.address);
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([this.assetToken0.address]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, this.assetToken0.address]);
         await this.dao.addAsset(this.assetToken1.address);
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([this.assetToken0.address,this.assetToken1.address]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, this.assetToken0.address,this.assetToken1.address]);
 
         await this.dao.removeAsset(this.assetToken1.address);
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([this.assetToken0.address, address0]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, this.assetToken0.address, address0]);
         await this.dao.removeAsset(this.assetToken0.address);
         assets = await this.dao.getAssets();
-        expect(assets).to.deep.equal([address0, address0]);
+        expect(assets).to.deep.equal([addresses.MockAssetToken, addresses.MockAssetToken2, address0, address0]);
+        await this.dao.removeAsset(addresses.MockAssetToken2);
+        assets = await this.dao.getAssets();
+        expect(assets).to.deep.equal([addresses.MockAssetToken, address0, address0, address0]);
+        await this.dao.removeAsset(addresses.MockAssetToken);
+        assets = await this.dao.getAssets();
+        expect(assets).to.deep.equal([address0, address0, address0, address0]);
     });
 
     it('deployer should not be able to remove invalid assets', async function () {
