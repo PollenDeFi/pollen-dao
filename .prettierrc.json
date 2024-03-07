@@ -1,0 +1,26 @@
+{
+  "overrides": [
+    {
+      "files": "*.sol",
+      "options": {
+        "tabWidth": 4,
+        "useTabs": false,
+        "singleQuote": false,
+        "bracketSpacing": false,
+        "explicitTypes": "always",
+        "max_line_length": 120
+      }
+    },
+    {
+      "files": ["*.ts", "*.json"],
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false,
+        "singleQuote": true,
+        "bracketSpacing": true,
+        "printWidth": 120,
+        "trailingComma": "none"
+      }
+    }
+  ]
+}

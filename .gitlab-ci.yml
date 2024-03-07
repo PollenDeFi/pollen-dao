@@ -1,6 +1,18 @@
-truffle-test:
-  image: node:12.18.3
-  stage: test
+image: node:14.17.3
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - node_modules/
+
+pipeline:
   script:
-    - npm install
-    - npm run test:ci
+      - npm install
+      - npx eslint . --ext .ts
+      - npx solhint 'contracts/**/*.sol'
+      - npm run build
+      - npx hardhat test
+  only:
+    changes:
+      - contracts/*
+      - test/*

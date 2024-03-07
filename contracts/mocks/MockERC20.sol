@@ -1,23 +1,17 @@
-// SPDX-License-Identifier: MIT
-pragma solidity >=0.6 <0.7.0;
+/// SPDX-License-Identifier: GNU General Public License v3.0
 
-import "@openzeppelin/contracts-ethereum-package/contracts/presets/ERC20PresetMinterPauser.sol";
+pragma solidity 0.8.4;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-/**
- * @title MockERC20
- * @dev A mock ERC20 token
- * @author gtlewis
- * @author scorpion9979
- */
-contract MockERC20 is ERC20PresetMinterPauserUpgradeSafe {
+/// @title MockERC20
+/// @notice This mock of an ERC20 token for testing purposes
 
-    constructor(string memory name, string memory symbol) public {
-        initialize(name, symbol);
-    }
+contract MockERC20 is ERC20 {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
 
-    /// @dev the caller must have the `MINTER_ROLE`
-    function mint(uint256 amount) public {
-        super.mint(msg.sender, amount);
+    /// mints `amount` to `to`
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
     }
 }

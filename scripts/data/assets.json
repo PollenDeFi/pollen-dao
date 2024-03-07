@@ -1,0 +1,464 @@
+{
+  "localhost": [
+    {
+      "symbol": "BAT",
+      "address": "0x951b61FC6d63b4c85204822c356F83A178FAFB59",
+      "feed": "0x031dB56e01f82f20803059331DC6bEe9b17F7fC9"
+    },
+    {
+      "symbol": "BNB",
+      "address": "0xC5997d0BF168db3D675f2E81F4dbac36dFc00e1D",
+      "feed": "0xcf0f51ca2cDAecb464eeE4227f5295F2384F84ED"
+    },
+    {
+      "symbol": "LINK",
+      "address": "0x52DB1037B4a7A231A72e73d7c36b06c753C4cBe0",
+      "feed": "0xd8bD0a1cB028a31AA859A21A3758685a95dE4623"
+    }
+  ],
+  "rinkeby": [
+    {
+      "symbol": "USDC",
+      "address": "0xb25492e3AEe2930b5E05497c3143Fa59c3C3dc49",
+      "feed": "0xa24de01df22b63d23Ebc1882a5E3d4ec0d907bFB"
+    },
+    {
+      "symbol": "ATOM",
+      "address": "0xe99E69c01c6Ea495A75b83287f96872375248224",
+      "feed": "0x3539F2E214d8BC7E611056383323aC6D1b01943c"
+    },
+    {
+      "symbol": "BAT",
+      "address": "0xbf7a7169562078c96f0ec1a8afd6ae50f12e5a99",
+      "feed": "0x031dB56e01f82f20803059331DC6bEe9b17F7fC9"
+    },
+    {
+      "symbol": "BNB",
+      "address": "0x030b0a08eCaDdE5Ac33859a48d87416946C966A1",
+      "feed": "0xcf0f51ca2cDAecb464eeE4227f5295F2384F84ED"
+    },
+    {
+      "symbol": "DAI",
+      "address": "0x81047144C790c0C1c31Db6264d78B0ae33065b13",
+      "feed": "0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF"
+    },
+    {
+      "symbol": "LINK",
+      "address": "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
+      "feed": "0xd8bD0a1cB028a31AA859A21A3758685a95dE4623"
+    },
+    {
+      "symbol": "REP",
+      "address": "0xC03FcC7938069781304364E4fB8b35df335019dd",
+      "feed": "0x9331b55D9830EF609A2aBCfAc0FBCE050A52fdEa"
+    },
+    {
+      "symbol": "SNX",
+      "address": "0x6815b9d687afd4E07FFb9A489cAc153B2a5e24D5",
+      "feed": "0xE96C4407597CD507002dF88ff6E0008AB41266Ee"
+    },
+    {
+      "symbol": "sCEX",
+      "address": "0xBF053422f241e0Fc478Fa282AC98c3f2dCCF119a",
+      "feed": "0x1a602D4928faF0A153A520f58B332f9CAFF320f7"
+    },
+    {
+      "symbol": "sDEFI",
+      "address": "0x03799f3e79D72F66F4EFbd94a7B933d31275f2b5",
+      "feed": "0x0630521aC362bc7A19a4eE44b57cE72Ea34AD01c"
+    },
+    {
+      "symbol": "WBTC",
+      "address": "0xe276fC3f35D1117a9948E3FB5aCC8B63c8EbFb81",
+      "feed": "0xECe365B379E1dD183B20fc5f022230C044d51404"
+    },
+    {
+      "symbol": "WETH",
+      "address": "0xA617707735851D19740827D821234815b967668D",
+      "feed": "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e"
+    },
+    {
+      "symbol": "WLTC",
+      "address": "0xA376A43CEfD12bb15Ba3Ece30d59E74F48bDF44d",
+      "feed": "0x4d38a35C2D87976F334c2d2379b535F1D461D9B4"
+    }
+  ],
+  "kovan": [
+    {
+      "symbol": "USDT",
+      "address": "0x5FeB6CB75877Ce8e4973277D90a67aEE30E4778b",
+      "feed": "0x2ca5A90D34cA333661083F89D831f757A9A50148"
+    },
+    {
+      "symbol": "BAT",
+      "address": "0xe99E69c01c6Ea495A75b83287f96872375248224",
+      "feed": "0x8e67A0CFfbbF6A346ce87DFe06daE2dc782b3219"
+    },
+    {
+      "symbol": "BNB",
+      "address": "0xa36085F69e2889c224210F603D836748e7dC0088",
+      "feed": "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0"
+    },
+    {
+      "symbol": "COMP",
+      "address": "0x81047144C790c0C1c31Db6264d78B0ae33065b13",
+      "feed": "0xECF93D14d25E02bA2C13698eeDca9aA98348EFb6"
+    },
+    {
+      "symbol": "DAI",
+      "address": "0x34c2C0BdBcfc4c885D4B28D1238639CFa7568BAC",
+      "feed": "0x777A68032a88E5A84678A77Af2CD65A7b3c0775a"
+    },
+    {
+      "symbol": "KRW",
+      "address": "0xC03FcC7938069781304364E4fB8b35df335019dd",
+      "feed": "0x9e465c5499023675051517E9Ee5f4C334D91e369"
+    },
+    {
+      "symbol": "LINK",
+      "address": "0x482dC9bB08111CB875109B075A40881E48aE02Cd",
+      "feed": "0x8e67A0CFfbbF6A346ce87DFe06daE2dc782b3219"
+    },
+    {
+      "symbol": "REP",
+      "address": "0xb25492e3AEe2930b5E05497c3143Fa59c3C3dc49",
+      "feed": "0x8f4e77806EFEC092A279AC6A49e129e560B4210E"
+    },
+    {
+      "symbol": "SNX",
+      "address": "0xBF053422f241e0Fc478Fa282AC98c3f2dCCF119a",
+      "feed": "0x31f93DA9823d737b7E44bdee0DF389Fe62Fd1AcD"
+    },
+    {
+      "symbol": "UNI",
+      "address": "0x03799f3e79D72F66F4EFbd94a7B933d31275f2b5",
+      "feed": "0xDA5904BdBfB4EF12a3955aEcA103F51dc87c7C39"
+    },
+    {
+      "symbol": "USDC",
+      "address": "0x8a573fc75892f21181dE519BbB4bF7F356d7336D",
+      "feed": "0x9211c6b3BF41A10F78539810Cf5c64e1BB78Ec60"
+    },
+    {
+      "symbol": "sCEX",
+      "address": "0x69F046D2a38bBf1e061C990188Ba06D9c1323eF3",
+      "feed": "0xA85646318D20C684f6251097d24A6e74Fe1ED5eB"
+    },
+    {
+      "symbol": "sDEFI",
+      "address": "0x042f1a7266fA495E21BFD0532e30547F7B8Eb217",
+      "feed": "0x70179FB2F3A0a5b7FfB36a235599De440B0922ea"
+    },
+    {
+      "symbol": "WBTC",
+      "address": "0x2241fD746d69ff5a269FAca7FdD5892114d7e81b",
+      "feed": "0x6135b13325bfC4B00278B4abC5e20bbce2D6580e"
+    },
+    {
+      "symbol": "WETH",
+      "address": "0x9C094eB28F5bd88B697F3d5e4c08D9f086BaA1a2",
+      "feed": "0x9326BFA02ADD2366b30bacB125260Af641031331"
+    },
+    {
+      "symbol": "WLTC",
+      "address": "0xC31B2014586Ec42771C578196F88E0F41e3E071A",
+      "feed": "0xCeE03CF92C7fFC1Bad8EAA572d69a4b61b6D4640"
+    },
+    {
+      "symbol": "XRP",
+      "address": "0x31ff41C488eE3672301a21520D79EaBd55a6a4fa",
+      "feed": "0x3eA2b7e3ed9EA9120c3d6699240d1ff2184AC8b3"
+    }
+  ],
+  "fuji": [
+    {
+      "name": "Tether",
+      "symbol": "USDT",
+      "address": "0x9C094eB28F5bd88B697F3d5e4c08D9f086BaA1a2",
+      "feed": "0x7898AcCC83587C3C55116c5230C17a6Cd9C71bad"
+    },
+    {
+      "name": "Avalanche",
+      "symbol": "AVAX",
+      "address": "0x2241fD746d69ff5a269FAca7FdD5892114d7e81b",
+      "feed": "0x5498BB86BC934c8D34FDA08E81D444153d0D06aD"
+    },
+    {
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "address": "0x31ff41C488eE3672301a21520D79EaBd55a6a4fa",
+      "feed": "0x31CF013A08c6Ac228C94551d535d5BAfE19c602a"
+    },
+    {
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "address": "0xF8Ab28093C19d2c4f96247140175C6395763b868",
+      "feed": "0x86d67c3D38D2bCeE722E601025C25a575021c6EA"
+    },
+    {
+      "name": "Chainlink",
+      "symbol": "LINK",
+      "address": "0xC31B2014586Ec42771C578196F88E0F41e3E071A",
+      "feed": "0x34C4c526902d88a3Aa98DB8a9b802603EB1E3470"
+    },
+    {
+      "name": "Binance Coin",
+      "symbol": "BNB",
+      "address": "0xca151EE3a9e715c4e4328294C4b4356e50228910",
+      "feed": "0x2F7855702cD58488051f9BAB732680fc202698D7",
+      "coinid": "1839"
+    },
+    {
+      "name": "Aave Token",
+      "symbol": "AAVE",
+      "address": "0x61eca9CA4a91C7E5941b3078E560373dB58F532a",
+      "feed": "0x7f2dd059887c2013Cb0EC0C2AF28B33d6F88fa2a",
+      "coinid": "7278"
+    },
+    {
+      "name": "Curve DAO Token",
+      "symbol": "CRV",
+      "address": "0x93AAeBabf17b41a06fF71eE13F74ddcE8c755130",
+      "feed": "0xbeE8bCD45c112fd4e74155103EA7624c86A555a5",
+      "coinid": "6538"
+    },
+    {
+      "name": "Graph Token",
+      "symbol": "GRT",
+      "address": "0x471F8896E1CF7B444a2259CcB8776cf4c953Bd7c",
+      "feed": "0x23d0340A67843dA399F61971fB201dd5d754876d",
+      "coinid": "6719"
+    },
+    {
+      "name": "SushiToken",
+      "symbol": "SUSHI",
+      "address": "0xB4dA91DcBc69c288841f026D48cc5dB80e717315",
+      "feed": "0x99490B8dc21ea80a5F24470718a8203925b2a8b8",
+      "coinid": "6758"
+    },
+    {
+      "name": "yearn.finance",
+      "symbol": "YFI",
+      "address": "0x2029f537eb712b58439840D138e5fA5c03FbB5eD",
+      "feed": "0x79b3822455a2A5BbEDd8dE81694A2Ae9203d30E0",
+      "coinid": "5864"
+    },
+    {
+      "name": "Alpha Finance",
+      "symbol": "ALPHA",
+      "address": "0x591B51B63787F8C2a106D046811E579e56Cd07F2",
+      "feed": "0xfeEEE8DCF97B164a53D8B4EF861BCa4771d20e70",
+      "coinid": "7232"
+    },
+    {
+      "name": "Frax Share",
+      "symbol": "FXS",
+      "address": "0x4c58ABFae6b048199dDC9654f47cE0F775471E93",
+      "feed": "0x4d0da0FC741A933D8013B8A5911d083f9900937d",
+      "coinid": "6953"
+    },
+    {
+      "name": "Wonderland",
+      "symbol": "TIME",
+      "address": "0x7c5ADA54226A1FFB75e16353768F9beb83C80e6b",
+      "feed": "0x26679cf40860800d4932D1c237d74E78cEA0cEa5",
+      "coinid": "11585"
+    },
+    {
+      "name": "Spell Token",
+      "symbol": "SPELL",
+      "address": "0xa34c4E8F6581F64669f7958C26b32f3D3F1c0Bb7",
+      "feed": "0xEd10F86A45fc917B4315d155d948488873839E4F",
+      "coinid": "11289"
+    },
+    {
+      "name": "JoeToken",
+      "symbol": "JOE",
+      "address": "0xcb31Be7dd890c2d1aA8544ace60787afdf0A3997",
+      "feed": "0x7593354AbDBa8D89E4179C1F9c5fC42FADC3d709",
+      "coinid": "11396"
+    },
+    {
+      "name": "Platypus",
+      "symbol": "PTP",
+      "address": "0x2142b2881941457d5481a6751FEE7f17d549cAA5",
+      "feed": "0x4dce7C7601fD141B688dfCC43b9c2e372073b6b4",
+      "coinid": "16231"
+    },
+    {
+      "name": "Avalaunch",
+      "symbol": "XAVA",
+      "address": "0xb69d6fC1717cDe5D0845F804A1ad1b3E9ec9fD49",
+      "feed": "0xde3A7624F0EF0a7DBbAa75cbE732da949C8b0231",
+      "coinid": "9797"
+    },
+    {
+      "name": "Kyber Network",
+      "symbol": "KNC",
+      "address": "0x96532da23E6d2e85F9F9A9d00893328cBf544545",
+      "feed": "0x095D48e564d189333287A01b37be796f885b8516",
+      "coinid": "9444"
+    },
+    {
+      "name": "BENQI",
+      "symbol": "QI",
+      "address": "0x469423a22301FdE79983CA03cAad80d1072F6A2D",
+      "feed": "0x6BceDEf93c118f07855E328e55BBdB635e7a857F",
+      "coinid": "9288"
+    },
+    {
+      "name": "Pangolin",
+      "symbol": "PNG",
+      "address": "0x371C30F138e87E70EE83600A687aBabBF8eee997",
+      "feed": "0x02f3627E606703A7e8c151b27e5cc52daFB8c8E4",
+      "coinid": "8422"
+    },
+    {
+      "name": "Roco Finance",
+      "symbol": "ROCO",
+      "address": "0xc40aFDdff4b613B227Ddd0A273276697B1aA57d6",
+      "feed": "0x00EF85E1E638D9F0c7935E6874fD42e7Bc8099Da",
+      "coinid": "12653"
+    },
+    {
+      "name": "Growth Defi",
+      "symbol": "GRO",
+      "address": "0xbd5731acc86342E214345e65F875038404Ff41b9",
+      "feed": "0x18B20Dd315EDA3E442FA2308B7246f854787199d",
+      "coinid": "6718"
+    },
+    {
+      "name": "Talecraft",
+      "symbol": "CRAFT",
+      "address": "0x8Cff675d51E0Cb0318c8858b96aa00a57835d726",
+      "feed": "0xBAe86Bb952E4e6A550CAA32B1c4bE186f4f23CEF",
+      "coinid": "13871"
+    },
+    {
+      "name": "CRA",
+      "symbol": "Crabada",
+      "address": "0x75af877E4574678ef6d3BCb031ac37AD3A152c93",
+      "feed": "0x2B6A39bd2e6d5FDb8c24f81F47CECE88EbeEECEd",
+      "coinid": "13655"
+    },
+    {
+      "name": "Reef.finance",
+      "symbol": "REEF",
+      "address": "0x106baA4e35aaEdE531a9779C0e5046BD7Cb262c8",
+      "feed": "0xb2585950d58bD8fB6837C107Bd5E247A78Ef9a49",
+      "coinid": "6951"
+    }
+  ],
+  "avalanche": [
+    {
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+      "feed": "0xEBE676ee90Fe1112671f19b6B7459bC678B67e8a"
+    },
+    {
+      "name": "Aave Token",
+      "symbol": "AAVE",
+      "address": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9",
+      "feed": "0x3CA13391E9fb38a75330fb28f8cc2eB3D9ceceED"
+    },
+    {
+      "name": "Alpha Finance",
+      "symbol": "ALPHA",
+      "address": "0x2147EFFF675e4A4eE1C2f918d181cDBd7a8E208f",
+      "feed": "0x7B0ca9A6D03FE0467A31Ca850f5bcA51e027B3aF"
+    },
+    {
+      "name": "Avalanche",
+      "symbol": "AVAX",
+      "address": "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+      "feed": "0x0A77230d17318075983913bC2145DB16C7366156"
+    },
+    {
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "address": "0x50b7545627a5162F82A992c33b87aDc75187B218",
+      "feed": "0x2779D32d5166BAaa2B2b658333bA7e6Ec0C65743"
+    },
+    {
+      "name": "Curve DAO Token",
+      "symbol": "CRV",
+      "address": "0x249848BeCA43aC405b8102Ec90Dd5F22CA513c06",
+      "feed": "0x7CF8A6090A9053B01F3DF4D4e6CfEdd8c90d9027"
+    },
+    {
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+      "feed": "0x976B3D034E162d8bD72D6b9C989d545b839003b0"
+    },
+    {
+      "name": "Frax Share",
+      "symbol": "FXS",
+      "address": "0x214DB107654fF987AD859F34125307783fC8e387",
+      "feed": "0x12Af94c3716bbf339Aa26BfD927DDdE63B27D50C"
+    },
+    {
+      "name": "JoeToken",
+      "symbol": "JOE",
+      "address": "0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd",
+      "feed": "0x02D35d3a8aC3e1626d3eE09A78Dd87286F5E8e3a"
+    },
+    {
+      "name": "Kyber Network",
+      "symbol": "KNC",
+      "address": "0x39fC9e94Caeacb435842FADeDeCB783589F50f5f",
+      "feed": "0x9df2195dc96e6Ef983B1aAC275649F3f28F82Aa1"
+    },
+    {
+      "name": "Chainlink",
+      "symbol": "LINK",
+      "address": "0x5947BB275c521040051D82396192181b413227A3",
+      "feed": "0x49ccd9ca821EfEab2b98c60dC60F518E765EDe9a"
+    },
+    {
+      "name": "BENQI",
+      "symbol": "QI",
+      "address": "0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5",
+      "feed": "0x36E039e6391A5E7A7267650979fdf613f659be5D"
+    },
+    {
+      "name": "Spell Token",
+      "symbol": "SPELL",
+      "address": "0xCE1bFFBD5374Dac86a2893119683F4911a2F7814",
+      "feed": "0x4F3ddF9378a4865cf4f28BE51E10AECb83B7daeE"
+    },
+    {
+      "name": "SushiToken",
+      "symbol": "SUSHI",
+      "address": "0x37B608519F91f70F2EeB0e5Ed9AF4061722e4F76",
+      "feed": "0x449A373A090d8A1e5F74c63Ef831Ceff39E94563"
+    },
+    {
+      "name": "Uniswap",
+      "symbol": "UNI",
+      "address": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+      "feed": "0x9a1372f9b1B71B3A5a72E092AE67E172dBd7Daaa"
+    },
+    {
+      "name": "Avalaunch",
+      "symbol": "XAVA",
+      "address": "0xd1c3f94DE7e5B45fa4eDBBA472491a9f4B166FC4",
+      "feed": "0x4Cf57DC9028187b9DAaF773c8ecA941036989238"
+    },
+    {
+      "name": "yearn.finance",
+      "symbol": "YFI",
+      "address": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+      "feed": "0x28043B1Ebd41860B93EC1F1eC19560760B6dB556"
+    }
+  ],
+  "mumbai": [
+    {
+      "name": "USDT",
+      "symbol": "USDT",
+      "address": "0x1fdE0eCc619726f4cD597887C9F3b4c8740e19e2",
+      "feed": "0x92C09849638959196E976289418e5973CC96d645"
+    }
+  ]
+}

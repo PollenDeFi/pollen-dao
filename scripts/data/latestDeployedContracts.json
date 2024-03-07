@@ -1,0 +1,35 @@
+{
+    "localhost": {
+        "pollenToken": "0xC117ef5e9D5C0A1444a7d0c0F21D99C2422FC236",
+        "pollenDAOImplementation": "0xa991C1684d7B21b03c4b069f805C2a2dc861bbfF",
+        "governanceImplementation": "0x59CDF0687973F91752dE319cA8d28A4a21D10940",
+        "portfolioImplementation": "0xA8ACbE4dba7D263691C7C49CE65079797cf0A4dE",
+        "quoterImplementation": "0x944B532aE12DdbBcA9c14CFe803daB9257FC43De",
+        "minterImplementation": "0xE23e4c029b504fa0064D37707d9E3c0dB30D92CB"
+    },
+    "rinkeby": {
+        "pollenToken": "0x3141f51de7d7FaeAD078452Fe038F5742E0d01a9",
+        "pollenDAOProxy": "0xBD63386f0388861367359e1BaEbe44430CCaa62D",
+        "pollenDAOImplementation": "0x7bFae53305ec15ac7C256Cc00034C0C9a2FA414d",
+        "addressWhitelistImplementation": "0xB470B027981c821f2CAe31C28A367821773A2165",
+        "portfolioImplementation": "0x7D5E9F7a3E874a6a3DaF4B91eb6450bD89F55983",
+        "delegationImplementation": "0x0587C7d4544b74292e9a820e9B3c941BC2b5Ca53",
+        "quoterImplementation": "0x77C4D132389DAD64e30C6c32a400986A96e67cDb"
+    },
+    "fuji": {
+        "pollenToken": "0x6398a453F057a7c6b672166033dc19d7331E69D7",
+        "vePLN": "0xcACE68663da769267aCd0c4B947Bd6c2A5e73D1b",
+        "pollenDAOImplementation": "0xfEd58cf05046C415e68dE80C969a3811Db3B98E9",
+        "governanceImplementation": "0xA764D157143913f8879055DA61801fDd38b3B1a4",
+        "portfolioImplementation": "0xCce1270930011E95003a2031F83e7f0367126c7e",
+        "quoterImplementation": "0x5600a6E938cCC85a7F18eC3e5c8eB8fFc8b77ED8",
+        "minterImplementation": "0xe415Bdb54f30306c28dab5b44B10692CB2c8BCd7"
+    },
+    "hardhat": {
+        "pollenToken": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        "pollenDAOImplementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "portfolioImplementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+        "quoterImplementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+        "minterImplementation": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+    }
+}

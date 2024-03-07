@@ -1,11 +1,14 @@
-node_modules/
-ganache-log.txt
+node_modules
 .env
-abi
-# OpenZeppelin
-.openzeppelin/.session
-.openzeppelin/dev-*.json
-build
-
-# IDE
+cache
+artifacts
+coverage
+coverage.json
+assets/.DS_Store
+typechain
+.DS_Store
+abis
+.openzeppelin
 .idea
+abi
+*.py

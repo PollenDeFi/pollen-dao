@@ -1,0 +1,7 @@
+“Vampire Clause” Licence Condition v1.0
+The Software is provided to you by the Licensor under the Licence, as defined below, subject to the following condition.
+Without limiting other conditions in the Licence, the grant of rights under the Licence will not include, and the Licence does not grant to you, the right to deploy any code related to this Software on mainnet and to compete with the Licensor.
+For purposes of the foregoing, “Mainnet” means deploying the software on any tier 1 or 2 blockchain’s main network or any private blockchain network. “Compete” means allowing others to interact with the mainnet deployed smart contracts without the permission of the Licensor. Any licence notice or attribution required by the Licence must also include this Vampire Clause Add-On Licence Condition notice. Any modules which are deployed on Mainnet and are registered and exclusively used through the DAOs which were created by the DAO factories from the Licensor are excluded from the Vampire Clause.
+Software: pollen-dao-v3
+Licence: Apache 2.0 - https://www.apache.org/licenses/LICENSE-2.0.txt
+Licensor: Pollen DAO Inc

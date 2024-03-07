@@ -1,3 +1,0 @@
-[submodule "artifacts"]
-	path = artifacts
-	url = git@gitlab.com:audacity-dao/investment-fund-dao-artifacts.git
