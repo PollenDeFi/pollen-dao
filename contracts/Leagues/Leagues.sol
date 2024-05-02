@@ -42,10 +42,10 @@ contract Leagues is ERC1155SupplyUpgradeable {
     /// @notice intializer for the upgradeable contract
     /// @param uri_ uri for the ERC1155 token
     /// @param plnAddress address of the pollen token contract
-    function initialize(
-        string memory uri_,
-        address plnAddress
-    ) external initializer {
+    function initialize(string memory uri_, address plnAddress)
+        external
+        initializer
+    {
         pln = IERC20(plnAddress);
         __ERC1155_init(uri_);
     }
@@ -104,6 +104,7 @@ contract Leagues is ERC1155SupplyUpgradeable {
     //         emit Invited(users[i], id);
     //     }
     // }
+
     /// @notice whitelisted users can join a league
     /// @param id league id that the user will join
     function joinLeague(uint256 id) external payable {

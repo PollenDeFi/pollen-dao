@@ -26,21 +26,33 @@ function selectors(instance: BaseContract): string[] {
 }
 
 module.exports = async (deployer: Deployer): Promise<void> => {
-  // const reserveAddress = await (await deployer.getSigner()).getAddress();
+  const reserveAddress = await (await deployer.getSigner()).getAddress();
 
   const pollenDAO = await deployer.deployed(
     IPollenDAO__factory,
-    // (
-    //   await deployer.deploy(PollenDAO__factory, [], { name: 'PollenDAO' })
-    // ).address
-    '0x75DA25c267a328B6b5c53e019D09ACEDB566c94F'
+    (
+      await deployer.deploy(PollenDAO__factory, [], { name: 'PollenDAO' })
+    ).address
+    // '0x75DA25c267a328B6b5c53e019D09ACEDB566c94F'
   );
 
-  // const pollenToken = await deployer.deploy(PollenToken__factory, [reserveAddress]);
-  const pollenToken = await deployer.deployed(PollenToken__factory, '0x55e2F015f64dDAb807c3DE673cE3074Ae603CCE1');
+  const pollenToken = await deployer.deploy(
+    PollenToken__factory,
+    [reserveAddress]
+  );
+  // const pollenToken = await deployer.deployed(
+  //   PollenToken__factory,
+  //   '0x55e2F015f64dDAb807c3DE673cE3074Ae603CCE1'
+  // );
 
-  // const lockedPollen = await deployer.deploy(LockedPollen__factory, [pollenDAO.address, pollenToken.address]);
-  const lockedPollen = await deployer.deployed(LockedPollen__factory, '0xA7c7a51f4cA7a27C669D7248f98f544Bd08beA80');
+  const lockedPollen = await deployer.deploy(
+    LockedPollen__factory,
+    [pollenDAO.address, pollenToken.address]
+  );
+  // const lockedPollen = await deployer.deployed(
+  //   LockedPollen__factory,
+  //   '0xA7c7a51f4cA7a27C669D7248f98f544Bd08beA80'
+  // );
 
   const governance = await deployer.deploy(Governance__factory);
   const portfolio = await deployer.deploy(Portfolio__factory);
@@ -54,11 +66,10 @@ module.exports = async (deployer: Deployer): Promise<void> => {
   await pollenDAO.addModule(minter.address, selectors(minter));
   // await pollenDAO.addModule(bridge.address, selectors(bridge));
 
-  // await pollenDAO.setPollenTokens(pollenToken.address, lockedPollen.address);
+  await pollenDAO.setPollenTokens(pollenToken.address, lockedPollen.address);
+  await pollenToken.setDaoAddress(pollenDAO.address);
 
-  // await pollenToken.setDaoAddress(pollenDAO.address);
-
-  const assetData = assetsByNetwork['mumbai'];
+  const assetData = assetsByNetwork['baseSepolia'];
   const assets = assetData.map((asset) => asset.address);
   const feeds = assetData.map((asset) => asset.feed);
   const rateBases = new Array<number>(assets.length).fill(0);
@@ -88,14 +99,7 @@ module.exports = async (deployer: Deployer): Promise<void> => {
   await pollenDAO.setTimeLock(604800);
 
   // await pollenDAO.createBenchMarkPortfolio([0, 0, 0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  await pollenDAO.createBenchMarkPortfolio([100]);
-
-  // // sepolia
-  // const senderChainId = 10106;
-  // const sender = '0xD3e0FA6C4cc081E84f37a0f9EBa5De0C5E7A8F6C';
-  // // mumbai
-  // const receiverLzGateway = '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8';
-  // await pollenDAO.setBridgeReceiverStorage(senderChainId, sender, receiverLzGateway);
+  await pollenDAO.createBenchMarkPortfolio([0, 0, 0, 100, 0]);
 
   Reporter.reportContracts(
     ['PollenDAO', pollenDAO.address],
@@ -108,3 +112,5 @@ module.exports = async (deployer: Deployer): Promise<void> => {
     // ['BridgeReceiver', bridge.address]
   );
 };
+
+// npx hardhat migrate --network baseSepolia --verify

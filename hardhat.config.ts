@@ -47,10 +47,11 @@ export default {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      initialBaseFeePerGas: 0 // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
-      // forking: {
-      //   url: 'https://api.avax.network/ext/bc/C/rpc'
-      // }
+      // initialBaseFeePerGas: 0 // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
+      forking: {
+        url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`,
+        accounts: privateKey(),
+      }
     },
     localhost: {
       url: 'http://127.0.0.1:8545'
@@ -106,7 +107,12 @@ export default {
     snowtrace: {
       url: 'https://api.avax.network/ext/bc/C/rpc',
       accounts: privateKey()
-    }
+    },
+    baseSepolia: {
+      url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`,
+      accounts: privateKey(),
+      gasMultiplier: 1.1
+    },
   },
   contractSizer: {
     alphaSort: true,
@@ -134,7 +140,7 @@ export default {
   },
   migrate: {
     pathToMigrations: './deploy/',
-    only: 2
+    only: 5
   },
   etherscan: {
     apiKey: {
@@ -149,7 +155,8 @@ export default {
       avalanche: `${process.env.AVALANCHE_KEY}`,
       snowtrace: `${process.env.AVALANCHE_KEY}`,
       arbitrumGoerli: `${process.env.ETHERSCAN_KEY}`,
-      arbitrumSepolia: `${process.env.ETHERSCAN_KEY}`
+      arbitrumSepolia: `${process.env.ETHERSCAN_KEY}`,
+      baseSepolia: `${process.env.BASE_KEY}`
     },
     customChains: [
       {

@@ -460,5 +460,37 @@
       "address": "0x1fdE0eCc619726f4cD597887C9F3b4c8740e19e2",
       "feed": "0x92C09849638959196E976289418e5973CC96d645"
     }
+  ],
+  "baseSepolia": [
+    {
+      "name": "WBTC",
+      "symbol": "WBTC",
+      "address": "0x9bf058e1edc025770cceb47196278ce0f59f85da",
+      "feed": "0x0FB99723Aee6f420beAD13e6bBB79b7E6F034298"
+    },
+    {
+      "name": "DAI",
+      "symbol": "DAI",
+      "address": "0xf1318a938d4bcf1bb018425174726c41c4652f4a",
+      "feed": "0xD1092a65338d049DB68D7Be6bD89d17a0929945e"
+    },
+    {
+      "name": "ETH",
+      "symbol": "ETH",
+      "address": "0x999b45bb215209e567faf486515af43b8353e393",
+      "feed": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1"
+    },
+    {
+      "name": "LINK",
+      "symbol": "LINK",
+      "address": "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+      "feed": "0xb113F5A928BCfF189C998ab20d753a47F9dE5A61"
+    },
+    {
+      "name": "USDT",
+      "symbol": "USDT",
+      "address": "0x74d8f222d3b8c173c24ad188f6b538159ee0f270",
+      "feed": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f"
+    }
   ]
 }
